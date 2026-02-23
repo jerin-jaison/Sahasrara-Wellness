@@ -1,0 +1,195 @@
+{% extends "base_site.html" %}
+{% load static %}
+
+{% block title %}Our Services — Sahasrara Wellness{% endblock %}
+
+{% block extra_css %}
+.services-hero {
+height: 50vh;
+background: linear-gradient(to bottom, rgba(8, 8, 8, 0.4), var(--dark-depth)),
+url('{% static "bg-2.jpg" %}') no-repeat center center/cover;
+display: flex;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding-top: 100px;
+}
+
+.service-card {
+background: var(--dark-surface);
+border: 1px solid var(--border-subtle);
+border-radius: 30px;
+padding: 0;
+height: 100%;
+transition: all 0.4s var(--ease);
+overflow: hidden;
+}
+
+.service-card:hover {
+border-color: var(--gold);
+transform: translateY(-10px);
+}
+
+.service-image {
+height: 250px;
+width: 100%;
+object-fit: cover;
+filter: brightness(0.7) contrast(1.1);
+}
+
+.service-info {
+padding: 30px;
+}
+
+.duration-toggle {
+background: rgba(255, 255, 255, 0.05);
+border-radius: 50px;
+padding: 5px;
+display: inline-flex;
+margin-bottom: 25px;
+border: 1px solid var(--border-subtle);
+}
+
+.duration-btn {
+padding: 8px 20px;
+border-radius: 50px;
+border: none;
+background: transparent;
+color: rgba(255, 255, 255, 0.6);
+font-size: 0.9rem;
+font-weight: 600;
+transition: all 0.3s;
+}
+
+.duration-btn.active {
+background: var(--gold-gradient);
+color: #000;
+}
+
+.price-display {
+font-size: 2rem;
+color: var(--gold);
+font-weight: 700;
+margin-bottom: 20px;
+}
+
+.benefits-list {
+list-style: none;
+padding: 0;
+margin: 0 0 30px;
+text-align: left;
+}
+
+.benefits-list li {
+margin-bottom: 12px;
+color: rgba(255, 255, 255, 0.8);
+display: flex;
+align-items: flex-start;
+gap: 12px;
+}
+
+.benefits-list i {
+color: var(--gold);
+margin-top: 4px;
+}
+{% endblock %}
+
+{% block content %}
+<section class="services-hero">
+    <div class="container">
+        <div class="hero-subtitle" data-aos="fade-up">Curated Treatments</div>
+        <h1 class="display-3 fw-bold garamond" data-aos="fade-up" data-aos-delay="100">Our Wellness Menu</h1>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row g-5">
+            {% for name, variants in grouped_services.items %}
+            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+                <div class="service-card d-flex flex-column h-100">
+                    {% with first=variants.0 %}
+                    <img src="{% if first.image %}{{ first.image.url }}{% else %}{% static 'bg-2.jpg' %}{% endif %}"
+                        alt="{{ name }}" class="service-image">
+
+                    <div class="service-info d-flex flex-column flex-grow-1">
+                        <h2 class="garamond display-6 text-gold mb-3">{{ name }}</h2>
+                        <p class="text-white-50 mb-4">{{ first.description }}</p>
+
+                        <div class="mt-auto">
+                            <!-- Duration Toggle -->
+                            <div class="duration-toggle" id="toggle-{{ forloop.counter }}">
+                                {% for variant in variants %}
+                                <button class="duration-btn {% if forloop.first %}active{% endif %}"
+                                    onclick="updatePrice('{{ forloop.parentloop.counter }}', '{{ variant.duration_minutes }}', '{{ variant.price|floatformat:0 }}', '{% url "
+                                    bookings:step1_branch" %}?service_id={{ variant.id }}')">
+                                    {{ variant.duration_minutes }} Min
+                                </button>
+                                {% endfor %}
+                            </div>
+
+                            <div class="price-display">
+                                ₹<span id="price-{{ forloop.counter }}">{{ first.price|floatformat:0 }}</span>
+                            </div>
+
+                            {% if first.benefits %}
+                            <ul class="benefits-list">
+                                {% for benefit in first.benefits.splitlines %}
+                                {% if benefit %}
+                                <li><i class="bi bi-check2-circle"></i> {{ benefit }}</li>
+                                {% endif %}
+                                {% endfor %}
+                            </ul>
+                            {% endif %}
+
+                            <a href="{% url 'bookings:step1_branch' %}?service_id={{ first.id }}"
+                                id="booking-link-{{ forloop.counter }}"
+                                class="btn-booking py-3 px-5 d-inline-block text-center w-100">
+                                Book This Session
+                            </a>
+                        </div>
+                    </div>
+                    {% endwith %}
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section-padding bg-dark-depth text-center" style="border-top: 1px solid var(--border-subtle);">
+    <div class="container" data-aos="zoom-in">
+        <h2 class="display-5 garamond text-gold mb-4">Unsure Which One to Choose?</h2>
+        <p class="lead text-white-50 mb-5">Our wellness consultants are here to guide you toward the perfect treatment
+            for your needs.</p>
+        <a href="https://wa.me/919747000210?text=I'd%20like%20a%20consultation%20for%20a%20wellness%20service."
+            target="_blank"
+            class="btn btn-outline-gold px-5 py-3 rounded-pill text-white text-decoration-none border-secondary">
+            Get Free Consultation
+        </a>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function updatePrice(groupId, duration, price, bookingUrl) {
+        // Update price display
+        document.getElementById('price-' + groupId).innerText = price;
+
+        // Update booking link
+        document.getElementById('booking-link-' + groupId).href = bookingUrl;
+
+        // Update active button state
+        const toggle = document.getElementById('toggle-' + groupId);
+        const btns = toggle.getElementsByClassName('duration-btn');
+        for (let btn of btns) {
+            if (btn.innerText.includes(duration)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        }
+    }
+</script>
+{% endblock %}

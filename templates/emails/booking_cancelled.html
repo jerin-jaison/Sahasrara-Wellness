@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Booking Cancelled — Sahasrara Wellness</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: #f4f4f0;
+            font-family: 'Helvetica Neue', Arial, sans-serif;
+            color: #1a1a1a;
+        }
+
+        .wrapper {
+            max-width: 580px;
+            margin: 32px auto;
+            background: #fff;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #7a3535 0%, #c05050 100%);
+            padding: 40px 32px;
+            text-align: center;
+        }
+
+        .header h1 {
+            margin: 0;
+            color: #fff;
+            font-size: 22px;
+            font-weight: 600;
+        }
+
+        .header p {
+            margin: 8px 0 0;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 14px;
+        }
+
+        .body {
+            padding: 32px;
+        }
+
+        .reason-box {
+            background: #fff8f8;
+            border: 1px solid #f0d0d0;
+            border-radius: 10px;
+            padding: 16px 20px;
+            margin-bottom: 24px;
+            font-size: 14px;
+        }
+
+        .detail-box {
+            background: #f9faf8;
+            border: 1px solid #e0eae0;
+            border-radius: 12px;
+            padding: 20px 24px;
+            margin-bottom: 24px;
+        }
+
+        .detail-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #edf2ed;
+            font-size: 14px;
+        }
+
+        .detail-row:last-child {
+            border-bottom: none;
+        }
+
+        .detail-label {
+            color: #6b7c6b;
+            font-weight: 500;
+        }
+
+        .detail-value {
+            color: #1a1a1a;
+            font-weight: 600;
+        }
+
+        .info-box {
+            background: #f0f7ff;
+            border: 1px solid #c0d8f0;
+            border-radius: 8px;
+            padding: 14px 18px;
+            font-size: 13px;
+            color: #1a4070;
+        }
+
+        .footer {
+            background: #f9faf8;
+            padding: 20px 32px;
+            text-align: center;
+            font-size: 12px;
+            color: #909090;
+            border-top: 1px solid #edf2ed;
+        }
+
+        .footer a {
+            color: #4a8c63;
+            text-decoration: none;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="wrapper">
+        <div class="header">
+            <div style="font-size:2.5em;margin-bottom:8px">😔</div>
+            <h1>Booking Cancelled</h1>
+            <p>Ref: {{ booking_ref }}</p>
+        </div>
+
+        <div class="body">
+            <p style="font-size:17px;font-weight:500;margin-bottom:16px;">Hi {{ guest_name }},</p>
+            <p style="font-size:14px;color:#444;margin-bottom:20px;">
+                We're sorry to inform you that your booking has been cancelled.
+            </p>
+
+            <div class="reason-box">
+                <strong>Reason:</strong> {{ cancellation_reason }}
+            </div>
+
+            <div class="detail-box">
+                <div class="detail-row">
+                    <span class="detail-label">Service</span>
+                    <span class="detail-value">{{ service_name }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Date</span>
+                    <span class="detail-value">{{ booking_date|date:"D, d M Y" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Time</span>
+                    <span class="detail-value">{{ start_time|time:"g:i A" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="detail-label">Location</span>
+                    <span class="detail-value">{{ branch_name }}</span>
+                </div>
+            </div>
+
+            <div class="info-box">
+                💳 If you paid for this session, a refund will be processed to your original payment method within 5–7
+                business days.
+                For urgent queries, call us at {{ branch_phone }}.
+            </div>
+
+            <p style="font-size:13px;color:#666;margin-top:24px;">
+                We hope to see you again soon. Please visit us to rebook at your convenience.
+            </p>
+        </div>
+
+        <div class="footer">
+            <p>Sahasrara Wellness · {{ branch_name }}</p>
+            <p>Questions? <a href="mailto:{{ support_email }}">{{ support_email }}</a></p>
+        </div>
+    </div>
+</body>
+
+</html>

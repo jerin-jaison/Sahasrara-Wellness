@@ -1,0 +1,115 @@
+{% extends "bookings/base_booking.html" %}
+{% block title %}Choose Time — Sahasrara Wellness{% endblock %}
+
+{% block step_indicator %}
+{% include "components/progress_stepper.html" with step=4 current_step=5 %}
+{% endblock %}
+
+{% block back_url %}{% url 'bookings:step4_date' %}{% endblock %}
+
+{% block content %}
+<div class="booking-title-wrapper">
+    <div class="booking-divider"></div>
+    <h4 class="booking-title text-center">Choose a time</h4>
+    <p class="text-muted small">{{ service.name }} · {{ booking_date|date:"D, d M Y" }}{% if worker %} · {{ worker.name }}{% endif %}</p>
+
+    <a href="{% url 'bookings:step4_date' %}" class="btn-back-stylish">
+        <i class="bi bi-arrow-left"></i> Change Date
+    </a>
+</div>
+
+<div class="premium-card mx-auto" style="max-width: 800px;">
+    {% if not is_branch_open %}
+    <div class="premium-card text-center py-5 mb-4" style="border-color: rgba(220, 53, 69, 0.2);">
+        <i class="bi bi-door-closed-fill text-danger mb-3 d-block" style="font-size: 3rem;"></i>
+        <h5 class="fw-bold text-white">Branch Closed</h5>
+        <p class="text-muted small mb-0 px-4">We are closed on this day. Please pick a different date.</p>
+    </div>
+    {% elif not slots %}
+    <div class="premium-card text-center py-5 mb-4">
+        <i class="bi bi-calendar-x-fill text-muted mb-3 d-block" style="font-size: 3rem;"></i>
+        <h5 class="fw-bold text-white">No Slots Available</h5>
+        <p class="text-muted small mb-0 px-4">All times are fully booked or the therapist is unavailable. Try another
+            date
+            or therapist.</p>
+    </div>
+    {% else %}
+    <div class="branch-hours-pill d-flex justify-content-between align-items-center mb-4">
+        <span class="small text-muted">Branch Hours (Today)</span>
+        <span class="small fw-bold text-gold">{{ branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:iA" }}</span>
+    </div>
+
+    <form method="post" id="slot-form">
+        {% csrf_token %}
+        <input type="hidden" name="start_time" id="selected-start-time">
+
+        <div class="slot-grid-premium">
+            {% for slot in slots %}
+            {% include "components/slot_button.html" with slot=slot selected=False %}
+            {% endfor %}
+        </div>
+
+        {% include "components/sticky_cta.html" with label="Confirm Slot" button_id="continue-btn" %}
+    </form>
+</div>
+{% endif %}
+
+
+<style>
+    .branch-hours-pill {
+        background: rgba(198, 164, 90, 0.05);
+        border: 1px solid var(--border-subtle);
+        border-radius: 12px;
+        padding: 10px 16px;
+    }
+
+    .slot-grid-premium {
+        display: grid;
+        grid-template-columns: repeat(1, 1fr);
+        gap: 2px;
+    }
+
+    @media (min-width: 400px) {
+        .slot-grid-premium {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+        }
+
+        .slot-button-premium {
+            margin-bottom: 0;
+        }
+    }
+
+    .text-gold {
+        color: var(--gold);
+    }
+</style>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function selectSlot(btn) {
+        // Remove selection from all buttons
+        document.querySelectorAll('.slot-button-premium')
+            .forEach(b => b.classList.remove('selected'));
+
+        // Add selection to clicked button
+        btn.classList.add('selected');
+
+        const start = btn.dataset.start;
+        console.log("Slot selected:", start);
+
+        // Populate hidden input
+        const hiddenInput = document.getElementById('selected-start-time');
+        if (hiddenInput) {
+            hiddenInput.value = start;
+        }
+
+        // Enable continue button
+        const confirmBtn = document.getElementById('continue-btn');
+        if (confirmBtn) {
+            confirmBtn.disabled = false;
+        }
+    }
+</script>
+{% endblock %}

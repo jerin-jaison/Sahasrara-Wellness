@@ -1,0 +1,101 @@
+{% extends "dashboard/base.html" %}
+<!-- Sahasrara Bookings List -->
+{% block title %}Bookings{% endblock %}
+{% block page_title %}All Bookings{% endblock %}
+
+{% block content %}
+<form method="GET" id="filterForm">
+    <div class="filter-bar">
+        <div class="form-group">
+            <label class="form-label">Branch</label>
+            <select name="branch_id" class="form-control">
+                <option value="">All branches</option>
+                {% for b in branches %}<option value="{{ b.id }}" {% if request.GET.branch_id == b.id|stringformat:"s" %}selected{% endif %}>{{ b.name }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Status</label>
+            <select name="status" class="form-control">
+                <option value="">All statuses</option>
+                {% for s in status_choices %}<option value="{{ s.0 }}" {% if request.GET.status == s.0 %}selected{% endif %}>{{ s.1 }}</option>{% endfor %}
+            </select>
+        </div>
+        <div class="form-group">
+            <label class="form-label">From</label>
+            <input type="date" name="date_from" class="form-control" value="{{ request.GET.date_from }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">To</label>
+            <input type="date" name="date_to" class="form-control" value="{{ request.GET.date_to }}">
+        </div>
+        <div class="form-group">
+            <label class="form-label">Guest</label>
+            <input type="text" name="q" class="form-control" placeholder="Name or phone…" value="{{ request.GET.q }}">
+        </div>
+        <button type="submit" class="btn btn-gold">Filter</button>
+        <a href="{% url 'dashboard:booking_list' %}" class="btn btn-ghost">Clear</a>
+    </div>
+</form>
+
+<div class="card" style="overflow:hidden;">
+    <div class="card-header">
+        <span class="card-title">All Bookings <span style="font-weight:400;color:var(--text-muted);font-size:13px;">({{ bookings|length }} results)</span></span>
+        <a href="{% url 'dashboard:manual_booking' %}" class="btn btn-gold btn-sm">Manual Booking</a>
+    </div>
+    {% if bookings %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>#</th>
+                    <th>Guest</th>
+                    <th>Service</th>
+                    <th>Therapist</th>
+                    <th>Date</th>
+                    <th>Status</th>
+                    <th>Payment</th>
+                    <th style="padding-right:20px;text-align:right;">Amount</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in bookings %}
+                <tr class="booking-row" style="animation:rowIn 0.22s var(--ease) {{ forloop.counter0 }}0ms both;">
+                    <td style="font-family:monospace;font-size:12px;color:var(--text-muted);">{{ forloop.counter }}</td>
+                    <td>
+                        <div style="font-weight:600;">{{ b.guest.name }}</div>
+                        <div style="font-size:11px;color:var(--text-muted);">{{ b.guest.phone }}</div>
+                    </td>
+                    <td>{{ b.service.name }}</td>
+                    <td>{{ b.worker.name }}</td>
+                    <td style="white-space:nowrap;font-size:13px;">{{ b.booking_date|date:"d M Y" }}<br><span style="color:var(--text-muted);">{{ b.start_time|time:"g:i A" }}</span></td>
+                    <td><span class="badge {{ b.status_badge_class }}">{{ b.get_status_display }}</span></td>
+                    <td><span class="badge {{ b.payment_badge_class }}">{{ b.get_payment_status_display }}</span></td>
+                    <td style="text-align:right;padding-right:20px;font-weight:600;color:var(--gold);">INR {{ b.amount_paid|default:0|floatformat:0 }}</td>
+                    <td><a href="{% url 'dashboard:booking_detail' booking_id=b.id %}" class="btn btn-ghost btn-xs">View</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div style="text-align:center;padding:60px 20px;">
+        <div style="font-size:16px;font-weight:600;color:var(--text-muted);">No bookings found.</div>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+    @keyframes rowIn {
+        from {
+            opacity: 0;
+            transform: translateX(-8px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateX(0);
+        }
+    }
+</style>
+{% endblock %}

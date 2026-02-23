@@ -1,0 +1,92 @@
+{% extends "bookings/base_booking.html" %}
+{% block title %}Select Branch — Sahasrara Wellness{% endblock %}
+{% block back_button %}{% endblock %}
+
+{% block step_indicator %}
+{% include "components/progress_stepper.html" with step=0 current_step=1 %}
+{% endblock %}
+
+{% block content %}
+<div class="booking-title-wrapper">
+    <div class="booking-divider"></div>
+    <h4 class="booking-title text-center">Choose Location</h4>
+    <p class="text-muted small">Select your preferred Sahasrara Wellness center</p>
+</div>
+
+<div class="premium-card mx-auto" style="max-width: 800px;">
+    <form method="post" id="branch-form">
+        {% csrf_token %}
+        <input type="hidden" name="branch_id" id="selected-branch-id">
+
+        <div class="branch-grid">
+            {% for branch in branches %}
+            <div class="premium-card branch-card mb-3 d-flex flex-column gap-2"
+                onclick="selectBranch('{{ branch.id }}')">
+                <div class="d-flex justify-content-between align-items-center">
+                    <h6 class="mb-0 fw-bold text-white">{{ branch.name|cut:"Sahasrara Wellness – " }}</h6>
+                    <div class="indicator">
+                        <i class="bi bi-circle"></i>
+                    </div>
+                </div>
+                <p class="small text-white-50 mb-0"><i class="bi bi-geo-alt"></i> {{ branch.address|truncatechars:40 }}
+                </p>
+                <div class="d-flex gap-2 mt-2">
+                    <span class="badge border border-gold text-gold font-heading px-2 py-1" style="font-size:0.65rem">
+                        <i class="bi bi-clock"></i> {{ branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}
+                    </span>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        {% include "components/sticky_cta.html" with label="Choose Services" button_id="continue-btn" %}
+    </form>
+</div>
+
+<style>
+    .branch-card {
+        cursor: pointer;
+        transition: var(--transition-smooth);
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .branch-card:hover {
+        border-color: var(--gold);
+        background: rgba(198, 164, 90, 0.05);
+    }
+
+    .branch-card.selected {
+        border-color: var(--gold);
+        background: rgba(198, 164, 90, 0.1);
+    }
+
+    .branch-card.selected .indicator i {
+        color: var(--gold);
+    }
+
+    .branch-card.selected .indicator i::before {
+        content: "\f26b";
+    }
+
+    /* bi-check-circle-fill */
+
+    .border-gold {
+        border-color: rgba(198, 164, 90, 0.3) !important;
+    }
+
+    .text-gold {
+        color: var(--gold);
+    }
+</style>
+
+<script>
+    function selectBranch(id) {
+        document.getElementById('selected-branch-id').value = id;
+        document.querySelectorAll('.branch-card').forEach(c => c.classList.remove('selected'));
+        event.currentTarget.classList.add('selected');
+
+        // Auto-scroll or subtle animation
+        document.getElementById('continue-btn').classList.add('glow-animation');
+    }
+</script>
+{% endblock %}

@@ -1,0 +1,109 @@
+{% extends "bookings/base_booking.html" %}
+{% block title %}Select Date — Sahasrara Wellness{% endblock %}
+
+{% block step_indicator %}
+{% include "components/progress_stepper.html" with step=3 current_step=4 %}
+{% endblock %}
+
+{% block back_url %}{% url 'bookings:step3_workers' %}{% endblock %}
+
+{% block content %}
+<div class="booking-title-wrapper">
+    <div class="booking-divider"></div>
+    <h4 class="booking-title text-center">Pick a Date</h4>
+    <p class="text-muted small">{{ service.name }} · {{ branch.name|cut:"Sahasrara Wellness – " }}</p>
+
+    <a href="{% url 'bookings:step3_workers' %}" class="btn-back-stylish">
+        <i class="bi bi-arrow-left"></i> Change Therapist
+    </a>
+</div>
+
+<div class="premium-card mx-auto" style="max-width: 800px;">
+    <div class="branch-info-card-premium mb-4">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small text-muted">Business Hours</span>
+            <span class="badge border border-gold text-white px-2 py-1">{{ branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}</span>
+        </div>
+        <div class="d-flex justify-content-between align-items-start">
+            <span class="small text-muted">Open Days</span>
+            <span class="small text-end fw-medium text-white-50" style="max-width: 60%">{{ working_days_display }}</span>
+        </div>
+    </div>
+
+    <form method="post" id="date-form">
+        {% csrf_token %}
+        <input type="hidden" name="booking_date" id="booking_date" required>
+
+        <div class="mb-4">
+            <label class="form-label small text-white text-uppercase fw-bold text-center w-100"
+                style="letter-spacing:1px">
+                Choose Booking Date
+            </label>
+            <p id="selected-date-display" class="text-center text-gold fw-bold mb-4"
+                style="font-size: 1.2rem; min-height: 1.5rem;"></p>
+
+            <div class="inline-calendar-container">
+                <div id="inline-calendar"></div>
+            </div>
+        </div>
+
+        {% include "components/sticky_cta.html" with label="Find Time Slots" button_id="continue-btn" %}
+    </form>
+</div>
+
+<style>
+    .inline-calendar-container {
+        padding: 10px;
+        background: rgba(255, 255, 255, 0.02);
+        border-radius: 20px;
+        border: 1px solid var(--border-subtle);
+    }
+
+    .branch-info-card-premium {
+        background: rgba(198, 164, 90, 0.05);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .text-gold {
+        color: var(--gold);
+    }
+
+    .border-gold {
+        border-color: rgba(198, 164, 90, 0.3) !important;
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const today = new Date();
+        const tomorrow = new Date();
+        tomorrow.setDate(today.getDate() + 1);
+
+        const fp = flatpickr("#inline-calendar", {
+            inline: true,
+            dateFormat: "Y-m-d",
+            minDate: "today",
+            maxDate: tomorrow,
+            onChange: function (selectedDates, dateStr, instance) {
+                if (dateStr) {
+                    document.getElementById('booking_date').value = dateStr;
+                    document.getElementById('continue-btn').disabled = false;
+                    document.getElementById('continue-btn').classList.add('glow-animation');
+
+                    // Update display
+                    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+                    document.getElementById('selected-date-display').innerText = selectedDates[0].toLocaleDateString(undefined, options);
+                }
+            }
+        });
+
+        // Initially disable continue button
+        const continueBtn = document.getElementById('continue-btn');
+        if (continueBtn) {
+            continueBtn.disabled = true;
+        }
+    });
+</script>
+{% endblock %}

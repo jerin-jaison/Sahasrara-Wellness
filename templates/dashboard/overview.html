@@ -1,0 +1,205 @@
+{% extends "dashboard/base.html" %}
+{% load static %}
+{% block title %}Overview{% endblock %}
+{% block page_title %}Overview{% endblock %}
+
+{% block content %}
+
+<!-- ══ KPI STAT CARDS ═══════════════════════════════════════════════════ -->
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <span class="stat-icon">📅</span>
+            <div class="stat-label">Today's Confirmed</div>
+            <div class="stat-value">{{ kpis.today_confirmed }}</div>
+            <div class="stat-sub">{{ kpis.today_total }} total today</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <span class="stat-icon">⏳</span>
+            <div class="stat-label">Pending Payment</div>
+            <div class="stat-value">{{ kpis.pending_payment }}</div>
+            <div class="stat-sub">awaiting Razorpay</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <span class="stat-icon">📈</span>
+            <div class="stat-label">This Month</div>
+            <div class="stat-value">{{ kpis.month_confirmed }}</div>
+            <div class="stat-sub">confirmed bookings</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <span class="stat-icon">💰</span>
+            <div class="stat-label">Month Revenue</div>
+            <div class="stat-value gold">₹{{ kpis.month_revenue|floatformat:0 }}</div>
+            <div class="stat-sub">this month</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <span class="stat-icon">🏆</span>
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-value gold">₹{{ kpis.total_revenue|floatformat:0 }}</div>
+            <div class="stat-sub">all confirmed</div>
+        </div>
+    </div>
+    <div class="col-6 col-md-4 col-xl-2">
+        <div class="stat-card">
+            <span class="stat-icon">🗓️</span>
+            <div class="stat-label">Next 7 Days</div>
+            <div class="stat-value">{{ upcoming }}</div>
+            <div class="stat-sub">confirmed ahead</div>
+        </div>
+    </div>
+</div>
+
+<!-- ══ REVENUE CHART ════════════════════════════════════════════════════ -->
+<div class="card mb-4">
+    <div class="card-header">
+        <span class="card-title">Monthly Revenue</span>
+        <span style="font-size:12px;color:var(--text-muted);">Last 6 months</span>
+    </div>
+    <canvas id="revenueChart" height="70"></canvas>
+</div>
+
+<!-- ══ TODAY'S SCHEDULE + RECENT ════════════════════════════════════════ -->
+<div class="row g-4">
+
+    <!-- Today's schedule -->
+    <div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <span class="card-title">Today's Schedule</span>
+                <a href="{% url 'dashboard:booking_list' %}?date_from={{ today|date:'Y-m-d' }}&date_to={{ today|date:'Y-m-d' }}"
+                    class="btn btn-ghost btn-sm">View all</a>
+            </div>
+            {% if todays_bookings %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Guest</th>
+                            <th>Service</th>
+                            <th>Therapist</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in todays_bookings %}
+                        <tr>
+                            <td style="font-variant-numeric:tabular-nums;white-space:nowrap;">{{ b.start_time|time:"g:i
+                                A" }}</td>
+                            <td><a href="{% url 'dashboard:booking_detail' booking_id=b.id %}" class="link">{{
+                                    b.guest.name }}</a></td>
+                            <td>{{ b.service.name }}</td>
+                            <td>{{ b.worker.name }}</td>
+                            <td>
+                                {% if b.status == 'CONFIRMED' %}<span class="badge badge-confirmed">Confirmed</span>
+                                {% elif b.status == 'COMPLETED' %}<span class="badge badge-completed">Done</span>
+                                {% elif b.status == 'CANCELLED' %}<span class="badge badge-cancelled">Cancelled</span>
+                                {% else %}<span class="badge badge-pending">{{ b.status }}</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="text-align:center;color:var(--text-muted);padding:36px 0;font-size:14px;">No bookings scheduled
+                for today.</p>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Recent bookings -->
+    <div class="col-12 col-lg-6">
+        <div class="card h-100">
+            <div class="card-header">
+                <span class="card-title">Recent Bookings</span>
+                <a href="{% url 'dashboard:booking_list' %}" class="btn btn-ghost btn-sm">View all</a>
+            </div>
+            {% if recent_bookings %}
+            <div class="table-wrap">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Guest</th>
+                            <th>Service</th>
+                            <th>Date</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for b in recent_bookings %}
+                        <tr>
+                            <td><a href="{% url 'dashboard:booking_detail' booking_id=b.id %}" class="link">
+                                    {{b.guest.name }}</a></td>
+                            <td>{{ b.service.name }}</td>
+                            <td style="white-space:nowrap;">{{ b.booking_date|date:"d M" }}</td>
+                            <td>
+                                {% if b.status == 'CONFIRMED' %}<span class="badge badge-confirmed">Confirmed</span>
+                                {% elif b.status == 'COMPLETED' %}<span class="badge badge-completed">Done</span>
+                                {% elif b.status == 'CANCELLED' %}<span class="badge badge-cancelled">Cancelled</span>
+                                {% elif b.status == 'PENDING_PAYMENT' %}<span class="badge badge-pending">Pending</span>
+                                {% else %}<span class="badge badge-expired">{{ b.status }}</span>{% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% else %}
+            <p style="text-align:center;color:var(--text-muted);padding:36px 0;font-size:14px;">No recent bookings
+                found.
+            </p>
+            {% endif %}
+        </div>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+    (function () {
+        var ctx = document.getElementById('revenueChart').getContext('2d');
+        fetch("{% url 'dashboard:revenue_data' %}")
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                var labels = data.months.map(function (m) { return m.label; });
+                var revenues = data.months.map(function (m) { return m.revenue; });
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            label: 'Revenue (₹)',
+                            data: revenues,
+                            backgroundColor: 'rgba(201,162,39,0.15)',
+                            borderColor: 'rgba(201,162,39,0.8)',
+                            borderWidth: 1.5,
+                            borderRadius: 8,
+                            hoverBackgroundColor: 'rgba(201,162,39,0.28)',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            tooltip: { callbacks: { label: function (c) { return ' ₹' + c.parsed.y.toLocaleString('en-IN'); } } }
+                        },
+                        scales: {
+                            y: { beginAtZero: true, grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { color: '#8A8278' } },
+                            x: { grid: { display: false }, ticks: { color: '#8A8278' } }
+                        }
+                    }
+                });
+            });
+    })();
+</script>
+
+{% endblock %}

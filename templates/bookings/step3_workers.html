@@ -1,0 +1,80 @@
+{% extends "bookings/base_booking.html" %}
+{% block title %}Select Therapist — Sahasrara Wellness{% endblock %}
+
+{% block step_indicator %}
+{% include "components/progress_stepper.html" with step=2 current_step=3 %}
+{% endblock %}
+
+{% block back_url %}{% url 'bookings:step2_services' %}{% endblock %}
+
+{% block content %}
+<div class="booking-title-wrapper">
+    <div class="booking-divider"></div>
+    <h4 class="booking-title text-center">Choose Therapist</h4>
+    <p class="text-muted small">Select your preferred expert for {{ service.name }}</p>
+
+    <a href="{% url 'bookings:step2_services' %}" class="btn-back-stylish">
+        <i class="bi bi-arrow-left"></i> Change Service
+    </a>
+</div>
+
+<div class="premium-card mx-auto" style="max-width: 800px;">
+    <form method="post" id="worker-form">
+        {% csrf_token %}
+        <input type="hidden" name="worker_id" id="selected-worker-id">
+
+        <!-- Any Available Option -->
+        <div class="premium-card worker-card mb-4" id="any-worker-card" onclick="selectWorker('any')">
+            <div class="d-flex align-items-center gap-3">
+                <div class="worker-avatar">
+                    <div class="avatar-placeholder"><i class="bi bi-people-fill"></i></div>
+                </div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-bold text-white">Any Available</h6>
+                    <p class="small text-white-50 mb-0">Faster booking, same quality</p>
+                </div>
+                <div class="selection-indicator">
+                    <i class="bi bi-circle"></i>
+                </div>
+            </div>
+        </div>
+
+        <p class="small fw-bold text-white text-uppercase mb-3" style="letter-spacing: 1px;">Specific Therapists</p>
+
+        <div class="worker-list">
+            {% for w in workers %}
+            {% include "components/worker_card.html" with worker=w selected=False %}
+            {% endfor %}
+        </div>
+
+
+        {% include "components/sticky_cta.html" with label="Pick Date" button_id="continue-btn" %}
+    </form>
+</div>
+
+<script>
+    function selectWorker(id) {
+        document.getElementById('selected-worker-id').value = id;
+        document.querySelectorAll('.worker-card').forEach(c => c.classList.remove('selected'));
+
+        // Find the specific card clicked (accounting for both manual click and eventual auto-selection)
+        const selectedCard = (event && event.currentTarget) ? event.currentTarget : document.getElementById('any-worker-card');
+        selectedCard.classList.add('selected');
+
+        // Update check icons
+        document.querySelectorAll('.selection-indicator i').forEach(i => {
+            i.classList.remove('bi-check-circle-fill', 'gold');
+            i.classList.add('bi-circle');
+        });
+        const indicator = selectedCard.querySelector('.selection-indicator i');
+        indicator.classList.remove('bi-circle');
+        indicator.classList.add('bi-check-circle-fill', 'gold');
+
+        document.getElementById('continue-btn').disabled = false;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('continue-btn').disabled = true;
+    });
+</script>
+{% endblock %}

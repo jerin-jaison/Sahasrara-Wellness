@@ -1,0 +1,64 @@
+{% extends "bookings/base_booking.html" %}
+
+{% block title %}My Bookings — Sahasrara Wellness{% endblock %}
+
+{% block back_url %}/{% endblock %}
+
+{% block content %}
+<div class="booking-title-wrapper">
+    <div class="booking-divider"></div>
+    <h4 class="booking-title text-center">My Indulgences</h4>
+    <p class="text-muted small">Your journey of wellness at Sahasrara</p>
+
+    <a href="/" class="btn-back-stylish">
+        <i class="bi bi-arrow-left"></i> Home
+    </a>
+</div>
+
+<div class="container mx-auto" style="max-width: 800px;">
+
+    {% if not bookings %}
+    <div class="text-center py-5">
+        <i class="bi bi-calendar-x text-muted mb-3 d-block" style="font-size: 3rem;"></i>
+        <h5 class="fw-bold text-white">No Bookings Yet</h5>
+        <p class="text-muted small mb-4">Embrace wellness by booking your first session today.</p>
+        <a href="/" class="btn btn-wellness">Book Now</a>
+    </div>
+    {% else %}
+    <div class="booking-list">
+        {% for b in bookings %}
+        <a href="{% url 'bookings:detail_token' b.access_token %}" class="text-decoration-none">
+            <div class="premium-card mb-3 booking-history-card">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <div>
+                        <h6 class="mb-0 fw-bold text-white">{{ b.service.name }}</h6>
+                        <span class="small text-muted">{{ b.branch.city }}</span>
+                    </div>
+                    {% if b.status == 'CONFIRMED' %}
+                    <span class="badge bg-success-subtle text-success px-2 py-1 rounded-pill"
+                        style="font-size: 0.65rem;">Confirmed</span>
+                    {% elif b.status == 'PENDING_PAYMENT' %}
+                    <span class="badge bg-warning-subtle text-warning px-2 py-1 rounded-pill"
+                        style="font-size: 0.65rem;">Pending Payment</span>
+                    {% else %}
+                    <span class="badge bg-secondary-subtle text-muted px-2 py-1 rounded-pill"
+                        style="font-size: 0.65rem;">{{ b.status|title }}</span>
+                    {% endif %}
+                </div>
+                <div class="d-flex justify-content-between align-items-center">
+                    <div class="small text-white">
+                        <i class="bi bi-calendar3"></i> {{ b.booking_date|date:"d M Y" }} · {{ b.start_time|time:"g:i A" }}
+                    </div>
+                    <i class="bi bi-chevron-right text-gold opacity-50"></i>
+                </div>
+            </div>
+        </a>
+        {% endfor %}
+    </div>
+
+    <div class="mt-4 text-center">
+        <a href="/" class="btn btn-back w-100">Schedule New Session</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

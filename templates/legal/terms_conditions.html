@@ -1,0 +1,80 @@
+{% extends "base_site.html" %}
+
+{% block title %}Terms & Conditions — Sahasrara Wellness{% endblock %}
+
+{% block extra_css %}
+.legal-content {
+line-height: 1.8;
+color: rgba(255, 255, 255, 0.85);
+}
+.legal-content h2 {
+color: var(--gold);
+margin-top: 40px;
+margin-bottom: 20px;
+}
+.legal-content p, .legal-content li {
+margin-bottom: 15px;
+}
+{% endblock %}
+
+{% block content %}
+<section class="section-padding mt-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'pages:home' %}"
+                                class="text-gold text-decoration-none">Home</a></li>
+                        <li class="breadcrumb-item active text-white-50" aria-current="page">Terms & Conditions</li>
+                    </ol>
+                </nav>
+
+                <h1 class="display-4 garamond text-gold mb-5">Terms & Conditions</h1>
+
+                <div class="legal-content">
+                    <p>Last Updated: February 23, 2026</p>
+
+                    <p>Welcome to Sahasrara Wellness. By accessing our website and booking our services, you agree to
+                        comply with and be bound by the following terms and conditions.</p>
+
+                    <h2>1. Booking Rules</h2>
+                    <ul>
+                        <li>All bookings are subject to availability.</li>
+                        <li>Guests are requested to arrive at least 15 minutes prior to their scheduled appointment.
+                        </li>
+                        <li>Late arrivals may result in a shortened treatment time to avoid inconveniencing the next
+                            guest.</li>
+                    </ul>
+
+                    <h2>2. Payments</h2>
+                    <ul>
+                        <li>We require a booking deposit or full payment as specified at the time of booking.</li>
+                        <li>All payments are processed securely via Razorpay.</li>
+                        <li>Prices are subject to change without prior notice, but confirmed bookings will be honored at
+                            the original price.</li>
+                    </ul>
+
+                    <h2>3. Guest Conduct</h2>
+                    <p>We strive to maintain a peaceful and respectful environment. We reserve the right to refuse
+                        service to anyone whose conduct is deemed inappropriate or disruptive to other guests or staff.
+                    </p>
+
+                    <h2>4. Health Considerations</h2>
+                    <p>Please inform our staff of any health conditions, allergies, or injuries that may affect your
+                        treatment. We are not liable for any adverse reactions resulting from undisclosed health
+                        information.</p>
+
+                    <h2>5. Limitation of Liability</h2>
+                    <p>Sahasrara Wellness and its employees shall not be liable for any direct, indirect, or
+                        consequential damages resulting from the use of our services or products.</p>
+
+                    <h2>6. Governing Law</h2>
+                    <p>These terms are governed by the laws of India. Any disputes arising from these terms shall be
+                        subject to the exclusive jurisdiction of the courts in Kerala.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

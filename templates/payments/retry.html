@@ -1,0 +1,75 @@
+{% extends "bookings/base_booking.html" %}
+{% block title %}Payment Not Completed — Sahasrara Wellness{% endblock %}
+
+{% block content %}
+<div class="booking-title-wrapper">
+    <div class="booking-divider"></div>
+    <h4 class="booking-title text-center">Payment Update</h4>
+    <p class="text-muted small">Your session was interrupted</p>
+</div>
+
+<div class="premium-card mx-auto text-center" style="max-width: 550px;">
+    <div class="icon-box-premium mx-auto mb-4" style="width: 64px; height: 64px; font-size: 2rem;">
+        <i class="bi bi-exclamation-triangle"></i>
+    </div>
+
+    <h5 class="text-white fw-bold mb-3">Wait, Your Slot is Still Held!</h5>
+    <p class="text-white-50 mb-4 px-3">
+        The payment process for <span class="text-white fw-bold">{{ booking.service.name }}</span> was not completed,
+        but don't worry—we're still holding your slot for you.
+    </p>
+
+    <div class="summary-item-premium mb-4 text-start">
+        <div class="d-flex align-items-center gap-3">
+            <div class="icon-box-premium small"><i class="bi bi-clock"></i></div>
+            <div>
+                <span class="tiny text-white-50 text-uppercase fw-bold" style="letter-spacing:1px">Time Remaining</span>
+                <div class="text-gold fw-bold">Approx. 10 Minutes</div>
+            </div>
+        </div>
+    </div>
+
+    <form action="{% url 'payments:initiate' booking.id %}" method="get">
+        {% include "components/sticky_cta.html" with label="Try Payment Again" button_id="retry-btn" %}
+    </form>
+
+    <div class="mt-4">
+        <a href="{% url 'bookings:cancel_lock' %}" class="small text-muted text-decoration-none hover-gold"
+            onclick="return confirm('Release this slot and choose another?')">
+            <i class="bi bi-arrow-left-circle"></i> Cancel & Choose Another Slot
+        </a>
+    </div>
+</div>
+
+<style>
+    .summary-item-premium {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .icon-box-premium {
+        background: rgba(198, 164, 90, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold);
+    }
+
+    .icon-box-premium.small {
+        width: 32px;
+        height: 32px;
+        font-size: 1rem;
+    }
+
+    .hover-gold:hover {
+        color: var(--gold) !important;
+    }
+
+    .tiny {
+        font-size: 0.7rem;
+    }
+</style>
+{% endblock %}

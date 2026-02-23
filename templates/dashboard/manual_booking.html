@@ -1,0 +1,148 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Manual Booking{% endblock %}
+{% block page_title %}Create Manual Booking{% endblock %}
+
+{% block content %}
+
+<div class="breadcrumb">
+    <a href="{% url 'dashboard:booking_list' %}">Bookings</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">Manual Booking</span>
+</div>
+
+<div class="row g-0 mb-3">
+    <div class="col-12">
+        <div class="booking-notice"
+            style="background:linear-gradient(90deg,var(--gold-dim),transparent);border-left:3px solid var(--gold);border-radius:0 10px 10px 0;padding:14px 20px;font-size:13.5px;color:var(--text-mid);">
+            💡 Create a booking on behalf of a guest — payment is automatically <strong>waived</strong> and status set
+            to <strong>Confirmed</strong>. A confirmation email is sent instantly.
+        </div>
+    </div>
+</div>
+
+<form method="POST" id="manualBookingForm">
+    {% csrf_token %}
+
+    <!-- Section 1: Guest -->
+    <div class="form-section">
+        <div class="form-section-title">👤 Guest Information</div>
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="form-group mb-0">
+                    <label class="form-label">Full Name *</label>
+                    <input type="text" name="guest_name" class="form-control" required placeholder="Full name"
+                        value="{{ request.POST.guest_name }}">
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="form-group mb-0">
+                    <label class="form-label">Phone *</label>
+                    <input type="tel" name="guest_phone" class="form-control" required placeholder="+91 99999 99999"
+                        value="{{ request.POST.guest_phone }}">
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="form-group mb-0">
+                    <label class="form-label">Email</label>
+                    <input type="email" name="guest_email" class="form-control" placeholder="guest@example.com"
+                        value="{{ request.POST.guest_email }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 2: Booking -->
+    <div class="form-section">
+        <div class="form-section-title">📅 Booking Details</div>
+        <div class="row g-3">
+            <div class="col-12 col-md-4">
+                <div class="form-group mb-0">
+                    <label class="form-label">Branch *</label>
+                    <select name="branch_id" id="branch_sel" class="form-control" required onchange="filterByBranch()">
+                        <option value="">Select branch…</option>
+                        {% for b in branches %}<option value="{{ b.id }}" {% if b.id|stringformat:"s" == post_branch_id%}selected{% endif %} data-city="{{ b.city }}">{{b.name }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="form-group mb-0">
+                    <label class="form-label">Service *</label>
+                    <select name="service_id" id="service_sel" class="form-control" required>
+                        <option value="">Select service…</option>
+                        {% for s in services %}<option value="{{ s.id }}" {% if s.id|stringformat:"s" == post_service_id%}selected{% endif %}data-branches="{% for b in s.branches.all %}{{ b.id }} {% endfor %}">{{ s.name }} ({{s.duration_minutes }} min) — ₹{{ s.price|floatformat:0 }}</option>{% endfor%}
+                    </select>
+                </div>
+            </div>
+            <div class="col-12 col-md-4">
+                <div class="form-group mb-0">
+                    <label class="form-label">Therapist *</label>
+                    <select name="worker_id" id="worker_sel" class="form-control" required>
+                        <option value="">Select therapist…</option>
+                        {% for w in workers %}<option value="{{ w.id }}" {% if w.id|stringformat:"s" == post_worker_id%}selected{% endif %} data-branch="{{ w.branch_id }}">{{ w.name }}</option>{% endfor %}
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 3: Schedule -->
+    <div class="form-section">
+        <div class="form-section-title">🕐 Schedule</div>
+        <div class="row g-3">
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="form-group mb-0">
+                    <label class="form-label">Date *</label>
+                    <input type="date" name="booking_date" class="form-control" required min="{{ today }}"
+                        value="{{ request.POST.booking_date }}">
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-md-3">
+                <div class="form-group mb-0">
+                    <label class="form-label">Start Time *</label>
+                    <input type="time" name="start_time" class="form-control" required
+                        value="{{ request.POST.start_time }}">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Section 4: Notes -->
+    <div class="form-section">
+        <div class="form-section-title">📝 Admin Notes</div>
+        <div class="form-group mb-0">
+            <textarea name="notes" class="form-control" rows="3"
+                placeholder="Internal notes (not visible to guest)…">{{ request.POST.notes }}</textarea>
+        </div>
+    </div>
+
+    <div style="display:flex;gap:12px;flex-wrap:wrap;">
+        <button type="submit" class="btn btn-gold">✅ Create Manual Booking</button>
+        <a href="{% url 'dashboard:booking_list' %}" class="btn btn-ghost">Cancel</a>
+    </div>
+</form>
+
+<script>
+    function filterByBranch() {
+        var branchId = document.getElementById('branch_sel').value;
+        var serviceSel = document.getElementById('service_sel');
+        serviceSel.querySelectorAll('option[data-branches]').forEach(function (o) {
+            var ids = o.dataset.branches.trim().split(/\s+/);
+            o.style.display = (!branchId || ids.includes(branchId)) ? '' : 'none';
+        });
+        if (serviceSel.value) {
+            var cur = serviceSel.querySelector('option[value="' + serviceSel.value + '"]');
+            if (cur && cur.style.display === 'none') serviceSel.value = '';
+        }
+        var workerSel = document.getElementById('worker_sel');
+        workerSel.querySelectorAll('option[data-branch]').forEach(function (o) {
+            o.style.display = (!branchId || o.dataset.branch === branchId) ? '' : 'none';
+        });
+        if (workerSel.value) {
+            var curW = workerSel.querySelector('option[value="' + workerSel.value + '"]');
+            if (curW && curW.style.display === 'none') workerSel.value = '';
+        }
+    }
+    if (document.getElementById('branch_sel').value) filterByBranch();
+</script>
+
+{% endblock %}

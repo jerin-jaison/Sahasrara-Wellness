@@ -1,0 +1,141 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'dashboard:branch_list' %}">Branches</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">{{ title }}</span>
+</div>
+
+<form method="POST">
+    {% csrf_token %}
+
+    <div class="form-section">
+        <div class="form-section-title">Branch Identity</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Branch Name *</label>
+                {{ form.name }}
+                {% if form.name.errors %}<div class="form-error">{{ form.name.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">City</label>
+                {{ form.city }}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Full Address</label>
+            {{ form.address }}
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-section-title">Contact Information</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Phone</label>
+                {{ form.phone }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Email Address</label>
+                {{ form.email }}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Google Maps URL</label>
+            {{ form.google_maps_url }}
+            <div class="form-hint">Paste the full Google Maps share link for this location.</div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-section-title">Operations</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Opening Time</label>
+                {{ form.opening_time }}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Closing Time</label>
+                {{ form.closing_time }}
+            </div>
+        </div>
+        <div class="form-group">
+            <div style="display:flex;justify-content:space-between;align-items:center;">
+                <label class="form-label">Working Days</label>
+                <button type="button" class="btn btn-ghost btn-xs" onclick="selectAllDays()">All Days</button>
+            </div>
+            <div class="working-days-grid">
+                {{ form.working_days }}
+            </div>
+            <div class="form-hint">Selected days will be available for booking.</div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-section-title">Visibility</div>
+        <div class="form-check-wrap">
+            {{ form.is_active }}
+            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                Active — visible to guests in the booking flow
+            </label>
+        </div>
+    </div>
+
+    <style>
+        .working-days-grid ul {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            padding: 0;
+            margin: 10px 0;
+            list-style: none;
+        }
+
+        .working-days-grid li {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 8px 15px;
+            border-radius: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .working-days-grid li:hover {
+            background: rgba(212, 175, 55, 0.1);
+            border-color: var(--gold);
+        }
+
+        .working-days-grid input[type="checkbox"] {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+        }
+
+        .working-days-grid label {
+            cursor: pointer;
+            margin-bottom: 0;
+            font-size: 14px;
+        }
+    </style>
+
+    <script>
+        function selectAllDays() {
+            const checks = document.querySelectorAll('.working-days-grid input[type="checkbox"]');
+            checks.forEach(c => c.checked = true);
+        }
+    </script>
+
+    <div style="display:flex;gap:12px;margin-top:4px;">
+        <button type="submit" class="btn btn-gold">
+            {% if branch %}Save Changes{% else %}Create Branch{% endif %}
+        </button>
+        <a href="{% url 'dashboard:branch_list' %}" class="btn btn-ghost">Cancel</a>
+    </div>
+</form>
+{% endblock %}

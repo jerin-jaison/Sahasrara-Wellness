@@ -1,0 +1,214 @@
+{% extends "bookings/base_booking.html" %}
+{% block title %}Review Booking — Sahasrara Wellness{% endblock %}
+
+{% block step_indicator %}
+{% include "components/progress_stepper.html" with step=6 current_step=7 %}
+{% endblock %}
+
+{% block back_url %}{% url 'bookings:step6_info' %}{% endblock %}
+
+{% block content %}
+<div class="booking-title-wrapper">
+    <div class="booking-divider"></div>
+    <h4 class="booking-title text-center">Confirm Booking</h4>
+    <p class="text-muted small">Please verify your details before we finalize</p>
+
+    <a href="{% url 'bookings:step6_info' %}" class="btn-back-stylish">
+        <i class="bi bi-arrow-left"></i> Edit Details
+    </a>
+</div>
+
+<div class="premium-card mx-auto" style="max-width: 800px;">
+    <div class="review-summary">
+        <!-- Service & Price Card -->
+        <div class="summary-item-premium mb-3">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-box-premium"><i class="bi bi-stars"></i></div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-white">{{ service.name }}</h6>
+                        <span class="small text-white">{{ service.duration_minutes }} Minutes Indulgence</span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="fw-bold text-white" style="font-size: 1.1rem;">₹{{ service.price }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- DateTime Card -->
+        <div class="summary-item-premium mb-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-box-premium"><i class="bi bi-calendar-event"></i></div>
+                <div>
+                    <h6 class="mb-0 fw-bold text-white">{{ booking_date|date:"l, d F Y" }}</h6>
+                    <span class="small text-muted">{{ start_time|time:"g:i A" }} – {{ end_time|time:"g:i A" }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Location & Therapist Card -->
+        <div class="summary-item-premium mb-3">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-box-premium"><i class="bi bi-geo-alt"></i></div>
+                <div class="flex-grow-1">
+                    <h6 class="mb-0 fw-bold text-white">{{ branch.name|cut:"Sahasrara Wellness – " }}</h6>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="small text-muted">Therapist: {% if worker %}{{ worker.name }}{% else %}Any
+                            Available{% endif %}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guest Details Card -->
+        <div class="summary-item-premium mb-4" style="border-style: dashed; border-color: rgba(198, 164, 90, 0.15);">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-box-premium"><i class="bi bi-person-check"></i></div>
+                <div>
+                    <h6 class="mb-0 fw-bold text-white">{{ guest_name }}</h6>
+                    <div class="d-flex flex-column">
+                        <span class="small text-muted">{{ guest_phone }}</span>
+                        {% if guest_email %}<span class="small text-muted">{{ guest_email }}</span>{% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if notes %}
+        <!-- Special Requests Card -->
+        <div class="summary-item-premium mb-4" style="border-color: rgba(198, 164, 90, 0.15);">
+            <div class="d-flex align-items-center gap-3">
+                <div class="icon-box-premium"><i class="bi bi-chat-right-text"></i></div>
+                <div>
+                    <h6 class="mb-0 fw-bold text-white">Special Requests</h6>
+                    <span class="small text-muted">{{ notes }}</span>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Payment Selection -->
+        <div class="mb-4">
+            <label class="form-label small text-white text-uppercase fw-bold mb-3" style="letter-spacing:1px">Payment
+                Options</label>
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="payment-option-card active" data-amount="{{ service.deposit_price }}"
+                        onclick="selectPayment('deposit')" id="opt-deposit">
+                        <div class="option-check"><i class="bi bi-check-circle-fill"></i></div>
+                        <div class="small fw-bold mb-1">10% Deposit</div>
+                        <div class="h5 text-gold mb-0">₹{{ service.deposit_price }}</div>
+                        <div class="tiny text-white-50 mt-1">Pay balance at branch</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="payment-option-card" data-amount="{{ service.price }}" onclick="selectPayment('full')"
+                        id="opt-full">
+                        <div class="option-check"><i class="bi bi-check-circle-fill"></i></div>
+                        <div class="small fw-bold mb-1">Full Amount</div>
+                        <div class="h5 text-gold mb-0">₹{{ service.price }}</div>
+                        <div class="tiny text-white-50 mt-1">One-time payment</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <form method="post" id="confirm-form">
+        {% csrf_token %}
+        <input type="hidden" name="payment_type" id="payment-type-input" value="deposit">
+
+        {% include "components/sticky_cta.html" with label="Pay ₹"|add:service.deposit_price|add:" & Confirm" button_id="continue-btn" %}
+    </form>
+</div>
+
+<style>
+    .summary-item-premium {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .payment-option-card {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 16px;
+        cursor: pointer;
+        position: relative;
+        transition: var(--transition-smooth);
+        text-align: center;
+    }
+
+    .payment-option-card:hover {
+        background: rgba(255, 255, 255, 0.05);
+        border-color: var(--gold);
+    }
+
+    .payment-option-card.active {
+        background: rgba(198, 164, 90, 0.1);
+        border-color: var(--gold);
+        box-shadow: 0 0 15px rgba(198, 164, 90, 0.1);
+    }
+
+    .option-check {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        color: var(--gold);
+        opacity: 0;
+        transform: scale(0.5);
+        transition: var(--transition-smooth);
+    }
+
+    .payment-option-card.active .option-check {
+        opacity: 1;
+        transform: scale(1);
+    }
+
+    .tiny {
+        font-size: 0.65rem;
+    }
+
+    .icon-box-premium {
+        width: 40px;
+        height: 40px;
+        background: rgba(198, 164, 90, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold);
+        font-size: 1.2rem;
+    }
+
+    .text-gold {
+        color: var(--gold);
+    }
+</style>
+
+<script>
+    function selectPayment(type) {
+        // Update input
+        document.getElementById('payment-type-input').value = type;
+
+        // Update UI
+        const activeCard = document.getElementById('opt-' + type);
+        document.querySelectorAll('.payment-option-card').forEach(c => c.classList.remove('active'));
+        activeCard.classList.add('active');
+
+        // Update Button
+        const amount = parseFloat(activeCard.dataset.amount);
+        const btn = document.getElementById('continue-btn');
+        btn.innerHTML = `<span class="glow-txt">Pay ₹${amount.toFixed(2)} & Confirm</span>`;
+    }
+
+    document.getElementById('confirm-form').addEventListener('submit', function () {
+        const btn = document.getElementById('continue-btn');
+        btn.disabled = true;
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Securing Slot...';
+    });
+</script>
+{% endblock %}

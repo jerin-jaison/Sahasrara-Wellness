@@ -1,0 +1,82 @@
+{% extends "base_site.html" %}
+
+{% block title %}Privacy Policy — Sahasrara Wellness{% endblock %}
+
+{% block extra_css %}
+.legal-content {
+line-height: 1.8;
+color: rgba(255, 255, 255, 0.85);
+}
+.legal-content h2 {
+color: var(--gold);
+margin-top: 40px;
+margin-bottom: 20px;
+}
+.legal-content p, .legal-content li {
+margin-bottom: 15px;
+}
+{% endblock %}
+
+{% block content %}
+<section class="section-padding mt-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'pages:home' %}"
+                                class="text-gold text-decoration-none">Home</a></li>
+                        <li class="breadcrumb-item active text-white-50" aria-current="page">Privacy Policy</li>
+                    </ol>
+                </nav>
+
+                <h1 class="display-4 garamond text-gold mb-5">Privacy Policy</h1>
+
+                <div class="legal-content">
+                    <p>Last Updated: February 23, 2026</p>
+
+                    <p>At Sahasrara Wellness, we are committed to protecting your privacy and ensuring that your
+                        personal information is handled in a safe and responsible manner. This policy outlines how we
+                        collect, use, and safeguard your data.</p>
+
+                    <h2>1. Information We Collect</h2>
+                    <p>We collect information that you provide to us directly when you:</p>
+                    <ul>
+                        <li>Book an appointment online.</li>
+                        <li>Contact us via WhatsApp or phone.</li>
+                        <li>Visit our branches.</li>
+                    </ul>
+                    <p>This information may include your name, phone number, email address, and booking history.</p>
+
+                    <h2>2. How We Use Your Information</h2>
+                    <p>We use your information to:</p>
+                    <ul>
+                        <li>Process and confirm your bookings.</li>
+                        <li>Send appointment reminders and updates.</li>
+                        <li>Improve our services and guest experience.</li>
+                        <li>Comply with legal and security requirements.</li>
+                    </ul>
+
+                    <h2>3. Data Security</h2>
+                    <p>We implement a variety of security measures to maintain the safety of your personal information.
+                        Your personal data is contained behind secured networks and is only accessible by a limited
+                        number of persons who have special access rights to such systems.</p>
+
+                    <h2>4. Third-Party Services</h2>
+                    <p>We use Razorpay for payment processing. We do not store your credit card or bank details on our
+                        servers. All payment data is handled by Razorpay in compliance with their privacy and security
+                        standards.</p>
+
+                    <h2>5. Your Rights</h2>
+                    <p>You have the right to access, correct, or request the deletion of your personal information. If
+                        you wish to do so, please contact us at our provided contact details.</p>
+
+                    <h2>6. Contact Us</h2>
+                    <p>If you have any questions about this Privacy Policy, please contact us at <span
+                            class="text-gold">+91 97470 00210</span>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

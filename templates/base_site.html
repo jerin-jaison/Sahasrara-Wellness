@@ -1,0 +1,358 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Sahasrara Wellness — Premium Sanctuary for Relaxation{% endblock %}</title>
+
+    <!-- Foundation -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
+
+    <link rel="shortcut icon" href="{% static 'logo1.jpeg' %}" type="image/x-icon">
+
+    <style>
+        :root {
+            --gold: #c6a45a;
+            --gold-light: #e3c87a;
+            --dark-depth: #080808;
+            --dark-surface: #121212;
+            --border-subtle: rgba(198, 164, 90, 0.15);
+            --gold-gradient: linear-gradient(135deg, #c6a45a 0%, #e3c87a 100%);
+            --glass: rgba(20, 20, 20, 0.85);
+            --ease: cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        body {
+            background-color: var(--dark-depth);
+            color: #ffffff;
+            font-family: 'Outfit', sans-serif;
+            overflow-x: hidden;
+            letter-spacing: 0.2px;
+        }
+
+        h1,
+        h2,
+        h3,
+        .garamond {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        /* ── Anti-Gravity Animations ────────────────────────────────────────── */
+        @keyframes levitate {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-8px);
+            }
+        }
+
+        @keyframes glowPulse {
+            0% {
+                box-shadow: 0 0 5px rgba(198, 164, 90, 0.2);
+            }
+
+            50% {
+                box-shadow: 0 0 20px rgba(198, 164, 90, 0.6);
+            }
+
+            100% {
+                box-shadow: 0 0 5px rgba(198, 164, 90, 0.2);
+            }
+        }
+
+        /* ── Navbar Redesign ─────────────────────────────────────────────────── */
+        .navbar-premium {
+            padding: 8px 0;
+            position: relative;
+            top: 0;
+            margin: 15px auto 0;
+            width: 92%;
+            max-width: 1200px;
+            z-index: 1000;
+            background: rgba(10, 10, 10, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: none;
+            border-radius: 100px;
+            transition: all 0.5s var(--ease);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+        }
+
+        .navbar-premium.scrolled {
+            background: rgba(5, 5, 5, 0.9);
+            box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+        }
+
+        .navbar-brand {
+            animation: levitate 4s ease-in-out infinite;
+        }
+
+        .navbar-brand img {
+            height: 42px;
+            object-fit: contain;
+            filter: brightness(1.2);
+            margin-right: 12px;
+        }
+
+        .btn-booking {
+            background: var(--gold-gradient);
+            color: #000 !important;
+            font-weight: 700;
+            padding: 10px 24px;
+            border-radius: 50px;
+            text-decoration: none !important;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(198, 164, 90, 0.2);
+            font-size: 0.85rem;
+            animation: glowPulse 3s infinite ease-in-out;
+        }
+
+        .btn-booking:hover {
+            transform: scale(1.05);
+            box-shadow: 0 10px 25px rgba(198, 164, 90, 0.4);
+        }
+
+        .nav-link-premium {
+            color: rgba(255, 255, 255, 0.85);
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+            transition: all 0.3s;
+            margin: 0 12px;
+            position: relative;
+        }
+
+        .nav-link-premium:hover {
+            color: var(--gold);
+            transform: translateY(-2px);
+        }
+
+        .navbar-toggler {
+            border-color: var(--gold);
+            padding: 8px 12px;
+        }
+
+        .navbar-toggler-icon {
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(198, 164, 90)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+        }
+
+        /* ── WhatsApp Floating ─────────────────────────────────────────────────── */
+        .whatsapp-float {
+            position: fixed;
+            bottom: 40px;
+            right: 40px;
+            z-index: 1000;
+            transition: transform 0.3s;
+        }
+
+        .whatsapp-btn {
+            background: #25D366;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 28px;
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+            text-decoration: none;
+        }
+
+        /* ── Footer ───────────────────────────────────────────────────────────── */
+        footer {
+            background: #050505;
+            padding: 80px 0 40px;
+            border-top: 1px solid var(--border-subtle);
+        }
+
+        .footer-link {
+            color: rgba(255, 255, 255, 0.6);
+            text-decoration: none;
+            transition: color 0.3s;
+            font-size: 0.9rem;
+        }
+
+        .footer-link:hover {
+            color: var(--gold);
+        }
+
+        .footer-title {
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            margin-bottom: 20px;
+            display: block;
+        }
+
+        .no-refund-box {
+            background: rgba(198, 164, 90, 0.05);
+            border: 1px solid var(--border-subtle);
+            padding: 15px;
+            border-radius: 12px;
+        }
+
+        .section-padding {
+            padding: 100px 0;
+        }
+
+        .text-gold {
+            color: var(--gold);
+        }
+
+        .hero-subtitle {
+            font-size: 1rem;
+            color: var(--gold);
+            text-transform: uppercase;
+            letter-spacing: 4px;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+            {
+            % block extra_css %
+        }
+
+            {
+            % endblock %
+        }
+    </style>
+</head>
+
+<body>
+
+    <!-- WhatsApp Floating Action -->
+    <div class="whatsapp-float">
+        <a href="https://wa.me/919747000210?text=Hello%20Sahasrara%20Wellness,%20I'd%20like%20to%20book%20a%20session."
+            class="whatsapp-btn" target="_blank">
+            <i class="bi bi-whatsapp"></i>
+        </a>
+    </div>
+
+    <!-- Navigation -->
+    <nav class="navbar navbar-expand-lg navbar-premium" id="mainNavbar">
+        <div class="container d-flex justify-content-between align-items-center">
+            <a class="navbar-brand d-flex align-items-center" href="{% url 'pages:home' %}">
+                <img src="{% static 'logo1.jpeg' %}" alt="Sahasrara Logo">
+                <span class="ms-3 text-white garamond fw-bold d-none d-sm-inline"
+                    style="font-size: 1.5rem; letter-spacing: 1px;">Sahasrara Wellness</span>
+            </a>
+
+            <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
+                data-bs-target="#navbarContent">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+
+            <div class="collapse navbar-collapse" id="navbarContent">
+                <div class="navbar-nav mx-auto mb-2 mb-lg-0">
+                    <a href="{% url 'pages:home' %}" class="nav-link-premium">Home</a>
+                    <a href="{% url 'pages:about' %}" class="nav-link-premium">About Us</a>
+                    <a href="{% url 'services:index' %}" class="nav-link-premium">Our Services</a>
+                    {% comment %} <a href="{% url 'pages:team' %}" class="nav-link-premium">Our Team</a> {% endcomment %}
+                    <a href="{% url 'pages:contact' %}" class="nav-link-premium">Contact</a>
+                </div>
+                <div class="d-flex align-items-center">
+                    <a href="{% url 'bookings:step1_branch' %}" class="btn-booking">Book Online</a>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-4 mb-5 mb-lg-0">
+                    <div class="d-flex align-items-center mb-4">
+                        <img src="{% static 'logo1.jpeg' %}" height="50" alt="Logo">
+                        <span class="ms-3 text-gold garamond fw-bold"
+                            style="font-size: 1.4rem; letter-spacing: 1.5px;">Sahasrara Wellness</span>
+                    </div>
+                    <p class="text-white-50 small pe-lg-5">
+                        Experience the gold standard of wellness. From traditional therapies to modern rejuvenation.
+                    </p>
+                    <div class="d-flex gap-3 mt-4">
+                        <a href="https://www.instagram.com/sahasrara.wellness?utm_source=ig_web_button_share_sheet&igsh=ZDNlZDc0MzIxNw=="
+                            class="footer-link fs-5"><i class="bi bi-instagram"></i></a>
+                        <a href="https://www.facebook.com/profile.php?id=61573191974596" class="footer-link fs-5"><i
+                                class="bi bi-facebook"></i></a>
+                        <a href="https://share.google/YhoWdPG8SlKoJ06YA" class="footer-link fs-5"><i
+                                class="bi bi-google"></i></a>
+                        <a href="mailto:sahasrarawellness@gmail.com" class="footer-link fs-5"><i
+                                class="bi bi-envelope-fill"></i></a>
+
+                    </div>
+                </div>
+                <div class="col-lg-2 col-6 mb-4 mb-lg-0">
+                    <div class="footer-title">Links</div>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'pages:home' %}" class="footer-link">Home</a></li>
+                        <li><a href="{% url 'pages:about' %}" class="footer-link">About Us</a></li>
+                        <li><a href="{% url 'services:index' %}" class="footer-link">Our Services</a></li>
+                        {% comment %} <li><a href="{% url 'pages:team' %}" class="footer-link">Our Team</a></li> {% endcomment %}
+                        <li><a href="{% url 'pages:contact' %}" class="footer-link">Contact Us</a></li>
+                        <li><a href="{% url 'bookings:step1_branch' %}" class="footer-link">Book Now</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 col-6 mb-4 mb-lg-0">
+                    <div class="footer-title">Legal</div>
+                    <ul class="list-unstyled">
+                        <li><a href="{% url 'pages:terms_conditions' %}" class="footer-link">Terms & Conditions</a></li>
+                        <li><a href="{% url 'pages:privacy_policy' %}" class="footer-link">Privacy Policy</a></li>
+                        <li><a href="{% url 'pages:refund_policy' %}" class="footer-link">No Refund Policy</a></li>
+                    </ul>
+                </div>
+                <div class="col-lg-3 mb-4 mb-lg-0">
+                    <div class="footer-title">Policy Notice</div>
+                    <div class="no-refund-box small text-white-50">
+                        <i class="bi bi-shield-exclamation text-gold me-2"></i>
+                        <strong>No Refund Policy:</strong> Booking deposits and full payments are non-refundable.
+                        Re-scheduling is allowed up to 4 hours prior.
+                    </div>
+                </div>
+            </div>
+
+            <div class="mt-5 border-top border-secondary pt-4 text-center">
+                <p class="text-white-50 small mb-0">&copy; 2026 Sahasrara Wellness. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Foundation JS -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+    <script>
+        AOS.init({ duration: 1000, once: true, easing: 'ease-out-quart' });
+
+        // Navbar Scroll Effect
+        window.addEventListener('scroll', function () {
+            const nav = document.getElementById('mainNavbar');
+            if (window.scrollY > 50) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+
+</html>

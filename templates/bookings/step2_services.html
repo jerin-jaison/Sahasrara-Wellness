@@ -1,0 +1,141 @@
+{% extends "bookings/base_booking.html" %}
+{% block title %}Select Service — Sahasrara Wellness{% endblock %}
+
+{% block step_indicator %}
+{% include "components/progress_stepper.html" with step=1 current_step=2 %}
+{% endblock %}
+
+{% block back_url %}{% url 'bookings:step1_branch' %}{% endblock %}
+
+{% block content %}
+<div class="booking-title-wrapper">
+    <div class="booking-divider"></div>
+    <h4 class="booking-title text-center">Choose Services</h4>
+    <p class="text-muted small">Select the indulgence you deserve at {{ branch.name|cut:"Sahasrara Wellness – " }}</p>
+
+    <a href="{% url 'bookings:step1_branch' %}" class="btn-back-stylish">
+        <i class="bi bi-arrow-left"></i> Change Location
+    </a>
+
+    <div class="mt-4 p-3 rounded-4 d-flex align-items-center gap-3"
+        style="background: rgba(198, 164, 90, 0.05); border: 1px solid rgba(198, 164, 90, 0.15);">
+        <div class="icon-box-premium" style="flex-shrink: 0; width: 32px; height: 32px; font-size: 0.9rem;">
+            <i class="bi bi-shield-check"></i>
+        </div>
+        <p class="small text-white-50 mb-0">
+            Secure your slot with just a <span class="text-gold fw-bold">10% deposit</span>. You can also choose to pay
+            in full during checkout.
+        </p>
+    </div>
+</div>
+
+<div class="premium-card mx-auto" style="max-width: 800px;">
+    <div class="duration-filter-container">
+        <div class="duration-toggle" id="duration-toggle" onclick="toggleDuration()">
+            <div class="active-glider"></div>
+            <div class="duration-option active" data-value="60">60 Mins</div>
+            <div class="duration-option" data-value="90">90 Mins</div>
+        </div>
+    </div>
+
+    <form method="post" id="service-form">
+        {% csrf_token %}
+        <input type="hidden" name="service_id" id="selected-service-id">
+
+        <div class="service-list" id="service-list">
+            {% for service in services %}
+            {% include "components/service_card.html" with service=service selected=False %}
+            {% empty %}
+            <div class="text-center py-5">
+                <i class="bi bi-calendar-x text-muted mb-3 d-block" style="font-size: 2.5rem;"></i>
+                <p class="text-muted">No services available at this location.</p>
+            </div>
+            {% endfor %}
+        </div>
+
+
+        {% include "components/sticky_cta.html" with label="Select Therapist" button_id="continue-btn" %}
+    </form>
+</div>
+
+<script>
+    let currentDuration = 60;
+
+    function toggleDuration() {
+        const toggle = document.getElementById('duration-toggle');
+        const options = toggle.querySelectorAll('.duration-option');
+
+        currentDuration = currentDuration === 60 ? 90 : 60;
+
+        if (currentDuration === 90) {
+            toggle.classList.add('show-90');
+        } else {
+            toggle.classList.remove('show-90');
+        }
+
+        options.forEach(opt => {
+            if (parseInt(opt.getAttribute('data-value')) === currentDuration) {
+                opt.classList.add('active');
+            } else {
+                opt.classList.remove('active');
+            }
+        });
+
+        filterServices();
+    }
+
+    function filterServices() {
+        const services = document.querySelectorAll('.service-card');
+        let visibleCount = 0;
+
+        services.forEach(card => {
+            const duration = parseInt(card.getAttribute('data-duration'));
+            if (duration === currentDuration) {
+                card.style.display = 'block';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        // Reset selection if the selected service is hidden
+        const selectedId = document.getElementById('selected-service-id').value;
+        if (selectedId) {
+            const selectedCard = document.querySelector(`.service-card.selected[data-duration="${currentDuration}"]`);
+            if (!selectedCard) {
+                // Deselect everything
+                document.getElementById('selected-service-id').value = '';
+                document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+                document.querySelectorAll('.selection-indicator i').forEach(i => {
+                    i.classList.remove('bi-check-circle-fill', 'gold');
+                    i.classList.add('bi-circle');
+                });
+                document.getElementById('continue-btn').disabled = true;
+            }
+        }
+    }
+
+    function selectService(id) {
+        document.getElementById('selected-service-id').value = id;
+        document.querySelectorAll('.service-card').forEach(c => c.classList.remove('selected'));
+        // Find the specific card clicked
+        event.currentTarget.classList.add('selected');
+
+        // Update check icons
+        document.querySelectorAll('.selection-indicator i').forEach(i => {
+            i.classList.remove('bi-check-circle-fill', 'gold');
+            i.classList.add('bi-circle');
+        });
+        const indicator = event.currentTarget.querySelector('.selection-indicator i');
+        indicator.classList.remove('bi-circle');
+        indicator.classList.add('bi-check-circle-fill', 'gold');
+
+        document.getElementById('continue-btn').disabled = false;
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('continue-btn').disabled = true;
+        filterServices();
+    });
+</script>
+{% endblock %}

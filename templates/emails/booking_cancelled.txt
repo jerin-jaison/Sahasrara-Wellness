@@ -1,0 +1,25 @@
+Hi {{ guest_name }},
+
+We're sorry to inform you that your booking has been cancelled.
+
+REASON
+──────
+{{ cancellation_reason }}
+
+CANCELLED BOOKING DETAILS
+──────────────────────────
+Booking Ref: {{ booking_ref }}
+Service:     {{ service_name }}
+Date:        {{ booking_date|date:"D, d M Y" }}
+Time:        {{ start_time|time:"g:i A" }}
+Location:    {{ branch_name }}
+
+If you paid for this session, a refund will be processed to your
+original payment method within 5–7 business days.
+
+For urgent queries, call us at {{ branch_phone }}
+or email us at {{ support_email }}.
+
+We hope to see you again soon.
+
+The Sahasrara Wellness Team

@@ -1,0 +1,220 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{% if service %}Edit Service{% else %}New Service{% endif %}{% endblock %}
+{% block page_title %}{% if service %}Edit Service{% else %}Add Service{% endif %}{% endblock %}
+
+{% block content %}
+
+<div class="breadcrumb">
+    <a href="{% url 'dashboard:service_list' %}">Services</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">{% if service %}{{ service.name }}{% else %}New Service{% endif %}</span>
+</div>
+
+<style>
+    /* ── Branch checkbox cards ─────────────────────────────────────── */
+    .branch-cards {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 12px;
+        margin-top: 8px;
+    }
+
+    .branch-card-label {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        cursor: pointer;
+        padding: 12px 18px;
+        border: 1.5px solid var(--border);
+        border-radius: 10px;
+        background: #1a1a1a;
+        font-size: 14px;
+        font-weight: 500;
+        color: var(--text);
+        transition: border-color .18s, background .18s, box-shadow .18s;
+        user-select: none;
+    }
+
+    .branch-card-label:hover {
+        border-color: var(--gold-muted);
+        background: #222;
+    }
+
+    .branch-card-label input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--gold);
+        cursor: pointer;
+    }
+
+    .branch-card-label.selected {
+        border-color: var(--gold);
+        background: var(--gold-dim);
+        box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    /* ── Duration radio cards ──────────────────────────────────────── */
+    .duration-cards {
+        display: flex;
+        gap: 14px;
+        margin-top: 8px;
+    }
+
+    .duration-card-label {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        cursor: pointer;
+        padding: 18px 28px;
+        border: 1.5px solid var(--border);
+        border-radius: 12px;
+        background: #1a1a1a;
+        transition: border-color .18s, background .18s, box-shadow .18s;
+        user-select: none;
+        min-width: 120px;
+        text-align: center;
+    }
+
+    .duration-card-label:hover {
+        border-color: var(--gold-muted);
+        background: #222;
+    }
+
+    .duration-card-label input[type="radio"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--gold);
+        cursor: pointer;
+    }
+
+    .duration-card-label.selected {
+        border-color: var(--gold);
+        background: var(--gold-dim);
+        box-shadow: 0 0 0 3px var(--gold-glow);
+    }
+
+    .duration-minutes-label {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--gold);
+        line-height: 1;
+    }
+
+    .duration-text-label {
+        font-size: 12px;
+        color: var(--text-muted);
+        letter-spacing: .04em;
+        text-transform: uppercase;
+    }
+</style>
+
+
+<form method="POST" id="serviceForm">
+    {% csrf_token %}
+
+    <!-- ── Section 1: Branches ──────────────────────────────────────── -->
+    <div class="form-section">
+        <div class="form-section-title">Branch Availability</div>
+        <div class="form-hint" style="margin-bottom:14px;">Select one or more branches where this service is available.
+        </div>
+        {% if form.branches.errors %}
+        <div class="form-error" style="margin-bottom:12px;">{{ form.branches.errors.0 }}</div>
+        {% endif %}
+        <div class="branch-cards" id="branchCards">
+            {% for choice in form.branches %}
+            <label class="branch-card-label {% if choice.data.selected %}selected{% endif %}"
+                id="lbl-{{ choice.data.value }}">
+                {{ choice.tag }}
+                🏢 {{ choice.choice_label }}
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ── Section 2: Service Identity ─────────────────────────────── -->
+    <div class="form-section">
+        <div class="form-section-title">Service Details</div>
+        <div class="form-group">
+            <label class="form-label">Service Name *</label>
+            {{ form.name }}
+            {% if form.name.errors %}<div class="form-error">{{ form.name.errors.0 }}</div>{% endif %}
+        </div>
+        <div class="form-group">
+            <label class="form-label">Description</label>
+            {{ form.description }}
+        </div>
+    </div>
+
+    <!-- ── Section 3: Duration ──────────────────────────────────────── -->
+    <div class="form-section">
+        <div class="form-section-title">Session Duration</div>
+        <div class="form-hint" style="margin-bottom:14px;">Select the fixed session length(s). Multiple can be selected.
+        </div>
+        {% if form.durations.errors %}
+        <div class="form-error" style="margin-bottom:12px;">{{ form.durations.errors.0 }}</div>
+        {% endif %}
+        <div class="duration-cards" id="durationCards">
+            {% for choice in form.durations %}
+            <label class="duration-card-label {% if choice.data.selected %}selected{% endif %}"
+                id="dur-lbl-{{ choice.data.value }}">
+                {{ choice.tag }}
+                <span class="duration-minutes-label">{{ choice.choice_label|cut:" minutes" }}</span>
+                <span class="duration-text-label">minutes</span>
+            </label>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ── Section 4: Scheduling & Pricing ─────────────────────────── -->
+    <div class="form-section">
+        <div class="form-section-title">Buffer & Pricing</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Buffer (minutes)</label>
+                {{ form.buffer_minutes }}
+                <div class="form-hint">Cleanup / reset time after session.</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Price (₹) *</label>
+                {{ form.price }}
+            </div>
+        </div>
+    </div>
+
+    <!-- ── Section 5: Visibility ────────────────────────────────────── -->
+    <div class="form-section">
+        <div class="form-section-title">Visibility</div>
+        <div style="display:flex;align-items:center;gap:12px;">
+            {{ form.is_active }}
+            <label class="form-label" style="margin:0;cursor:pointer;">Active (visible to guests during booking)</label>
+        </div>
+    </div>
+
+    <button type="submit" class="btn btn-gold">
+        {% if service %}Save Changes{% else %}Create Service{% endif %}
+    </button>
+</form>
+
+<script>
+    // ── Branch checkbox: highlight selected cards ────────────────────
+    document.querySelectorAll('#branchCards input[type="checkbox"]').forEach(function (cb) {
+        var lbl = cb.closest('.branch-card-label');
+        if (cb.checked) lbl.classList.add('selected');
+        cb.addEventListener('change', function () {
+            lbl.classList.toggle('selected', cb.checked);
+        });
+    });
+
+    // ── Duration checkbox: highlight selected card ──────────────────────
+    document.querySelectorAll('#durationCards input[type="checkbox"]').forEach(function (cb) {
+        var lbl = cb.closest('.duration-card-label');
+        if (cb.checked) lbl.classList.add('selected');
+        cb.addEventListener('change', function () {
+            lbl.classList.toggle('selected', cb.checked);
+        });
+    });
+</script>
+
+{% endblock %}

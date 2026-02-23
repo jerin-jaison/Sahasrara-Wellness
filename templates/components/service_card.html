@@ -1,0 +1,70 @@
+<div class="premium-card service-card mb-3 {% if selected %}selected{% endif %}"
+    data-duration="{{ service.duration_minutes }}" onclick="selectService('{{ service.id }}')">
+    <div class="d-flex justify-content-between align-items-start">
+        <div class="flex-grow-1">
+            <h6 class="mb-1 fw-bold text-white">{{ service.name }}</h6>
+            <div class="d-flex flex-wrap gap-x-3 gap-y-1 small align-items-center">
+                <span class="text-white"><i class="bi bi-clock"></i> {{ service.duration_minutes }}m</span>
+                <span class="text-white-50"><i class="bi bi-tag"></i> Total: ₹{{ service.price }}</span>
+                <span class="badge border border-gold text-gold py-1">Pay ₹{{ service.deposit_price }} Now</span>
+            </div>
+
+            {% if service.description %}
+            <button type="button" class="service-description-toggle" onclick="toggleDetails(event, '{{ service.id }}')">
+                <i class="bi bi-info-circle"></i> <span>View Details</span>
+            </button>
+            {% endif %}
+        </div>
+        <div class="selection-indicator pt-1">
+            <i class="bi {% if selected %}bi-check-circle-fill gold{% else %}bi-circle{% endif %}"></i>
+        </div>
+    </div>
+
+    {% if service.description %}
+    <div class="service-description-content" id="desc-{{ service.id }}">
+        {{ service.description|linebreaksbr }}
+    </div>
+    {% endif %}
+</div>
+
+<script>
+    if (typeof toggleDetails !== 'function') {
+        window.toggleDetails = function (event, id) {
+            event.stopPropagation(); // Prevent card selection
+            const btn = event.currentTarget;
+            const content = document.getElementById('desc-' + id);
+
+            btn.classList.toggle('active');
+            content.classList.toggle('active');
+
+            const span = btn.querySelector('span');
+            if (content.classList.contains('active')) {
+                span.innerText = 'Hide Details';
+            } else {
+                span.innerText = 'View Details';
+            }
+        };
+    }
+</script>
+
+<style>
+    .service-card {
+        cursor: pointer;
+        transition: all 0.2s;
+        border-color: rgba(255, 255, 255, 0.05);
+    }
+
+    .service-card:hover {
+        border-color: rgba(198, 164, 90, 0.4);
+        background: rgba(198, 164, 90, 0.05);
+    }
+
+    .service-card.selected {
+        border-color: var(--gold);
+        background: rgba(198, 164, 90, 0.1);
+    }
+
+    .gold {
+        color: var(--gold);
+    }
+</style>

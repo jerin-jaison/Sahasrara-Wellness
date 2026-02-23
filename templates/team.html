@@ -1,0 +1,128 @@
+{% extends "base_site.html" %}
+{% load static %}
+
+{% block title %}Our Professional Team — Sahasrara Wellness{% endblock %}
+
+{% block extra_css %}
+.team-hero {
+height: 50vh;
+background: linear-gradient(to bottom, rgba(8, 8, 8, 0.4), var(--dark-depth)),
+url('{% static "bg-2.jpg" %}') no-repeat center center/cover;
+display: flex;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding-top: 100px;
+}
+
+.worker-card {
+background: var(--dark-surface);
+border: 1px solid var(--border-subtle);
+border-radius: 30px;
+padding: 0;
+height: 100%;
+transition: all 0.4s var(--ease);
+overflow: hidden;
+text-align: center;
+}
+
+.worker-card:hover {
+border-color: var(--gold);
+transform: translateY(-10px);
+}
+
+.worker-image-container {
+height: 350px;
+width: 100%;
+overflow: hidden;
+}
+
+.worker-image {
+width: 100%;
+height: 100%;
+object-fit: cover;
+filter: brightness(0.8) contrast(1.1);
+transition: transform 0.6s var(--ease);
+}
+
+.worker-card:hover .worker-image {
+transform: scale(1.05);
+}
+
+.worker-info {
+padding: 30px;
+}
+
+.worker-tag {
+display: inline-block;
+padding: 4px 15px;
+background: rgba(198, 164, 90, 0.1);
+border: 1px solid var(--border-subtle);
+border-radius: 50px;
+color: var(--gold);
+font-size: 0.8rem;
+font-weight: 600;
+text-transform: uppercase;
+letter-spacing: 1px;
+margin-bottom: 15px;
+}
+
+.experience-badge {
+color: rgba(255, 255, 255, 0.6);
+font-size: 0.9rem;
+margin-bottom: 20px;
+display: block;
+}
+{% endblock %}
+
+{% block content %}
+<section class="team-hero">
+    <div class="container">
+        <div class="hero-subtitle" data-aos="fade-up">Master Healers</div>
+        <h1 class="display-3 fw-bold garamond" data-aos="fade-up" data-aos-delay="100">Meet Our Team</h1>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <p class="lead text-white-50 max-width-700 mx-auto">
+                Our therapists are hand-picked for their expertise, compassion, and commitment to the sacred art of
+                healing.
+            </p>
+        </div>
+
+        <div class="row g-5">
+            {% for worker in workers %}
+            <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+                <div class="worker-card">
+                    <div class="worker-image-container">
+                        {% if worker.photo %}
+                        <img src="{{ worker.photo.url }}" alt="{{ worker.name }}" class="worker-image">
+                        {% else %}
+                        <img src="{% static 'bg-2.jpg' %}" alt="Therapist" class="worker-image">
+                        {% endif %}
+                    </div>
+
+                    <div class="worker-info">
+                        <span class="worker-tag">{{ worker.branch.name }}</span>
+                        <h2 class="garamond display-6 text-white mb-2">{{ worker.name }}</h2>
+                        <span class="experience-badge">{{ worker.years_experience }}+ Years of Experience</span>
+                        <p class="text-white-50 small mb-4">{{ worker.bio|truncatewords:20 }}</p>
+
+                        <a href="{% url 'bookings:step1_branch' %}?worker_id={{ worker.id }}"
+                            class="btn btn-outline-gold rounded-pill px-4 py-2 w-100 border-secondary text-white text-decoration-none">
+                            Book with {{ worker.first_name }}
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12 text-center py-5">
+                <p class="text-white-50">Our team details are being updated. Check back soon.</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

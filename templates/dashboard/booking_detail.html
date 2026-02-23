@@ -1,0 +1,87 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Booking {{ booking.id_short }}{% endblock %}
+{% block page_title %}Booking Detail{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'dashboard:booking_list' %}">Bookings</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">#{{ booking.id_short }}</span>
+</div>
+
+<div class="row g-4">
+    <div class="col-12 col-lg-8" style="display:flex;flex-direction:column;gap:20px;">
+        <div class="card">
+            <div class="card-header">
+                <span class="card-title">Booking #{{ booking.id_short }}</span>
+                {% if booking.is_manual %}<span class="badge badge-pending">Manual</span>{% endif %}
+            </div>
+
+            <div class="row g-0">
+                {% with g=booking.guest s=booking.service w=booking.worker b=booking.branch %}
+                <div class="col-12 col-md-6">
+                    <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value"><span class="badge {{ booking.status_badge_class }}">{{ booking.get_status_display }}</span></span></div>
+                    <div class="detail-row"><span class="detail-label">Guest</span><span class="detail-value">{{ g.name }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Phone</span><span class="detail-value">{{ g.phone|default:"-" }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Email</span><span class="detail-value">{{ g.email|default:"-" }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Service</span><span class="detail-value">{{ s.name }} ({{ s.duration_minutes }} min)</span></div>
+                </div>
+                <div class="col-12 col-md-6">
+                    <div class="detail-row"><span class="detail-label">Therapist</span><span class="detail-value">{{ w.name }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Branch</span><span class="detail-value">{{ b.name }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Date &amp; Time</span><span class="detail-value">{{ booking.booking_date|date:"d M Y" }}, {{ booking.start_time|time:"g:i A" }} - {{ booking.end_time|time:"g:i A" }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Payment</span><span class="detail-value"><span class="badge {{ booking.payment_badge_class }}">{{ booking.get_payment_status_display }}</span></span></div>
+                    <div class="detail-row"><span class="detail-label">Amount</span><span class="detail-value" style="color:var(--gold);font-weight:600;">INR {{ booking.amount_paid|floatformat:2 }}</span></div>
+                    <div class="detail-row"><span class="detail-label">Created</span><span class="detail-value">{{ booking.created_at|date:"d M Y, g:i A" }}</span></div>
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><span class="card-title">Status History</span></div>
+            {% if status_logs %}<ul class="timeline">{% for log in status_logs %}
+                <li class="tl-item">
+                    <div class="tl-dot"></div>
+                    <div class="tl-content">
+                        <div class="tl-status">{{ log.get_from_status_display }} to {{ log.get_to_status_display }}</div>
+                        <div class="tl-meta">By {{ log.changed_by }}{% if log.reason %} . {{ log.reason }}{% endif %} . {{ log.changed_at|date:"d M Y, g:i A" }}</div>
+                    </div>
+                </li>
+                {% endfor %}
+            </ul>{% else %}<p style="color:var(--text-muted);padding:20px;font-size:14px;">No logs.</p>{% endif %}
+        </div>
+
+        {% if booking.payment %}<div class="card">
+            <div class="card-header"><span class="card-title">Razorpay Payment</span></div>
+            <div class="detail-row"><span class="detail-label">Order ID</span><span class="detail-value" style="font-family:monospace;font-size:12px;">{{ booking.payment.razorpay_order_id|default:"-" }}</span></div>
+            <div class="detail-row"><span class="detail-label">Payment ID</span><span class="detail-value" style="font-family:monospace;font-size:12px;">{{ booking.payment.razorpay_payment_id|default:"-" }}</span></div>
+            <div class="detail-row"><span class="detail-label">Status</span><span class="detail-value">{{ booking.payment.status }}</span></div>
+            <div class="detail-row"><span class="detail-label">Paid At</span><span class="detail-value">{{ booking.payment.paid_at|date:"d M Y, g:i A"|default:"-" }}</span></div>
+        </div>{% endif %}
+    </div>
+
+    <div class="col-12 col-lg-4">
+        <div class="card card-gold">
+            <div class="card-header"><span class="card-title">Actions</span></div>
+            {% if booking.status == 'CONFIRMED' %}
+            <form method="POST" action="{% url 'dashboard:booking_complete' booking_id=booking.id %}" style="margin-bottom:12px;">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-blue" style="width:100%;">Mark as Completed</button>
+            </form>
+            <form method="POST" action="{% url 'dashboard:booking_reassign' booking_id=booking.id %}" style="margin-bottom:12px;">
+                {% csrf_token %}
+                <div class="form-group">
+                    <label class="form-label">Reassign Therapist</label>
+                    <select name="new_worker_id" class="form-control" required>
+                        <option value="">Select...</option>
+                        {% for w in branch_workers %}<option value="{{ w.id }}">{{ w.name }}</option>{% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-amber" style="width:100%;margin-top:8px;">Change Therapist</button>
+            </form>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "base_site.html" %}
+{% load static %}
+
+{% block title %}About Us — Sahasrara Wellness{% endblock %}
+
+{% block extra_css %}
+.about-hero {
+min-height: 60vh;
+background: linear-gradient(to bottom, rgba(8, 8, 8, 0.4), var(--dark-depth)),
+url('{% static "bg-2.jpg" %}') no-repeat center center/cover;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding-top: 140px;
+padding-bottom: 60px;
+}
+
+.philosophy-card {
+background: var(--dark-surface);
+border: 1px solid var(--border-subtle);
+border-radius: 24px;
+padding: 40px;
+height: 100%;
+transition: all 0.4s ease;
+}
+
+.philosophy-card:hover {
+border-color: var(--gold);
+transform: translateY(-5px);
+}
+
+.trust-badge {
+background: rgba(198, 164, 90, 0.05);
+border: 1px solid var(--border-subtle);
+padding: 20px;
+border-radius: 50%;
+width: 80px;
+height: 80px;
+display: flex;
+align-items: center;
+justify-content: center;
+margin: 0 auto 20px;
+font-size: 2rem;
+color: var(--gold);
+}
+
+.story-text {
+font-size: 1.15rem;
+line-height: 1.8;
+color: rgba(255, 255, 255, 0.9);
+}
+{% endblock %}
+
+{% block content %}
+<section class="about-hero">
+    <div class="container">
+        <div class="hero-subtitle" data-aos="fade-up">Our Journey</div>
+        <h1 class="display-3 fw-bold garamond" data-aos="fade-up" data-aos-delay="100">The Story of Sahasrara</h1>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-6 mb-5 mb-lg-0" data-aos="fade-right">
+                <h2 class="display-5 text-gold mb-4">A Sacred Space for Awakening</h2>
+                <div class="story-text">
+                    <p>
+                        Nestled in a serene and peaceful environment, Sahasrara Wellness is a haven for those seeking
+                        balance, harmony, and tranquility. Our name, inspired by the Sanskrit term
+                        <strong>"Sahasrara,"</strong> represents the crown chakra, symbolizing spiritual awakening and
+                        enlightenment.
+                    </p>
+                    <p>
+                        At Sahasrara Wellness, our mission is to create a sacred space for relaxation, rejuvenation,
+                        and self-discovery. We strive to provide exceptional service, fostering a sense of community
+                        and connection among our guests.
+                    </p>
+                    <p>
+                        We believe that wellness is not just a luxury, but a necessity for the soul. Each session is
+                        crafted to bring you closer to your true self, guided by hands that understand the delicate
+                        balance of energy and form.
+                    </p>
+                </div>
+            </div>
+            <div class="col-lg-5 offset-lg-1" data-aos="fade-left">
+                <div style="border-radius: 30px; overflow: hidden; border: 1px solid var(--border-subtle);">
+                    <img src="{% static 'backgroud-1.jpg' %}" alt="Sahasrara Atmosphere" class="img-fluid"
+                        style="filter: brightness(0.8);">
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-padding bg-dark-depth" style="border-top: 1px solid var(--border-subtle);">
+    <div class="container">
+        <div class="text-center mb-5" data-aos="fade-up">
+            <div class="hero-subtitle">Our Foundation</div>
+            <h2 class="display-4 garamond">Therapist Philosophy</h2>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="100">
+                <div class="philosophy-card text-center">
+                    <div class="trust-badge"><i class="bi bi-heart-pulse"></i></div>
+                    <h3 class="h4 text-gold mb-3">Holistic Healing</h3>
+                    <p class="text-white-50">We don't just treat the body; we care for the mind and spirit. Every touch
+                        is intended to restore complete harmony.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="200">
+                <div class="philosophy-card text-center">
+                    <div class="trust-badge"><i class="bi bi-stars"></i></div>
+                    <h3 class="h4 text-gold mb-3">Expert Hands</h3>
+                    <p class="text-white-50">Our therapists are master practitioners trained in traditional and modern
+                        techniques, ensuring a premium experience.</p>
+                </div>
+            </div>
+            <div class="col-md-4" data-aos="fade-up" data-aos-delay="300">
+                <div class="philosophy-card text-center">
+                    <div class="trust-badge"><i class="bi bi-shield-check"></i></div>
+                    <h3 class="h4 text-gold mb-3">Trust & Safety</h3>
+                    <p class="text-white-50">Your comfort and trust are our highest priorities. We maintain the most
+                        rigorous standards of hygiene and professionalism.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section-padding text-center">
+    <div class="container" data-aos="zoom-in">
+        <div class="max-600 mx-auto">
+            <h2 class="display-5 garamond text-gold mb-4">Experience the Transformation</h2>
+            <p class="lead text-white-50 mb-5">Join our community and discover the path to lasting peace and
+                rejuvenation.</p>
+            <a href="{% url 'bookings:step1_branch' %}" class="btn-booking py-3 px-5 fs-5">Begin Your Journey</a>
+        </div>
+    </div>
+</section>
+{% endblock %}

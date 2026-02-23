@@ -1,0 +1,83 @@
+{% extends "base_site.html" %}
+
+{% block title %}Refund & Cancellation Policy — Sahasrara Wellness{% endblock %}
+
+{% block extra_css %}
+.legal-content {
+line-height: 1.8;
+color: rgba(255, 255, 255, 0.85);
+}
+.legal-content h2 {
+color: var(--gold);
+margin-top: 40px;
+margin-bottom: 20px;
+}
+.legal-content p, .legal-content li {
+margin-bottom: 15px;
+}
+.caution-box {
+background: rgba(198, 164, 90, 0.05);
+border: 1px solid var(--border-subtle);
+padding: 30px;
+border-radius: 20px;
+margin: 40px 0;
+}
+{% endblock %}
+
+{% block content %}
+<section class="section-padding mt-5">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <nav aria-label="breadcrumb" class="mb-4">
+                    <ol class="breadcrumb">
+                        <li class="breadcrumb-item"><a href="{% url 'pages:home' %}"
+                                class="text-gold text-decoration-none">Home</a></li>
+                        <li class="breadcrumb-item active text-white-50" aria-current="page">Refund Policy</li>
+                    </ol>
+                </nav>
+
+                <h1 class="display-4 garamond text-gold mb-5">Refund & Cancellation Policy</h1>
+
+                <div class="legal-content">
+                    <p>Last Updated: February 23, 2026</p>
+
+                    <div class="caution-box">
+                        <h2 class="mt-0"><i class="bi bi-shield-exclamation me-2"></i> No Refund Policy</h2>
+                        <p class="mb-0">Please note that all booking deposits and full payments made to Sahasrara
+                            Wellness are <strong>strictly non-refundable</strong>. This policy is essential for us to
+                            maintain our staffing and premium service standards.</p>
+                    </div>
+
+                    <h2>1. Cancellation</h2>
+                    <p>If you wish to cancel your appointment, please notify us as soon as possible. While we do not
+                        offer refunds, giving us early notice helps us manage our therapists' schedules.</p>
+
+                    <h2>2. Re-scheduling</h2>
+                    <p>We understand that plans can change. You may re-schedule your appointment under the following
+                        conditions:</p>
+                    <ul>
+                        <li>Re-scheduling must be requested at least <strong>4 hours prior</strong> to your scheduled
+                            appointment time.</li>
+                        <li>A booking can be re-scheduled a maximum of two times.</li>
+                        <li>Subject to therapist and slot availability.</li>
+                    </ul>
+
+                    <h2>3. Booking Fees & Charges</h2>
+                    <p>Some premium slots or specific services may incur a <strong>10% service charge</strong> or
+                        booking fee that is used to secure the therapist's time. This fee is non-refundable and will be
+                        clearly marked during the checkout process.</p>
+
+                    <h2>4. No-Show Policy</h2>
+                    <p>Failure to arrive for your appointment without prior notice will result in the forfeiture of your
+                        booking amount in full.</p>
+
+                    <h2>5. Contact for Support</h2>
+                    <p>For any assistance regarding your booking or to request a re-schedule, please WhatsApp us at
+                        <span class="text-gold">+91 97470 00210</span>.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -1,0 +1,286 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Admin Login — Sahasrara Wellness</title>
+    <link rel="icon" href="{% static 'logo1.jpeg' %}" type="image/jpeg">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500;600;700&family=DM+Sans:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --black: #0b0b0b;
+            --black2: #111111;
+            --gold: #c9a24a;
+            --gold-b: #e3c87a;
+            --gold-muted: #9a7c3e;
+            --ivory: #f0ece4;
+        }
+
+        /* Global Force White */
+        * {
+            color: var(--ivory) !important;
+        }
+
+        /* Exception for button text - should be dark on gold */
+        .btn-submit {
+            color: #0b0b0b !important;
+        }
+
+        body {
+            min-height: 100vh;
+            background: var(--black);
+            display: flex;
+            font-family: 'DM Sans', system-ui, sans-serif;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* ── Left panel — brand ─────────────────────────────────────────── */
+        .login-left {
+            flex: 1;
+            background: linear-gradient(160deg, #111 0%, #0a0a0a 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 60px 48px;
+            position: relative;
+            overflow: hidden;
+            border-right: 1px solid rgba(201, 162, 39, 0.12);
+        }
+
+        .login-left::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 30% 30%, rgba(201, 162, 39, 0.08) 0%, transparent 60%),
+                radial-gradient(ellipse at 70% 80%, rgba(201, 162, 39, 0.05) 0%, transparent 50%);
+        }
+
+        .login-left-inner {
+            position: relative;
+            text-align: center;
+        }
+
+        .login-logo {
+            width: 160px;
+            height: 160px;
+            border-radius: 24px;
+            object-fit: cover;
+            border: 2px solid rgba(201, 162, 39, 0.3);
+            margin-bottom: 28px;
+            box-shadow: 0 16px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .login-brand-name {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 36px;
+            font-weight: 700;
+            color: var(--ivory);
+            letter-spacing: 0.02em;
+            line-height: 1.1;
+        }
+
+        .login-brand-sub {
+            font-size: 11px;
+            font-weight: 600;
+            color: var(--gold);
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            margin-top: 8px;
+        }
+
+        .login-tagline {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-top: 24px;
+            line-height: 1.6;
+            max-width: 280px;
+            font-style: italic;
+        }
+
+        .gold-divider {
+            width: 48px;
+            height: 2px;
+            background: linear-gradient(90deg, transparent, var(--gold), transparent);
+            margin: 20px auto;
+        }
+
+        /* ── Right panel — form ─────────────────────────────────────────── */
+        .login-right {
+            width: 440px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            padding: 60px 52px;
+            background: #141414;
+        }
+
+        .login-right h2 {
+            font-family: 'Cormorant Garamond', serif;
+            font-size: 30px;
+            font-weight: 600;
+            color: var(--ivory);
+            margin-bottom: 6px;
+        }
+
+        .login-right p {
+            font-size: 13.5px;
+            color: rgba(255, 255, 255, 0.38);
+            margin-bottom: 36px;
+        }
+
+        /* Alert */
+        .alert-error {
+            background: rgba(220, 38, 38, 0.1);
+            border: 1px solid rgba(220, 38, 38, 0.25);
+            color: #fca5a5;
+            border-radius: 10px;
+            padding: 12px 16px;
+            font-size: 13px;
+            margin-bottom: 20px;
+        }
+
+        /* Form */
+        .form-group {
+            margin-bottom: 22px;
+        }
+
+        .form-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 600;
+            letter-spacing: 0.1em;
+            text-transform: uppercase;
+            color: rgba(255, 255, 255, .3);
+            margin-bottom: 8px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 13px 16px;
+            background: rgba(255, 255, 255, .05);
+            border: 1.5px solid rgba(255, 255, 255, .09);
+            border-radius: 10px;
+            font-size: 14.5px;
+            color: var(--ivory);
+            font-family: 'DM Sans', sans-serif;
+            transition: border-color .15s, box-shadow .15s;
+        }
+
+        .form-control::placeholder {
+            color: rgba(255, 255, 255, .2);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--gold);
+            box-shadow: 0 0 0 3px rgba(201, 162, 39, .15);
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #C9A227 0%, #E4BD40 50%, #C9A227 100%);
+            background-size: 200%;
+            background-position: right center;
+            color: #1A1200;
+            font-size: 14px;
+            font-weight: 700;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            font-family: 'DM Sans', sans-serif;
+            margin-top: 6px;
+            transition: background-position .3s, box-shadow .2s, transform .1s;
+        }
+
+        .btn-submit:hover {
+            background-position: left center;
+            box-shadow: 0 6px 24px rgba(201, 162, 39, .35);
+            transform: translateY(-2px);
+        }
+
+        .btn-submit:active {
+            transform: translateY(0);
+        }
+
+        .login-footer {
+            margin-top: 36px;
+            font-size: 11.5px;
+            color: rgba(255, 255, 255, .18);
+            text-align: center;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .login-left {
+                display: none;
+            }
+
+            .login-right {
+                width: 100%;
+                padding: 48px 32px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Left brand panel -->
+    <div class="login-left">
+        <div class="login-left-inner">
+            <img src="{% static 'logo1.jpeg' %}" alt="Sahasrara Wellness" class="login-logo">
+            <div class="login-brand-name">Sahasrara<br>Wellness</div>
+            <div class="login-brand-sub">Admin Portal</div>
+            <div class="gold-divider"></div>
+            <div class="login-tagline">"Nurturing wellness, one session at a time."</div>
+        </div>
+    </div>
+
+    <!-- Right form panel -->
+    <div class="login-right">
+        <h2>Welcome back</h2>
+        <p>Sign in to manage bookings, branches, and therapists.</p>
+
+        {% if messages %}
+        {% for message in messages %}
+        <div class="alert-error">{{ message }}</div>
+        {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ next }}">
+            <div class="form-group">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="form-control" placeholder="admin" autofocus required>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+            </div>
+            <button type="submit" class="btn-submit">Sign in to Dashboard</button>
+        </form>
+
+        <div class="login-footer">Sahasrara Wellness © 2025 &nbsp;·&nbsp; Authorized personnel only</div>
+    </div>
+</body>
+
+</html>

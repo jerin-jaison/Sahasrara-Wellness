@@ -1,0 +1,231 @@
+{% extends "bookings/base_booking.html" %}
+{% load static %}
+
+{% block title %}Complete Payment — Sahasrara Wellness{% endblock %}
+
+{% block step_indicator %}
+{% include "components/progress_stepper.html" with step=7 current_step=7 %}
+{% endblock %}
+
+{% block back_url %}{% url 'bookings:cancel_lock' %}{% endblock %}
+
+{% block content %}
+<div class="booking-title-wrapper">
+    <div class="booking-divider"></div>
+    <h4 class="booking-title text-center">Secure Appointment</h4>
+    <p class="text-muted small">Finalize your slot with Razorpay</p>
+</div>
+
+<div class="premium-card mx-auto" style="max-width: 600px;">
+    <div class="review-summary">
+        <!-- Amount Summary -->
+        <div class="summary-item-premium mb-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="icon-box-premium"><i class="bi bi-wallet2"></i></div>
+                    <div>
+                        <h6 class="mb-0 fw-bold text-white">Payment Amount</h6>
+                        <span class="small text-white-50">Authorized via Razorpay</span>
+                    </div>
+                </div>
+                <div class="text-end">
+                    <span class="text-gold fw-bold h4 mb-0">₹{{ payment.amount }}</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Timer/Lock Notice -->
+        <div class="payment-timer-card mb-4">
+            <div class="d-flex align-items-center gap-3">
+                <div class="timer-icon-box">
+                    <i class="bi bi-clock-history"></i>
+                </div>
+                <div class="flex-grow-1">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                        <span class="small text-white-50 text-uppercase fw-bold" style="letter-spacing:1px">Slot Held
+                            For</span>
+                        <span class="badge bg-gold-subtle text-gold" id="timer">10:00</span>
+                    </div>
+                    <div class="progress" style="height: 4px; background: rgba(255,255,255,0.05);">
+                        <div id="p-bar" class="progress-bar bg-gold" role="progressbar" style="width: 100%"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Service Context -->
+        <div class="summary-item-premium mb-4" style="border-style: dashed; border-color: rgba(198, 164, 90, 0.15);">
+            <div class="d-flex flex-wrap gap-4">
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-stars gold"></i>
+                    <span class="small text-white">{{ booking.service.name }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-calendar3 gold"></i>
+                    <span class="small text-white">{{ booking.booking_date|date:"D, d M" }}</span>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <i class="bi bi-person gold"></i>
+                    <span class="small text-white">{{ booking.worker.name }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden form: Razorpay handler POSTs payment IDs here -->
+    <form id="rzp-form" method="POST" action="{{ callback_url }}">
+        {% csrf_token %}
+        <input type="hidden" name="razorpay_payment_id" id="rzp_payment_id">
+        <input type="hidden" name="razorpay_order_id" id="rzp_order_id">
+        <input type="hidden" name="razorpay_signature" id="rzp_signature">
+
+        {% with btn_label="Pay ₹"|add:payment.amount|stringformat:"s"|add:" & Confirm" %}
+        {% include "components/sticky_cta.html" with label=btn_label onclick="openRazorpay()" type="button" button_id="pay-btn" %}
+        {% endwith %}
+    </form>
+
+    <div class="text-center mt-3">
+        <a href="{% url 'bookings:cancel_lock' %}" class="small text-muted text-decoration-none hover-gold"
+            onclick="return confirm('Cancel this slot and go back?')">
+            <i class="bi bi-x-circle"></i> Cancel and go back
+        </a>
+    </div>
+</div>
+
+<style>
+    .payment-timer-card {
+        background: rgba(198, 164, 90, 0.05);
+        border: 1px solid rgba(198, 164, 90, 0.2);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .timer-icon-box {
+        width: 44px;
+        height: 44px;
+        background: rgba(198, 164, 90, 0.1);
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold);
+        font-size: 1.3rem;
+    }
+
+    .bg-gold-subtle {
+        background: rgba(198, 164, 90, 0.15);
+    }
+
+    .bg-gold {
+        background-color: var(--gold) !important;
+    }
+
+    .hover-gold:hover {
+        color: var(--gold) !important;
+    }
+
+    .summary-item-premium {
+        background: rgba(255, 255, 255, 0.02);
+        border: 1px solid var(--border-subtle);
+        border-radius: 16px;
+        padding: 16px;
+    }
+
+    .icon-box-premium {
+        width: 40px;
+        height: 40px;
+        background: rgba(198, 164, 90, 0.1);
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--gold);
+        font-size: 1.2rem;
+    }
+
+    .gold {
+        color: var(--gold);
+    }
+</style>
+
+<!-- Config for JS -->
+{{ razorpay_key_id|json_script:"d-key" }}
+{{ amount_paise|json_script:"d-amount" }}
+{{ payment.razorpay_order_id|json_script:"d-order" }}
+{{ booking.service.name|json_script:"d-desc" }}
+{{ guest_name|json_script:"d-gname" }}
+{{ guest_email|json_script:"d-gemail" }}
+{{ guest_phone|json_script:"d-gphone" }}
+{{ expired_url|json_script:"d-expired" }}
+
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+<script>
+    // Timer Logic
+    (function () {
+        let seconds = 10 * 60;
+        const total = 10 * 60;
+        const timerEl = document.getElementById('timer');
+        const pBar = document.getElementById('p-bar');
+        const btn = document.getElementById('pay-btn');
+        const expiredUrl = JSON.parse(document.getElementById('d-expired').textContent);
+
+        const iv = setInterval(function () {
+            seconds--;
+
+            // Update Text
+            const m = Math.floor(seconds / 60);
+            const s = seconds % 60;
+            if (timerEl) {
+                timerEl.textContent = (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s;
+            }
+
+            // Update Progress Bar
+            if (pBar) {
+                const percent = (seconds / total) * 100;
+                pBar.style.width = percent + '%';
+            }
+
+            if (seconds <= 0) {
+                clearInterval(iv);
+                if (btn) {
+                    btn.textContent = 'Slot Expired';
+                    btn.disabled = true;
+                }
+                setTimeout(() => { window.location.href = expiredUrl; }, 1500);
+            }
+        }, 1000);
+    })();
+
+    // Razorpay Logic
+    function openRazorpay() {
+        const rzp = new Razorpay({
+            key: JSON.parse(document.getElementById('d-key').textContent),
+            amount: JSON.parse(document.getElementById('d-amount').textContent),
+            currency: 'INR',
+            name: 'Sahasrara Wellness',
+            description: JSON.parse(document.getElementById('d-desc').textContent),
+            order_id: JSON.parse(document.getElementById('d-order').textContent),
+            prefill: {
+                name: JSON.parse(document.getElementById('d-gname').textContent),
+                email: JSON.parse(document.getElementById('d-gemail').textContent),
+                contact: JSON.parse(document.getElementById('d-gphone').textContent)
+            },
+            theme: { color: '#c6a45a' },
+            handler: function (r) {
+                const btn = document.getElementById('pay-btn');
+                if (btn) {
+                    btn.disabled = true;
+                    btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span> Verifying...';
+                }
+
+                document.getElementById('rzp_payment_id').value = r.razorpay_payment_id;
+                document.getElementById('rzp_order_id').value = r.razorpay_order_id;
+                document.getElementById('rzp_signature').value = r.razorpay_signature;
+                document.getElementById('rzp-form').submit();
+            }
+        });
+        rzp.open();
+    }
+</script>
+{% endblock %}

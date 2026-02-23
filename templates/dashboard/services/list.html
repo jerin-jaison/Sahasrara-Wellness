@@ -1,0 +1,64 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Services{% endblock %}
+{% block page_title %}Services{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">All Services <span style="font-weight:400;color:var(--text-muted);font-size:13px;">({{
+                services.count }} total)</span></span>
+        <a href="{% url 'dashboard:service_create' %}" class="btn btn-gold btn-sm">＋ Add Service</a>
+    </div>
+    {% if services %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>Branches</th>
+                    <th>Duration</th>
+                    <th>Buffer</th>
+                    <th>Price</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for s in services %}
+                <tr>
+                    <td style="font-weight:600;">{{ s.name }}</td>
+                    <td>
+                        {% for b in s.branches.all %}
+                        <span class="badge badge-pending" style="margin-right:4px;">{{ b.name }}</span>
+                        {% empty %}
+                        <span style="color:var(--text-muted);">—</span>
+                        {% endfor %}
+                    </td>
+                    <td style="font-variant-numeric:tabular-nums;">{{ s.duration_minutes }} min</td>
+                    <td style="font-variant-numeric:tabular-nums;">{{ s.buffer_minutes }} min</td>
+                    <td style="font-weight:600;color:var(--gold);">₹{{ s.price|floatformat:0 }}</td>
+                    <td>
+                        {% if s.is_active %}<span class="badge badge-active">Active</span>
+                        {% else %}<span class="badge badge-inactive">Inactive</span>{% endif %}
+                    </td>
+                    <td style="display:flex;gap:8px;align-items:center;">
+                        <a href="{% url 'dashboard:service_edit' pk=s.id %}" class="btn btn-ghost btn-xs">Edit</a>
+                        {% if s.is_active %}
+                        <form method="POST" action="{% url 'dashboard:service_delete' pk=s.id %}" style="margin:0;"
+                            onsubmit="return confirm('Deactivate {{ s.name }}?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-xs">Deactivate</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align:center;color:var(--text-muted);padding:48px 0;font-size:14px;">No services yet. <a
+            href="{% url 'dashboard:service_create' %}" class="link">Add the first one</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

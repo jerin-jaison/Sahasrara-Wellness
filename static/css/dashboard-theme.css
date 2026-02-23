@@ -1,0 +1,559 @@
+/*
+ * ═══════════════════════════════════════════════════════════════════
+ *  SAHASRARA WELLNESS — Premium Dark Dashboard Theme
+ *  Black & Gold Luxury Overrides
+ * ═══════════════════════════════════════════════════════════════════
+ */
+
+/* ── Override Design Tokens ────────────────────────────────────────── */
+:root {
+    /* Backgrounds */
+    --bg-main: #0b0b0b;
+    --bg-surface: #111111;
+    --bg-card: #161616;
+    --bg-card-hover: #1c1c1c;
+    --bg-input: #1a1a1a;
+
+    /* Gold palette */
+    --gold: #c9a24a;
+    --gold-bright: #e3c87a;
+    --gold-soft: #d6b86c;
+    --gold-muted: #9a7c3e;
+    --gold-dim: rgba(201, 162, 74, 0.12);
+    --gold-glow: rgba(201, 162, 74, 0.22);
+
+    /* Text */
+    --text: #f0ece4;
+    --text-mid: #c8c0b0;
+    --text-muted: #7a7468;
+    --text-light: #4a4640;
+    --ivory: #f0ece4;
+    --ivory2: #1e1e1e;
+    --ivory3: #252525;
+
+    /* UI defaults (map new dark values to old variable names) */
+    --black: #0b0b0b;
+    --black2: #111111;
+    --black3: #161616;
+    --white: #161616;
+
+    /* Borders */
+    --border: #2a2a2a;
+    --border-light: #252525;
+
+    /* Shadows */
+    --shadow-sm: 0 2px 12px rgba(0, 0, 0, 0.6);
+    --shadow-md: 0 8px 32px rgba(0, 0, 0, 0.7);
+    --shadow-gold: 0 0 0 3px rgba(201, 162, 74, 0.22);
+}
+
+/* ── Body ──────────────────────────────────────────────────────────── */
+body.dashboard,
+.dashboard-content,
+.card,
+.table,
+.form-control,
+label,
+span,
+p,
+td,
+th,
+div,
+li,
+strong,
+b,
+i,
+small,
+a:not(.btn) {
+    color: var(--text) !important;
+}
+
+
+body {
+    background: var(--bg-main) !important;
+}
+
+/* ── Sidebar ───────────────────────────────────────────────────────── */
+.sidebar {
+    background: #000 !important;
+    border-right: 1px solid var(--border) !important;
+}
+
+.sidebar-brand {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.05) !important;
+}
+
+.nav-item.active {
+    background: var(--gold-dim) !important;
+    border-left-color: var(--gold) !important;
+    color: var(--gold-bright) !important;
+}
+
+.sidebar-footer {
+    border-top: 1px solid rgba(255, 255, 255, 0.05) !important;
+    background: #000;
+}
+
+/* ── Topbar ────────────────────────────────────────────────────────── */
+.topbar {
+    background: #0d0d0d !important;
+    border-bottom: 1px solid var(--border) !important;
+    box-shadow: 0 2px 20px rgba(0, 0, 0, 0.5) !important;
+}
+
+.topbar-title {
+    color: var(--text) !important;
+}
+
+.topbar-user {
+    color: var(--text-muted) !important;
+}
+
+.btn-logout {
+    background: #1a1a1a !important;
+    color: var(--text-muted) !important;
+    border-color: var(--border) !important;
+}
+
+.btn-logout:hover {
+    background: var(--gold) !important;
+    color: #000 !important;
+    border-color: var(--gold) !important;
+}
+
+/* ── Glass Cards ───────────────────────────────────────────────────── */
+.card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 16px !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5) !important;
+    backdrop-filter: blur(12px);
+    transition: box-shadow 0.25s ease, transform 0.2s ease !important;
+}
+
+.card:hover {
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7), 0 0 0 1px rgba(201, 162, 74, 0.1) !important;
+}
+
+.card-header {
+    border-bottom: 1px solid var(--border) !important;
+    background: transparent !important;
+}
+
+.card-title {
+    color: var(--gold) !important;
+    font-family: 'Cormorant Garamond', serif !important;
+}
+
+.card-gold {
+    border-color: rgba(201, 162, 74, 0.3) !important;
+    box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5), inset 0 0 0 1px rgba(201, 162, 74, 0.1) !important;
+}
+
+/* ── Stat Cards ────────────────────────────────────────────────────── */
+.stat-card {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.stat-card:hover {
+    transform: translateY(-4px) !important;
+    box-shadow: var(--shadow-md) !important;
+}
+
+.stat-card::before {
+    background: linear-gradient(90deg, var(--gold), var(--gold-bright)) !important;
+}
+
+.stat-label {
+    color: var(--text-muted) !important;
+}
+
+.stat-value {
+    color: var(--text) !important;
+}
+
+.stat-value.gold {
+    color: var(--gold) !important;
+}
+
+.stat-sub {
+    color: var(--text-muted) !important;
+}
+
+/* ── Tables ────────────────────────────────────────────────────────── */
+table {
+    background: transparent !important;
+    color: var(--text) !important;
+}
+
+thead th {
+    background: var(--bg-card) !important;
+    color: var(--gold) !important;
+    border-bottom: 1px solid var(--border) !important;
+    letter-spacing: 0.1em;
+}
+
+tbody td {
+    border-bottom: 1px solid var(--border) !important;
+    color: var(--text) !important;
+}
+
+tbody tr:nth-child(even) td {
+    background: rgba(255, 255, 255, 0.015) !important;
+}
+
+tbody tr:hover td {
+    background: rgba(201, 162, 74, 0.05) !important;
+}
+
+tbody tr:last-child td {
+    border-bottom: none !important;
+}
+
+table td,
+table th {
+    color: var(--text) !important;
+}
+
+/* ── Forms ─────────────────────────────────────────────────────────── */
+.form-section {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 14px !important;
+    box-shadow: var(--shadow-sm) !important;
+}
+
+.form-section-title {
+    color: var(--gold) !important;
+    border-bottom: 1px solid var(--border) !important;
+}
+
+.form-section-title::before {
+    background: var(--gold) !important;
+}
+
+.form-control,
+select.form-control,
+textarea.form-control,
+input.form-control {
+    background: var(--bg-surface) !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+.form-control::placeholder {
+    color: var(--text-muted) !important;
+}
+
+.form-control:focus {
+    border-color: var(--gold) !important;
+    box-shadow: var(--shadow-gold) !important;
+    background: #1f1f1f !important;
+}
+
+select.form-control option {
+    background: #1a1a1a;
+    color: var(--text);
+}
+
+.form-label {
+    color: var(--text-muted) !important;
+}
+
+.form-hint {
+    color: var(--text-light) !important;
+}
+
+.form-check-label {
+    color: var(--text-mid) !important;
+}
+
+/* ── Filter bar ────────────────────────────────────────────────────── */
+.filter-bar {
+    background: var(--bg-card) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 14px !important;
+}
+
+.filter label {
+    color: var(--gold) !important;
+}
+
+/* Bootstrap Utilities Overrides */
+.text-dark,
+.text-muted {
+    color: var(--text) !important;
+}
+
+/* ── Detail rows ───────────────────────────────────────────────────── */
+.detail-row {
+    border-bottom: 1px solid var(--border) !important;
+}
+
+.detail-label {
+    color: var(--text-muted) !important;
+}
+
+.detail-value {
+    color: var(--text) !important;
+}
+
+/* ── Breadcrumb ────────────────────────────────────────────────────── */
+.breadcrumb {
+    color: var(--text-muted) !important;
+}
+
+.breadcrumb a {
+    color: var(--text-muted) !important;
+}
+
+.breadcrumb a:hover {
+    color: var(--gold) !important;
+}
+
+.breadcrumb-sep {
+    color: var(--border) !important;
+}
+
+.breadcrumb-current {
+    color: var(--text) !important;
+}
+
+/* ── Page header ───────────────────────────────────────────────────── */
+.page-header-title {
+    color: var(--gold) !important;
+    font-family: 'Cormorant Garamond', serif !important;
+}
+
+.page-header-sub {
+    color: var(--text-muted) !important;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+    color: var(--gold) !important;
+}
+
+/* ── Buttons ───────────────────────────────────────────────────────── */
+.btn-gold {
+    background: linear-gradient(135deg, #c9a24a 0%, #e3c87a 55%, #c9a24a 100%) !important;
+    background-size: 200% !important;
+    background-position: right center !important;
+    color: #000 !important;
+    font-weight: 600 !important;
+    border: none !important;
+}
+
+.btn-gold:hover {
+    background-position: left center !important;
+    box-shadow: 0 6px 20px rgba(201, 162, 74, 0.4) !important;
+    transform: translateY(-2px) !important;
+    color: #000 !important;
+}
+
+.btn-ghost {
+    background: #1e1e1e !important;
+    color: var(--text-muted) !important;
+    border: 1px solid var(--border) !important;
+}
+
+.btn-ghost:hover {
+    background: #2a2a2a !important;
+    border-color: var(--gold-muted) !important;
+    color: var(--gold) !important;
+}
+
+.btn-logout {
+    background: #1a1a1a !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-muted) !important;
+}
+
+/* ── Badges ────────────────────────────────────────────────────────── */
+.badge-confirmed {
+    background: rgba(6, 95, 70, 0.25) !important;
+    color: #6ee7b7 !important;
+}
+
+.badge-pending {
+    background: rgba(217, 119, 6, 0.2) !important;
+    color: #fcd34d !important;
+}
+
+.badge-cancelled {
+    background: rgba(220, 38, 38, 0.2) !important;
+    color: #fca5a5 !important;
+}
+
+.badge-completed {
+    background: rgba(37, 99, 235, 0.2) !important;
+    color: #93c5fd !important;
+}
+
+.badge-expired {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: var(--text-muted) !important;
+}
+
+.badge-active {
+    background: rgba(6, 95, 70, 0.25) !important;
+    color: #6ee7b7 !important;
+}
+
+.badge-inactive {
+    background: rgba(255, 255, 255, 0.06) !important;
+    color: var(--text-muted) !important;
+}
+
+/* ── Messages ──────────────────────────────────────────────────────── */
+.msg-success {
+    background: rgba(6, 95, 70, 0.18) !important;
+    color: #6ee7b7 !important;
+    border-color: rgba(110, 231, 183, 0.2) !important;
+}
+
+.msg-error {
+    background: rgba(220, 38, 38, 0.18) !important;
+    color: #fca5a5 !important;
+    border-color: rgba(252, 165, 165, 0.2) !important;
+}
+
+.msg-warning {
+    background: rgba(217, 119, 6, 0.18) !important;
+    color: #fcd34d !important;
+    border-color: rgba(252, 211, 77, 0.2) !important;
+}
+
+.msg-info {
+    background: rgba(37, 99, 235, 0.18) !important;
+    color: #93c5fd !important;
+    border-color: rgba(147, 197, 253, 0.2) !important;
+}
+
+/* ── Timeline ──────────────────────────────────────────────────────── */
+.tl-dot {
+    background: var(--gold) !important;
+    box-shadow: 0 0 0 3px var(--gold-dim) !important;
+}
+
+.tl-status {
+    color: var(--text) !important;
+}
+
+.tl-meta {
+    color: var(--text-muted) !important;
+}
+
+/* ── Gold divider ──────────────────────────────────────────────────── */
+.gold-rule {
+    background: linear-gradient(90deg, var(--gold), transparent) !important;
+}
+
+/* ── Gold rule in links ─────────────────────────────────────────────── */
+.link {
+    color: var(--gold) !important;
+}
+
+.link:hover {
+    color: var(--gold-bright) !important;
+}
+
+/* ── Scrollbar ─────────────────────────────────────────────────────── */
+::-webkit-scrollbar-thumb {
+    background: #2a2a2a !important;
+}
+
+::-webkit-scrollbar-track {
+    background: #111 !important;
+}
+
+/* ── Section label ─────────────────────────────────────────────────── */
+.section-label {
+    color: var(--text-muted) !important;
+    border-bottom-color: var(--border) !important;
+}
+
+/* ── Page content entry animation override ─────────────────────────── */
+@keyframes fadeSlideUp {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.page-content {
+    animation: fadeSlideUp 0.3s cubic-bezier(0.4, 0, 0.2, 1) both;
+}
+
+/* ── Branch selection cards (services form) ────────────────────────── */
+.branch-card-label {
+    background: #1a1a1a !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+.branch-card-label:hover {
+    border-color: var(--gold-muted) !important;
+    background: #222 !important;
+}
+
+.branch-card-label.selected {
+    border-color: var(--gold) !important;
+    background: var(--gold-dim) !important;
+    box-shadow: 0 0 0 3px var(--gold-glow) !important;
+}
+
+/* ── Duration radio cards (services form) ──────────────────────────── */
+.duration-card-label {
+    background: #1a1a1a !important;
+    border-color: var(--border) !important;
+    color: var(--text) !important;
+}
+
+.duration-card-label:hover {
+    border-color: var(--gold-muted) !important;
+    background: #222 !important;
+}
+
+.duration-card-label.selected {
+    border-color: var(--gold) !important;
+    background: var(--gold-dim) !important;
+    box-shadow: 0 0 0 3px var(--gold-glow) !important;
+}
+
+/* ── Tables inside Bootstrap rows ─────────────────────────────────── */
+.h-100 {
+    height: 100% !important;
+}
+
+/* ── Hamburger bar colors ───────────────────────────────────────────── */
+.hamburger span {
+    background: var(--text-muted) !important;
+}
+
+.hamburger:hover {
+    background: #1e1e1e !important;
+}
+
+/* ── Amber tip box dark ─────────────────────────────────────────────── */
+[style*="amber-pale"] {
+    background: rgba(217, 119, 6, 0.1) !important;
+    border-color: rgba(252, 211, 77, 0.2) !important;
+    color: #fcd34d !important;
+}
+
+/* ── Bootstrap column gap fix ─────────────────────────────────────── */
+.row {
+    --bs-gutter-x: 1.25rem;
+}

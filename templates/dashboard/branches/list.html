@@ -1,0 +1,56 @@
+{% extends "dashboard/base.html" %}
+{% block title %}Branches{% endblock %}
+{% block page_title %}Branch Locations{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="card-header">
+        <span class="card-title">All Branches <span style="font-weight:400;color:var(--text-muted);font-size:13px;">({{
+                branches.count }} total)</span></span>
+        <a href="{% url 'dashboard:branch_create' %}" class="btn btn-gold btn-sm">＋ Add Branch</a>
+    </div>
+    {% if branches %}
+    <div class="table-wrap">
+        <table>
+            <thead>
+                <tr>
+                    <th>Name</th>
+                    <th>City</th>
+                    <th>Phone</th>
+                    <th>Email</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in branches %}
+                <tr>
+                    <td style="font-weight:600;">{{ b.name }}</td>
+                    <td>{{ b.city|default:"—" }}</td>
+                    <td>{{ b.phone|default:"—" }}</td>
+                    <td>{{ b.email|default:"—" }}</td>
+                    <td>
+                        {% if b.is_active %}<span class="badge badge-active">Active</span>
+                        {% else %}<span class="badge badge-inactive">Inactive</span>{% endif %}
+                    </td>
+                    <td style="display:flex;gap:8px;align-items:center;">
+                        <a href="{% url 'dashboard:branch_edit' pk=b.id %}" class="btn btn-ghost btn-xs">Edit</a>
+                        {% if b.is_active %}
+                        <form method="POST" action="{% url 'dashboard:branch_delete' pk=b.id %}" style="margin:0;"
+                            onsubmit="return confirm('Deactivate {{ b.name }}?')">
+                            {% csrf_token %}
+                            <button type="submit" class="btn btn-danger btn-xs">Deactivate</button>
+                        </form>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p style="text-align:center;color:var(--text-muted);padding:48px 0;font-size:14px;">No branches yet. <a
+            href="{% url 'dashboard:branch_create' %}" class="link">Add the first one</a>.</p>
+    {% endif %}
+</div>
+{% endblock %}

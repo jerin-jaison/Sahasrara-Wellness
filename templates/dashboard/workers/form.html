@@ -1,0 +1,90 @@
+{% extends "dashboard/base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="breadcrumb">
+    <a href="{% url 'dashboard:worker_list' %}">Therapists</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">{{ title }}</span>
+</div>
+
+<form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+
+    <div class="form-section">
+        <div class="form-section-title">Personal Information</div>
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Branch *</label>
+                {{ form.branch }}
+                {% if form.branch.errors %}<div class="form-error">{{ form.branch.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Full Name *</label>
+                {{ form.name }}
+                {% if form.name.errors %}<div class="form-error">{{ form.name.errors.0 }}</div>{% endif %}
+            </div>
+        </div>
+        <div class="form-group">
+            <label class="form-label">Phone</label>
+            {{ form.phone }}
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-section-title">Profile</div>
+        <div class="form-group">
+            <label class="form-label">Bio</label>
+            {{ form.bio }}
+            <div class="form-hint">Internal notes about this therapist. Not shown to guests.</div>
+        </div>
+    </div>
+
+
+    <div class="form-section">
+        <div class="form-section-title">Profile Photo</div>
+        {% if worker and worker.photo %}
+        <div style="display:flex;align-items:center;gap:18px;margin-bottom:20px;">
+            <img src="{{ worker.photo.url }}" alt="{{ worker.name }}"
+                style="width:72px;height:72px;border-radius:50%;object-fit:cover;border:2px solid rgba(201,162,39,0.35);">
+            <div>
+                <div style="font-weight:600;font-size:14px;">Current photo</div>
+                <div class="form-hint">Upload a new file to replace the existing photo.</div>
+            </div>
+        </div>
+        {% endif %}
+        <div class="form-group">
+            <label class="form-label">Upload Photo</label>
+            <input type="file" name="photo" accept="image/*" class="form-control" style="padding:8px 12px;">
+            <div class="form-hint">Optional. Recommended: square JPG or PNG, at least 400×400 px.</div>
+        </div>
+    </div>
+
+    <div class="form-section">
+        <div class="form-section-title">Visibility</div>
+        <div class="form-check-wrap">
+            {{ form.is_active }}
+            <label class="form-check-label" for="{{ form.is_active.id_for_label }}">
+                Active — visible to guests in the booking flow
+            </label>
+        </div>
+    </div>
+
+    <div style="display:flex;gap:12px;margin-top:4px;">
+        <button type="submit" class="btn btn-gold">
+            {% if worker %}Save Changes{% else %}Add Therapist{% endif %}
+        </button>
+        <a href="{% url 'dashboard:worker_list' %}" class="btn btn-ghost">Cancel</a>
+    </div>
+</form>
+
+{% if not worker %}
+<div class="msg-info" style="margin-top:20px;padding:14px 18px;border-radius:10px;font-size:13px;">
+    ℹ️ <strong>Next step:</strong> After creating the therapist, set their working schedule via
+    <a href="{% url 'admin:workers_workerschedule_add' %}" target="_blank" class="link">Django Admin → Worker
+        Schedules</a>.
+    Without a schedule, they won't appear in available booking slots.
+</div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,152 @@
+{% extends "base_site.html" %}
+{% load static %}
+
+{% block title %}Contact & Find Us — Sahasrara Wellness{% endblock %}
+
+{% block extra_css %}
+.contact-hero {
+height: 50vh;
+background: linear-gradient(to bottom, rgba(8, 8, 8, 0.4), var(--dark-depth)),
+url('{% static "backgroud-1.jpg" %}') no-repeat center center/cover;
+display: flex;
+align-items: center;
+justify-content: center;
+text-align: center;
+padding-top: 100px;
+}
+
+.location-card {
+background: var(--dark-surface);
+border: 1px solid var(--border-subtle);
+border-radius: 30px;
+padding: 40px;
+height: 100%;
+transition: all 0.4s var(--ease);
+}
+
+.location-card:hover {
+border-color: var(--gold);
+transform: translateY(-5px);
+}
+
+.contact-method {
+display: flex;
+align-items: center;
+gap: 20px;
+margin-bottom: 25px;
+padding: 20px;
+background: rgba(255, 255, 255, 0.03);
+border-radius: 20px;
+border: 1px solid rgba(255, 255, 255, 0.05);
+text-decoration: none;
+transition: all 0.3s;
+}
+
+.contact-method:hover {
+background: rgba(198, 164, 90, 0.05);
+border-color: var(--gold);
+}
+
+.contact-icon {
+width: 50px;
+height: 50px;
+background: var(--gold-gradient);
+border-radius: 15px;
+display: flex;
+align-items: center;
+justify-content: center;
+color: #000;
+font-size: 1.5rem;
+}
+
+.method-label {
+display: block;
+font-size: 0.8rem;
+color: rgba(255, 255, 255, 0.5);
+text-transform: uppercase;
+letter-spacing: 1px;
+}
+
+.method-value {
+display: block;
+font-size: 1.1rem;
+color: #fff;
+font-weight: 500;
+}
+{% endblock %}
+
+{% block content %}
+<section class="contact-hero">
+    <div class="container">
+        <div class="hero-subtitle" data-aos="fade-up">Get in Touch</div>
+        <h1 class="display-3 fw-bold garamond" data-aos="fade-up" data-aos-delay="100">Find Your Sanctuary</h1>
+    </div>
+</section>
+
+<section class="section-padding">
+    <div class="container">
+        <div class="row g-5">
+            <!-- Global Contact Info -->
+            <div class="col-lg-5" data-aos="fade-right">
+                <h2 class="display-5 text-gold garamond mb-4">Connect With Us</h2>
+                <p class="text-white-50 mb-5">Have questions? Reach out to us directly via any of these channels.</p>
+
+                <a href="tel:+919747000210" class="contact-method">
+                    <div class="contact-icon"><i class="bi bi-telephone"></i></div>
+                    <div>
+                        <span class="method-label">Call Us</span>
+                        <span class="method-value">+91 97470 00210</span>
+                    </div>
+                </a>
+
+                <a href="https://wa.me/919747000210?text=I'd%20like%20to%20enquire%20about%20your%20services."
+                    target="_blank" class="contact-method">
+                    <div class="contact-icon" style="background: #25D366; color: white;"><i class="bi bi-whatsapp"></i>
+                    </div>
+                    <div>
+                        <span class="method-label">WhatsApp</span>
+                        <span class="method-value">Open Chat</span>
+                    </div>
+                </a>
+
+                <a href="mailto:bookings@sahasrarawellness.com" class="contact-method">
+                    <div class="contact-icon"><i class="bi bi-envelope"></i></div>
+                    <div>
+                        <span class="method-label">Email</span>
+                        <span class="method-value">bookings@sahasrarawellness.com</span>
+                    </div>
+                </a>
+            </div>
+
+            <!-- Branch Locations -->
+            <div class="col-lg-7" data-aos="fade-left">
+                <h2 class="display-5 text-gold garamond mb-4">Our Locations</h2>
+                <div class="row g-4">
+                    {% for branch in branches %}
+                    <div class="col-12">
+                        <div class="location-card">
+                            <div class="d-flex justify-content-between align-items-start mb-3">
+                                <h3 class="text-white garamond h2 mb-0">{{ branch.name }}</h3>
+                                <div class="text-gold small fw-bold uppercase-tracking">{{ branch.city }}</div>
+                            </div>
+                            <p class="text-white-50 mb-4">{{ branch.address }}</p>
+
+                            <div class="d-flex flex-wrap gap-3">
+                                <a href="{{ branch.google_maps_url }}" target="_blank"
+                                    class="btn btn-outline-gold rounded-pill px-4 border-secondary text-white text-decoration-none">
+                                    <i class="bi bi-geo-alt me-2"></i> View Map
+                                </a>
+                                <a href="{% url 'bookings:step1_branch' %}?branch_id={{ branch.id }}"
+                                    class="btn btn-gold-gradient rounded-pill px-4 text-decoration-none bg-gold-gradient py-2 fw-bold text-dark">
+                                    Book Here
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

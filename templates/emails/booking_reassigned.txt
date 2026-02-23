@@ -1,0 +1,27 @@
+Hi {{ guest_name }},
+
+We've made a small update to your booking.
+Your therapist has been reassigned.
+
+All other details — date, time, service, and location — remain the same.
+
+THERAPIST CHANGE
+────────────────
+Previous: {{ old_worker_name }}
+New:      {{ worker_name }}
+
+YOUR BOOKING DETAILS
+────────────────────
+Booking Ref: {{ booking_ref }}
+Service:     {{ service_name }}
+Date:        {{ booking_date|date:"D, d M Y" }}
+Time:        {{ start_time|time:"g:i A" }} – {{ end_time|time:"g:i A" }}
+Location:    {{ branch_name }}
+
+View your updated booking (no login needed):
+{{ access_url }}
+
+Questions? Call us at {{ branch_phone }}
+or email us at {{ support_email }}.
+
+The Sahasrara Wellness Team

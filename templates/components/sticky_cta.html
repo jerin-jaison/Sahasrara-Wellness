@@ -1,0 +1,15 @@
+<div class="sticky-cta-container">
+    <div class="container-fluid" style="max-width: 500px;">
+        <button type="{{ type|default:'submit' }}" id="{{ button_id|default:'submit-btn' }}"
+            class="btn btn-wellness w-100 py-3 shadow-lg" {% if onclick %}onclick="{{ onclick }}" {% endif %}>
+            {{ label|default:'Continue' }} <i class="bi bi-chevron-right ml-1"></i>
+        </button>
+    </div>
+</div>
+
+<style>
+    .sticky-cta-container {
+        padding-top: 2rem;
+        /* Avoid content overlap */
+    }
+</style>

@@ -1,0 +1,27 @@
+Hi {{ guest_name }},
+
+{% if is_manual %}
+Your session has been booked by our team. We look forward to welcoming you!
+{% else %}
+Your payment was successful and your session is confirmed. We look forward to seeing you!
+{% endif %}
+
+YOUR BOOKING DETAILS
+────────────────────
+Booking Ref:  {{ booking_ref }}
+Service:      {{ service_name }}
+Therapist:    {{ worker_name }}
+Date:         {{ booking_date|date:"D, d M Y" }}
+Time:         {{ start_time|time:"g:i A" }} – {{ end_time|time:"g:i A" }}
+Location:     {{ branch_name }}
+{% if branch_address %}Address:      {{ branch_address }}{% endif %}
+{% if not is_manual %}Amount Paid:  ₹{{ amount_paid }}{% endif %}
+
+View your booking anytime (no login needed):
+{{ access_url }}
+
+Need to make changes? Call us at {{ branch_phone }}
+or email us at {{ support_email }}.
+
+See you soon,
+The Sahasrara Wellness Team
