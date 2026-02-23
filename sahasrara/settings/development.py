@@ -2,8 +2,12 @@ from .base import *
 
 DEBUG = True
 
-INSTALLED_APPS += ['debug_toolbar']
-MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+try:
+    import debug_toolbar
+    INSTALLED_APPS += ['debug_toolbar']
+    MIDDLEWARE.insert(1, 'debug_toolbar.middleware.DebugToolbarMiddleware')
+except ImportError:
+    pass
 
 INTERNAL_IPS = ['127.0.0.1']
 
