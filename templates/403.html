@@ -1,0 +1,11 @@
+{% extends 'errors/base_error.html' %}
+
+{% block title %}403 - Forbidden{% endblock %}
+
+{% block error_code %}403{% endblock %}
+{% block error_title %}Restricted Access{% endblock %}
+
+{% block error_message %}
+This area of the sanctuary is reserved.
+You do not have the required permissions to enter this space.
+{% endblock %}

@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <title>Receipt - {{ transaction.reference_id }}</title>
+    <style>
+        @page {
+            size: a4 portrait;
+            margin: 1cm;
+        }
+
+        body {
+            font-family: Helvetica, Arial, sans-serif;
+            font-size: 10pt;
+            color: #333;
+            line-height: 1.4;
+        }
+
+        .text-gold {
+            color: #c6a45a;
+        }
+
+        .fw-bold {
+            font-weight: bold;
+        }
+
+        .text-end {
+            text-align: right;
+        }
+
+        .text-center {
+            text-align: center;
+        }
+
+        .header {
+            border-bottom: 2px solid #c6a45a;
+            padding-bottom: 15pt;
+            margin-bottom: 20pt;
+        }
+
+        .receipt-title {
+            font-size: 24pt;
+            color: #0f0f0f;
+            text-transform: uppercase;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .table-premium {
+            margin: 20pt 0;
+        }
+
+        .table-premium th {
+            background-color: #fdfaf3;
+            color: #0f0f0f;
+            text-transform: uppercase;
+            padding: 10pt;
+            font-size: 9pt;
+            border-bottom: 1pt solid #eee;
+        }
+
+        .table-premium td {
+            padding: 12pt 10pt;
+            border-bottom: 1pt solid #eee;
+        }
+
+        .total-box {
+            background-color: #fdfaf3;
+            padding: 15pt;
+            border-radius: 5pt;
+        }
+
+        .footer {
+            margin-top: 40pt;
+            border-top: 1pt solid #eee;
+            padding-top: 15pt;
+            font-size: 8pt;
+            color: #777;
+            text-align: center;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 40%;
+            left: 30%;
+            font-size: 100pt;
+            color: rgba(198, 164, 90, 0.05);
+            transform: rotate(-45deg);
+            z-index: -1;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="watermark">PAID</div>
+
+    <table class="header">
+        <tr>
+            <td width="60%">
+                <h2 style="color:#0f0f0f; margin:0;">Sahasrara Wellness</h2>
+                <div style="font-size: 9pt; color: #666;">
+                    {{ business.email }}<br>
+                    {{ business.phone }}
+                </div>
+            </td>
+            <td width="40%" class="text-end">
+                <h1 class="receipt-title" style="margin:0;">Receipt</h1>
+                <div class="fw-bold">Ref: <span class="text-gold">#{{ transaction.reference_id }}</span></div>
+                <div style="font-size: 9pt; color: #666;">Date: {{ transaction.date|date:"d M Y, h:i A" }}</div>
+            </td>
+        </tr>
+    </table>
+
+    <table style="margin-bottom: 20pt;">
+        <tr>
+            <td width="50%">
+                <div style="font-size: 8pt; text-transform: uppercase; color: #999; font-weight: bold;">Customer Details
+                </div>
+                <div class="fw-bold" style="font-size: 11pt;">{{ guest.name }}</div>
+                <div style="color: #666;">{{ guest.phone }}</div>
+                <div style="color: #666;">{{ guest.email }}</div>
+            </td>
+            <td width="50%" class="text-end">
+                <div style="font-size: 8pt; text-transform: uppercase; color: #999; font-weight: bold;">Sanctuary
+                    Location</div>
+                <div class="fw-bold" style="font-size: 11pt;">{{ appointment.branch }}</div>
+                <div style="color: #666;">Confirmed Appointment</div>
+            </td>
+        </tr>
+    </table>
+
+    <table class="table-premium">
+        <thead>
+            <tr>
+                <th align="left">Service & Therapist</th>
+                <th align="center">Appointment</th>
+                <th align="right">Amount</th>
+            </tr>
+        </thead>
+        <tbody>
+            <tr>
+                <td>
+                    <div class="fw-bold">{{ appointment.service }}</div>
+                    <div style="font-size: 9pt; color: #666;">With {{ appointment.therapist }}</div>
+                </td>
+                <td class="text-center">
+                    <div class="fw-bold">{{ appointment.date|date:"D, d M Y" }}</div>
+                    <div style="font-size: 9pt; color: #666;">{{ appointment.time|time:"g:i A" }}</div>
+                </td>
+                <td class="text-end fw-bold">₹{{ financials.total|floatformat:0 }}</td>
+            </tr>
+        </tbody>
+    </table>
+
+    <table>
+        <tr>
+            <td width="55%" style="vertical-align: top;">
+                <div
+                    style="font-size: 8pt; text-transform: uppercase; color: #999; font-weight: bold; margin-bottom: 5pt;">
+                    Gateway Verification</div>
+                <div
+                    style="font-size: 8pt; border-left: 2pt solid #c6a45a; padding-left: 8pt; background: #fafafa; padding: 5pt;">
+                    <strong>Razorpay Payment ID:</strong> {{ transaction.razorpay_payment_id }}<br>
+                    <strong>Razorpay Order ID:</strong> {{ transaction.razorpay_order_id }}
+                </div>
+            </td>
+            <td width="5%"></td>
+            <td width="40%">
+                <div class="total-box">
+                    <table style="font-size: 10pt;">
+                        <tr>
+                            <td style="color: #666;">Subtotal:</td>
+                            <td class="text-end fw-bold">₹{{ financials.total|floatformat:0 }}</td>
+                        </tr>
+                        <tr>
+                            <td style="color: #666; padding: 5pt 0;">{{ transaction.payment_type }}:</td>
+                            <td class="text-end fw-bold" style="color: #28a745;">- ₹{{ financials.paid|floatformat:0 }}
+                            </td>
+                        </tr>
+                        <tr style="border-top: 1pt solid #ddd;">
+                            <td class="fw-bold" style="font-size: 12pt; padding-top: 8pt;">Balance Due:</td>
+                            <td class="text-end fw-bold text-gold" style="font-size: 12pt; padding-top: 8pt;">₹{{ financials.balance|floatformat:0 }}</td>
+                        </tr>
+                    </table>
+                </div>
+            </td>
+        </tr>
+    </table>
+
+    <div class="footer">
+        <p><strong>Thank you for choosing Sahasrara Wellness.</strong></p>
+        <p>This is a system-generated payment receipt and serves as confirmation of your advance/full payment. A
+            detailed GST invoice can be requested at the reception upon arrival.</p>
+        <p>{{ business.gstin_placeholder }}</p>
+    </div>
+</body>
+
+</html>

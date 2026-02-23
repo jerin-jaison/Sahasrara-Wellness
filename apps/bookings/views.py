@@ -452,7 +452,7 @@ def booking_confirmation(request, booking_id):
 @require_GET
 def api_slots(request):
     """
-    GET /book/api/slots/?worker_id=<uuid>&service_id=<uuid>&date=YYYY-MM-DD
+    GET /bookings/api/slots/?worker_id=<uuid>&service_id=<uuid>&date=YYYY-MM-DD
     Returns JSON list of available slots.
     """
     worker_id = request.GET.get('worker_id')
@@ -587,7 +587,6 @@ def booking_detail_token(request, access_token):
 # Cancel Lock (Go Back & Change Slot)
 # ─────────────────────────────────────────────────────────────────────────────
 
-@require_POST
 def cancel_lock(request):
     lock_id = booking_session_get(request, 'slot_lock_id')
     if lock_id:

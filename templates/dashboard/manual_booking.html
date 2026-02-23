@@ -69,7 +69,8 @@
                     <label class="form-label">Service *</label>
                     <select name="service_id" id="service_sel" class="form-control" required>
                         <option value="">Select service…</option>
-                        {% for s in services %}<option value="{{ s.id }}" {% if s.id|stringformat:"s" == post_service_id%}selected{% endif %}data-branches="{% for b in s.branches.all %}{{ b.id }} {% endfor %}">{{ s.name }} ({{s.duration_minutes }} min) — ₹{{ s.price|floatformat:0 }}</option>{% endfor%}
+                        {% for s in services %}<option value="{{ s.id }}" {% if s.id|stringformat:"s" == post_service_id%}selected{% endif  %}data-branches="{% for b in s.branches.all %}{{ b.id }} {% endfor %}">{{ s.name }}
+                            ({{s.duration_minutes }} min) — ₹{{ s.price|floatformat:0 }}</option>{% endfor%}
                     </select>
                 </div>
             </div>
@@ -78,7 +79,8 @@
                     <label class="form-label">Therapist *</label>
                     <select name="worker_id" id="worker_sel" class="form-control" required>
                         <option value="">Select therapist…</option>
-                        {% for w in workers %}<option value="{{ w.id }}" {% if w.id|stringformat:"s" == post_worker_id%}selected{% endif %} data-branch="{{ w.branch_id }}">{{ w.name }}</option>{% endfor %}
+                        {% for w in workers %}<option value="{{ w.id }}" {% if w.id|stringformat:"s" == post_worker_id%}selected{% endif %} data-branch="{{ w.branch_id }}">
+                            {{ w.name }}</option>{% endfor %}
                     </select>
                 </div>
             </div>
@@ -96,11 +98,15 @@
                         value="{{ request.POST.booking_date }}">
                 </div>
             </div>
-            <div class="col-12 col-sm-6 col-md-3">
+            <div class="col-12 col-md-6">
                 <div class="form-group mb-0">
-                    <label class="form-label">Start Time *</label>
-                    <input type="time" name="start_time" class="form-control" required
-                        value="{{ request.POST.start_time }}">
+                    <label class="form-label">Available Time Slots *</label>
+                    <div id="slots-grid" class="slots-grid mt-2">
+                        <p class="small text-muted mb-0" id="slots-placeholder">Select Date, Service, and Therapist to
+                            see availability.</p>
+                    </div>
+                    <div id="slots-error" class="small text-danger mt-2" style="display:none;"></div>
+                    <input type="hidden" name="start_time" id="start_time_hidden" required>
                 </div>
             </div>
         </div>
@@ -141,8 +147,100 @@
             var curW = workerSel.querySelector('option[value="' + workerSel.value + '"]');
             if (curW && curW.style.display === 'none') workerSel.value = '';
         }
+        fetchSlots();
     }
+
+    let fetchController = null;
+    let debounceTimer = null;
+
+    function fetchSlots() {
+        const branchId = document.getElementById('branch_sel').value;
+        const serviceId = document.getElementById('service_sel').value;
+        const workerId = document.getElementById('worker_sel').value;
+        const dateInput = document.querySelector('input[name="booking_date"]');
+        const date = dateInput.value;
+        const grid = document.getElementById('slots-grid');
+        const placeholder = document.getElementById('slots-placeholder');
+        const errorMsg = document.getElementById('slots-error');
+        const hiddenInput = document.getElementById('start_time_hidden');
+        const submitBtn = document.querySelector('button[type="submit"]');
+
+        // Reset UI
+        grid.innerHTML = '';
+        errorMsg.style.display = 'none';
+        hiddenInput.value = '';
+        submitBtn.disabled = true;
+
+        if (!branchId || !serviceId || !workerId || !date) {
+            if (placeholder) placeholder.style.display = 'block';
+            grid.innerHTML = '<p class="small text-muted mb-0">Select Date, Service, and Therapist to see availability.</p>';
+            return;
+        }
+
+        // Debounce & Cancel previous
+        clearTimeout(debounceTimer);
+        if (fetchController) fetchController.abort();
+
+        // Show Shimmer
+        for (let i = 0; i < 6; i++) {
+            const shim = document.createElement('div');
+            shim.className = 'shimmer-slot';
+            grid.appendChild(shim);
+        }
+
+        debounceTimer = setTimeout(() => {
+            fetchController = new AbortController();
+            const url = `/bookings/api/slots/?branch_id=${branchId}&service_id=${serviceId}&worker_id=${workerId}&date=${date}`;
+
+            fetch(url, { signal: fetchController.signal })
+                .then(res => res.json())
+                .then(data => {
+                    grid.innerHTML = '';
+                    if (data.slots && data.slots.length > 0) {
+                        data.slots.forEach(slot => {
+                            const btn = document.createElement('button');
+                            btn.type = 'button';
+                            btn.className = 'btn slot-btn';
+                            btn.innerText = slot.display;
+                            btn.onclick = function () {
+                                grid.querySelectorAll('.slot-btn').forEach(b => b.classList.remove('active'));
+                                btn.classList.add('active');
+                                hiddenInput.value = slot.start;
+                                submitBtn.disabled = false;
+                            };
+                            grid.appendChild(btn);
+                        });
+                    } else {
+                        grid.innerHTML = '<p class="small text-gold mb-0">No slots available for this combination. Please try another date or therapist.</p>';
+                    }
+                })
+                .catch(err => {
+                    if (err.name === 'AbortError') return;
+                    grid.innerHTML = '';
+                    errorMsg.innerText = "Error fetching availability. Please try again.";
+                    errorMsg.style.display = 'block';
+                    console.error("Slot fetch error:", err);
+                });
+        }, 300);
+    }
+
+    document.getElementById('branch_sel').addEventListener('change', filterByBranch);
+    document.getElementById('service_sel').addEventListener('change', fetchSlots);
+    document.getElementById('worker_sel').addEventListener('change', fetchSlots);
+    document.querySelector('input[name="booking_date"]').addEventListener('change', fetchSlots);
+
+    // Initial check
     if (document.getElementById('branch_sel').value) filterByBranch();
+
+    document.getElementById('manualBookingForm').onsubmit = function () {
+        if (!document.getElementById('start_time_hidden').value) {
+            alert("Please select a time slot.");
+            return false;
+        }
+        const btn = this.querySelector('button[type="submit"]');
+        btn.innerHTML = '<span class="spinner-border spinner-border-sm me-2"></span> Creating…';
+        btn.disabled = true;
+    };
 </script>
 
 {% endblock %}

@@ -1,152 +1,864 @@
-{% extends "base_site.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}Contact & Find Us — Sahasrara Wellness{% endblock %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact & Find Us — Sahasrara Wellness</title>
 
-{% block extra_css %}
-.contact-hero {
-height: 50vh;
-background: linear-gradient(to bottom, rgba(8, 8, 8, 0.4), var(--dark-depth)),
-url('{% static "backgroud-1.jpg" %}') no-repeat center center/cover;
-display: flex;
-align-items: center;
-justify-content: center;
-text-align: center;
-padding-top: 100px;
-}
+  <!-- Foundation -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
 
-.location-card {
-background: var(--dark-surface);
-border: 1px solid var(--border-subtle);
-border-radius: 30px;
-padding: 40px;
-height: 100%;
-transition: all 0.4s var(--ease);
-}
+  <!-- SEO -->
+  <meta name="description" content="Contact Sahasrara Wellness — A premium sanctuary for holistic healing, therapeutic massage, and spiritual tranquility. Find our locations or reach us directly.">
+  <meta name="keywords" content="Wellness, Spa, Massage, Healing, Sahasrara, Kerala, Thodupuzha, Adimali">
+  <meta name="author" content="Sahasrara Wellness">
 
-.location-card:hover {
-border-color: var(--gold);
-transform: translateY(-5px);
-}
+  <!-- Social Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Contact & Find Us — Sahasrara Wellness">
+  <meta property="og:description" content="Unlock inner peace with our master therapists. Experience the art of healing.">
+  <meta property="og:url" content="https://sahasrarawellness.com/contact">
+  <link rel="shortcut icon" href="{% static 'logo1.jpeg' %}" type="image/x-icon">
+  <link rel="apple-touch-icon" href="{% static 'logo1.jpeg' %}">
+  <style>
+    /* ── CSS Variables ───────────────────────────────────────────────────── */
+    :root {
+      --gold: #c6a45a;
+      --gold-light: #e3c87a;
+      --dark-depth: #080808;
+      --dark-surface: #121212;
+      --border-subtle: rgba(198, 164, 90, 0.15);
+      --gold-gradient: linear-gradient(135deg, #c6a45a 0%, #e3c87a 100%);
+      --glass: rgba(20, 20, 20, 0.85);
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.contact-method {
-display: flex;
-align-items: center;
-gap: 20px;
-margin-bottom: 25px;
-padding: 20px;
-background: rgba(255, 255, 255, 0.03);
-border-radius: 20px;
-border: 1px solid rgba(255, 255, 255, 0.05);
-text-decoration: none;
-transition: all 0.3s;
-}
+    /* ── Base ────────────────────────────────────────────────────────────── */
+    body {
+      background-color: var(--dark-depth);
+      color: #ffffff;
+      font-family: 'Outfit', sans-serif;
+      overflow-x: hidden;
+      letter-spacing: 0.2px;
+    }
 
-.contact-method:hover {
-background: rgba(198, 164, 90, 0.05);
-border-color: var(--gold);
-}
+    h1, h2, h3, .garamond {
+      font-family: 'Cormorant Garamond', serif;
+    }
 
-.contact-icon {
-width: 50px;
-height: 50px;
-background: var(--gold-gradient);
-border-radius: 15px;
-display: flex;
-align-items: center;
-justify-content: center;
-color: #000;
-font-size: 1.5rem;
-}
+    /* ── Animations ──────────────────────────────────────────────────────── */
+    @keyframes levitate {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
 
-.method-label {
-display: block;
-font-size: 0.8rem;
-color: rgba(255, 255, 255, 0.5);
-text-transform: uppercase;
-letter-spacing: 1px;
-}
+    @keyframes glowPulse {
+      0%   { box-shadow: 0 0 5px rgba(198, 164, 90, 0.2); }
+      50%  { box-shadow: 0 0 20px rgba(198, 164, 90, 0.6); }
+      100% { box-shadow: 0 0 5px rgba(198, 164, 90, 0.2); }
+    }
 
-.method-value {
-display: block;
-font-size: 1.1rem;
-color: #fff;
-font-weight: 500;
-}
-{% endblock %}
+    @keyframes shimmer {
+      0%   { background-position: -200% center; }
+      100% { background-position: 200% center; }
+    }
 
-{% block content %}
-<section class="contact-hero">
-    <div class="container">
-        <div class="hero-subtitle" data-aos="fade-up">Get in Touch</div>
-        <h1 class="display-3 fw-bold garamond" data-aos="fade-up" data-aos-delay="100">Find Your Sanctuary</h1>
-    </div>
-</section>
+    @keyframes floatOrb {
+      0%, 100% { transform: translateY(0) scale(1); opacity: 0.4; }
+      50%       { transform: translateY(-30px) scale(1.05); opacity: 0.6; }
+    }
 
-<section class="section-padding">
-    <div class="container">
-        <div class="row g-5">
-            <!-- Global Contact Info -->
-            <div class="col-lg-5" data-aos="fade-right">
-                <h2 class="display-5 text-gold garamond mb-4">Connect With Us</h2>
-                <p class="text-white-50 mb-5">Have questions? Reach out to us directly via any of these channels.</p>
+    /* ── Navbar ──────────────────────────────────────────────────────────── */
+    .navbar-premium {
+      padding: 8px 0;
+      position: relative;
+      top: 0;
+      margin: 15px auto 0;
+      width: 92%;
+      max-width: 1200px;
+      z-index: 1000;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: none;
+      border-radius: 100px;
+      transition: all 0.5s var(--ease);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
 
-                <a href="tel:+919747000210" class="contact-method">
-                    <div class="contact-icon"><i class="bi bi-telephone"></i></div>
-                    <div>
-                        <span class="method-label">Call Us</span>
-                        <span class="method-value">+91 97470 00210</span>
-                    </div>
-                </a>
+    .navbar-premium.scrolled {
+      background: rgba(5, 5, 5, 0.9);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+    }
 
-                <a href="https://wa.me/919747000210?text=I'd%20like%20to%20enquire%20about%20your%20services."
-                    target="_blank" class="contact-method">
-                    <div class="contact-icon" style="background: #25D366; color: white;"><i class="bi bi-whatsapp"></i>
-                    </div>
-                    <div>
-                        <span class="method-label">WhatsApp</span>
-                        <span class="method-value">Open Chat</span>
-                    </div>
-                </a>
+    .navbar-brand { animation: levitate 4s ease-in-out infinite; }
 
-                <a href="mailto:bookings@sahasrarawellness.com" class="contact-method">
-                    <div class="contact-icon"><i class="bi bi-envelope"></i></div>
-                    <div>
-                        <span class="method-label">Email</span>
-                        <span class="method-value">bookings@sahasrarawellness.com</span>
-                    </div>
-                </a>
-            </div>
+    .navbar-brand-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: #fff;
+    }
 
-            <!-- Branch Locations -->
-            <div class="col-lg-7" data-aos="fade-left">
-                <h2 class="display-5 text-gold garamond mb-4">Our Locations</h2>
-                <div class="row g-4">
-                    {% for branch in branches %}
-                    <div class="col-12">
-                        <div class="location-card">
-                            <div class="d-flex justify-content-between align-items-start mb-3">
-                                <h3 class="text-white garamond h2 mb-0">{{ branch.name }}</h3>
-                                <div class="text-gold small fw-bold uppercase-tracking">{{ branch.city }}</div>
-                            </div>
-                            <p class="text-white-50 mb-4">{{ branch.address }}</p>
+    .btn-booking {
+      background: var(--gold-gradient);
+      color: #000 !important;
+      font-weight: 700;
+      padding: 10px 24px;
+      border-radius: 50px;
+      text-decoration: none !important;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(198, 164, 90, 0.2);
+      font-size: 0.85rem;
+      animation: glowPulse 3s infinite ease-in-out;
+    }
 
-                            <div class="d-flex flex-wrap gap-3">
-                                <a href="{{ branch.google_maps_url }}" target="_blank"
-                                    class="btn btn-outline-gold rounded-pill px-4 border-secondary text-white text-decoration-none">
-                                    <i class="bi bi-geo-alt me-2"></i> View Map
-                                </a>
-                                <a href="{% url 'bookings:step1_branch' %}?branch_id={{ branch.id }}"
-                                    class="btn btn-gold-gradient rounded-pill px-4 text-decoration-none bg-gold-gradient py-2 fw-bold text-dark">
-                                    Book Here
-                                </a>
-                            </div>
-                        </div>
-                    </div>
-                    {% endfor %}
-                </div>
-            </div>
+    .btn-booking:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(198, 164, 90, 0.4);
+    }
+
+    .nav-link-premium {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      margin: 0 12px;
+      position: relative;
+    }
+
+    .nav-link-premium::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--gold);
+      transition: width 0.3s var(--ease);
+    }
+
+    .nav-link-premium:hover { color: var(--gold); transform: translateY(-2px); }
+    .nav-link-premium:hover::after { width: 100%; }
+    .nav-link-premium.active { color: var(--gold); }
+    .nav-link-premium.active::after { width: 100%; }
+
+    .navbar-toggler { border-color: var(--gold); padding: 8px 12px; }
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(198, 164, 90)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    /* ── WhatsApp Float ──────────────────────────────────────────────────── */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      z-index: 1000;
+      transition: transform 0.3s;
+    }
+
+    .whatsapp-btn {
+      background: #25D366;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 28px;
+      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+      text-decoration: none;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .whatsapp-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
+      color: white;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────────────── */
+    footer {
+      background: #050505;
+      padding: 80px 0 40px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .footer-link {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      transition: color 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .footer-link:hover { color: var(--gold); }
+
+    .footer-title {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .no-refund-box {
+      background: rgba(198, 164, 90, 0.05);
+      border: 1px solid var(--border-subtle);
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    /* ── Utilities ───────────────────────────────────────────────────────── */
+    .section-padding { padding: 100px 0; }
+    .text-gold { color: var(--gold); }
+    .hero-subtitle {
+      font-size: 1rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    /* ── Contact Hero ─────────────────────────────────────────────────────── */
+    .contact-hero {
+      position: relative;
+      min-height: 55vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding-top: 120px;
+      padding-bottom: 60px;
+      overflow: hidden;
+      background: linear-gradient(to bottom, rgba(8, 8, 8, 0.3), var(--dark-depth)),
+                  linear-gradient(135deg, #0f0f0f 0%, #1a1208 50%, #080808 100%);
+    }
+
+    /* Decorative orbs in hero */
+    .contact-hero::before {
+      content: '';
+      position: absolute;
+      top: 10%;
+      left: 15%;
+      width: 350px;
+      height: 350px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(198, 164, 90, 0.12) 0%, transparent 70%);
+      animation: floatOrb 8s ease-in-out infinite;
+      pointer-events: none;
+    }
+
+    .contact-hero::after {
+      content: '';
+      position: absolute;
+      bottom: 5%;
+      right: 10%;
+      width: 250px;
+      height: 250px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(198, 164, 90, 0.08) 0%, transparent 70%);
+      animation: floatOrb 10s ease-in-out infinite reverse;
+      pointer-events: none;
+    }
+
+    .contact-hero .display-3 {
+      font-size: clamp(2.5rem, 6vw, 4.5rem);
+      line-height: 1.1;
+    }
+
+    .hero-divider {
+      width: 80px;
+      height: 2px;
+      background: var(--gold-gradient);
+      margin: 20px auto 0;
+      border-radius: 2px;
+    }
+
+    /* ── Contact Methods ──────────────────────────────────────────────────── */
+    .contact-method {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      margin-bottom: 20px;
+      padding: 20px 24px;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 20px;
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      text-decoration: none;
+      transition: all 0.35s var(--ease);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .contact-method::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(135deg, rgba(198, 164, 90, 0.05), transparent);
+      opacity: 0;
+      transition: opacity 0.35s;
+    }
+
+    .contact-method:hover {
+      background: rgba(198, 164, 90, 0.04);
+      border-color: rgba(198, 164, 90, 0.35);
+      transform: translateX(6px);
+    }
+
+    .contact-method:hover::before { opacity: 1; }
+
+    .contact-icon {
+      width: 52px;
+      height: 52px;
+      min-width: 52px;
+      background: var(--gold-gradient);
+      border-radius: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #000;
+      font-size: 1.4rem;
+      box-shadow: 0 4px 15px rgba(198, 164, 90, 0.25);
+      transition: transform 0.3s;
+    }
+
+    .contact-method:hover .contact-icon { transform: scale(1.08) rotate(-3deg); }
+
+    .method-label {
+      display: block;
+      font-size: 0.75rem;
+      color: rgba(255, 255, 255, 0.45);
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 3px;
+    }
+
+    .method-value {
+      display: block;
+      font-size: 1.05rem;
+      color: #fff;
+      font-weight: 500;
+    }
+
+    /* ── Section intro ────────────────────────────────────────────────────── */
+    .section-intro {
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.45);
+      margin-bottom: 2.5rem;
+      line-height: 1.7;
+    }
+
+    .gold-line {
+      width: 50px;
+      height: 2px;
+      background: var(--gold-gradient);
+      border-radius: 2px;
+      margin-bottom: 24px;
+    }
+
+    /* ── Location Cards ───────────────────────────────────────────────────── */
+    .location-card {
+      background: var(--dark-surface);
+      border: 1px solid var(--border-subtle);
+      border-radius: 28px;
+      padding: 36px 40px;
+      height: 100%;
+      transition: all 0.4s var(--ease);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .location-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gold-gradient);
+      transform: scaleX(0);
+      transition: transform 0.4s var(--ease);
+      transform-origin: left;
+    }
+
+    .location-card:hover {
+      border-color: rgba(198, 164, 90, 0.3);
+      transform: translateY(-6px);
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4), 0 0 30px rgba(198, 164, 90, 0.06);
+    }
+
+    .location-card:hover::before { transform: scaleX(1); }
+
+    .branch-badge {
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      color: var(--gold);
+      background: rgba(198, 164, 90, 0.08);
+      border: 1px solid rgba(198, 164, 90, 0.2);
+      padding: 5px 14px;
+      border-radius: 50px;
+    }
+
+    .branch-address {
+      color: rgba(255, 255, 255, 0.5);
+      line-height: 1.7;
+      font-size: 0.95rem;
+      margin-bottom: 1.75rem;
+    }
+
+    /* ── Buttons ──────────────────────────────────────────────────────────── */
+    .btn-outline-gold {
+      color: rgba(255, 255, 255, 0.8);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 50px;
+      padding: 9px 22px;
+      font-size: 0.9rem;
+      font-weight: 500;
+      text-decoration: none;
+      transition: all 0.3s;
+      background: transparent;
+    }
+
+    .btn-outline-gold:hover {
+      border-color: var(--gold);
+      color: var(--gold);
+    }
+
+    .btn-gold-gradient {
+      background: var(--gold-gradient);
+      color: #000 !important;
+      border-radius: 50px;
+      padding: 9px 22px;
+      font-size: 0.9rem;
+      font-weight: 700;
+      text-decoration: none;
+      transition: all 0.3s;
+      box-shadow: 0 4px 15px rgba(198, 164, 90, 0.2);
+    }
+
+    .btn-gold-gradient:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(198, 164, 90, 0.4);
+    }
+
+    /* ── Decorative Map Strip ─────────────────────────────────────────────── */
+    .map-strip {
+      position: relative;
+      background: var(--dark-surface);
+      border-top: 1px solid var(--border-subtle);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 60px 0;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .map-strip::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(ellipse at center, rgba(198, 164, 90, 0.06) 0%, transparent 65%);
+    }
+
+    .map-strip-inner {
+      position: relative;
+      z-index: 1;
+    }
+
+    .map-stat {
+      padding: 0 40px;
+    }
+
+    .map-stat .stat-number {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--gold);
+      line-height: 1;
+    }
+
+    .map-stat .stat-label {
+      font-size: 0.8rem;
+      color: rgba(255, 255, 255, 0.45);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 8px;
+    }
+
+    .map-stat-divider {
+      width: 1px;
+      height: 60px;
+      background: var(--border-subtle);
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width: 991px) {
+      .section-padding { padding: 70px 0; }
+      .navbar-premium {
+        border-radius: 20px;
+        margin: 10px auto 0;
+      }
+      .navbar-collapse {
+        background: rgba(10, 10, 10, 0.95);
+        margin-top: 12px;
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .nav-link-premium { margin: 6px 0; display: block; }
+    }
+
+    @media (max-width: 768px) {
+      .contact-hero { min-height: 45vh; }
+      .whatsapp-float { bottom: 20px; right: 20px; }
+      .location-card { padding: 28px; }
+      .map-stat .stat-number { font-size: 2.5rem; }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- WhatsApp Floating Action -->
+  <div class="whatsapp-float">
+    <a href="https://wa.me/919747000210?text=Hello%20Sahasrara%20Wellness,%20I'd%20like%20to%20book%20a%20session."
+       class="whatsapp-btn" target="_blank" aria-label="Chat on WhatsApp">
+      <i class="bi bi-whatsapp"></i>
+    </a>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-premium" id="mainNavbar">
+    <div class="container d-flex justify-content-between align-items-center">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        
+        <img src="{% static 'logo1.jpeg' %}" alt="Logo" style="height:40px;">
+        <span class="navbar-brand-text ms-2 d-none d-sm-inline">Sahasrara Wellness</span>
+      </a>
+
+      <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse"
+              data-bs-target="#navbarContent" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <div class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <a href="/" class="nav-link-premium">Home</a>
+          <a href="/about" class="nav-link-premium">About Us</a>
+          <a href="/services" class="nav-link-premium">Our Services</a>
+          <a href="/contact" class="nav-link-premium active">Contact</a>
         </div>
+        <div class="d-flex align-items-center">
+          <a href="/bookings" class="btn-booking">Book Online</a>
+        </div>
+      </div>
     </div>
-</section>
-{% endblock %}
+  </nav>
+
+  <main>
+
+    <!-- ── Hero ───────────────────────────────────────────────────────────── -->
+    <section class="contact-hero">
+      <div class="container position-relative" style="z-index:1;">
+        <div class="hero-subtitle" data-aos="fade-up">Get in Touch</div>
+        <h1 class="display-3 fw-bold garamond" data-aos="fade-up" data-aos-delay="100">
+          Find Your Sanctuary
+        </h1>
+        <p class="mt-3 text-white-50" data-aos="fade-up" data-aos-delay="200"
+           style="max-width: 480px; margin: 0 auto; font-size: 1.05rem; line-height: 1.7;">
+          Two serene locations in the heart of Kerala, ready to welcome you.
+        </p>
+        <div class="hero-divider" data-aos="fade-up" data-aos-delay="300"></div>
+      </div>
+    </section>
+
+    <!-- ── Stats Strip ─────────────────────────────────────────────────────── -->
+    <div class="map-strip">
+      <div class="container map-strip-inner">
+        <div class="d-flex justify-content-center align-items-center flex-wrap gap-4">
+          <div class="map-stat text-center">
+            <div class="stat-number">2</div>
+            <div class="stat-label">Locations</div>
+          </div>
+          <div class="map-stat-divider d-none d-md-block"></div>
+          <div class="map-stat text-center">
+            <div class="stat-number">4.5★</div>
+            <div class="stat-label">Rated Experience</div>
+          </div>
+          <div class="map-stat-divider d-none d-md-block"></div>
+          <div class="map-stat text-center">
+            <div class="stat-number">∞</div>
+            <div class="stat-label">Wellness Sessions</div>
+          </div>
+          <div class="map-stat-divider d-none d-md-block"></div>
+          <div class="map-stat text-center">
+            <div class="stat-number">24h</div>
+            <div class="stat-label">Response Time</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Main Content ────────────────────────────────────────────────────── -->
+    <section class="section-padding">
+      <div class="container">
+        <div class="row g-5 align-items-start">
+
+          <!-- Left: Contact Methods -->
+          <div class="col-lg-5" data-aos="fade-right">
+            <div class="gold-line"></div>
+            <h2 class="display-5 text-gold garamond mb-2">Connect With Us</h2>
+            <p class="section-intro">
+              Have questions about our services, therapists, or bookings? Reach out to us directly — we're always happy to help.
+            </p>
+
+            <a href="tel:+919747000210" class="contact-method">
+              <div class="contact-icon"><i class="bi bi-telephone-fill"></i></div>
+              <div>
+                <span class="method-label">Call Us</span>
+                <span class="method-value">+91 97470 00210</span>
+              </div>
+            </a>
+
+            <a href="https://wa.me/919747000210?text=I'd%20like%20to%20enquire%20about%20your%20services."
+               target="_blank" class="contact-method">
+              <div class="contact-icon" style="background: #25D366; color: white;">
+                <i class="bi bi-whatsapp"></i>
+              </div>
+              <div>
+                <span class="method-label">WhatsApp</span>
+                <span class="method-value">Open Chat →</span>
+              </div>
+            </a>
+
+            <a href="mailto:bookings@sahasrarawellness.com" class="contact-method">
+              <div class="contact-icon"><i class="bi bi-envelope-fill"></i></div>
+              <div>
+                <span class="method-label">Email</span>
+                <span class="method-value">sahasrarawellness@gmail.com</span>
+              </div>
+            </a>
+
+            <a href="https://www.instagram.com/sahasrara.wellness" target="_blank" class="contact-method">
+              <div class="contact-icon" style="background: linear-gradient(135deg, #833ab4, #fd1d1d, #fcb045); color: white;">
+                <i class="bi bi-instagram"></i>
+              </div>
+              <div>
+                <span class="method-label">Instagram</span>
+                <span class="method-value">@sahasrara.wellness</span>
+              </div>
+            </a>
+
+            <!-- Hours block -->
+            {% comment %} <div class="mt-5 p-4" style="background: rgba(198,164,90,0.05); border: 1px solid var(--border-subtle); border-radius: 20px;">
+              <div class="d-flex align-items-center gap-3 mb-3">
+                <div class="contact-icon" style="width:40px;height:40px;font-size:1.1rem;">
+                  <i class="bi bi-clock-fill"></i>
+                </div>
+                <span class="text-gold fw-600" style="font-size:0.85rem;letter-spacing:1px;text-transform:uppercase;">Operating Hours</span>
+              </div>
+              <div class="text-white-50 small" style="line-height:2;">
+                <div class="d-flex justify-content-between">
+                  <span>Monday – Sunday</span>
+                  <span class="text-white">11:00 AM – 9:00 PM</span>
+                  <span class="text-white">Adimali</span>
+                </div>
+                <div class="d-flex justify-content-between">
+                  <span>Monday – Sunday</span>
+                  <span class="text-white">11:00 AM – 7:00 PM</span>
+                  <span class="text-white">Thodupuzha</span>
+                </div>
+              </div>
+            </div> {% endcomment %}
+          </div>
+
+          <!-- Right: Branch Locations -->
+          <div class="col-lg-7" data-aos="fade-left">
+            <div class="gold-line"></div>
+            <h2 class="display-5 text-gold garamond mb-2">Our Locations</h2>
+            <p class="section-intro">Visit us at either of our tranquil wellness sanctuaries across Kerala.</p>
+
+            <div class="row g-4">
+
+              <!-- Branch 1: Thodupuzha -->
+              <div class="col-12" data-aos="fade-up" data-aos-delay="100">
+                <div class="location-card">
+                  <div class="d-flex justify-content-between align-items-start mb-4">
+                    <h3 class="text-white garamond mb-0" style="font-size: 1.8rem;">Sahasrara Thodupuzha</h3>
+                    <span class="branch-badge">Thodupuzha</span>
+                  </div>
+                  <p class="branch-address">
+                    <i class="bi bi-geo-alt-fill text-gold me-2"></i>
+                    Ground Floor, Near KSRTC Bus Stand, Thodupuzha, Idukki, Kerala – 685 584
+                  </p>
+                  <div class="d-flex flex-wrap gap-3">
+                    <a href="https://maps.app.goo.gl/1rdzYsqYcGTKGRK87" target="_blank" class="btn-outline-gold">
+                      <i class="bi bi-geo-alt me-2"></i>View Map
+                    </a>
+                    <a href="/bookings" class="btn-gold-gradient">
+                      Book Here
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Branch 2: Adimali -->
+              <div class="col-12" data-aos="fade-up" data-aos-delay="200">
+                <div class="location-card">
+                  <div class="d-flex justify-content-between align-items-start mb-4">
+                    <h3 class="text-white garamond mb-0" style="font-size: 1.8rem;">Sahasrara Adimali</h3>
+                    <span class="branch-badge">Adimali</span>
+                  </div>
+                  <p class="branch-address">
+                    <i class="bi bi-geo-alt-fill text-gold me-2"></i>
+                    Main Road, Near Municipal Market, Adimali, Idukki, Kerala – 685 561
+                  </p>
+                  <div class="d-flex flex-wrap gap-3">
+                    <a href="https://maps.app.goo.gl/35BaAuHcpchwpAho9" target="_blank" class="btn-outline-gold">
+                      <i class="bi bi-geo-alt me-2"></i>View Map
+                    </a>
+                    <a href="/bookings" class="btn-gold-gradient">
+                      Book Here
+                    </a>
+                  </div>
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ── FAQ / Policy Strip ──────────────────────────────────────────────── -->
+    <section style="padding: 0 0 100px;">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-lg-10">
+            <div class="p-5" style="background: var(--dark-surface); border: 1px solid var(--border-subtle); border-radius: 28px;" data-aos="fade-up">
+              <div class="row g-4 align-items-center">
+                <div class="col-lg-6">
+                  <h3 class="garamond text-gold mb-3" style="font-size: 1.9rem;">Ready to Begin?</h3>
+                  <p class="text-white-50" style="line-height: 1.8; font-size: 0.95rem;">
+                    Book your session online in minutes, or simply call or WhatsApp us. Our team is always happy to help you find the right treatment for your needs.
+                  </p>
+                  <div class="d-flex gap-3 mt-4 flex-wrap">
+                    <a href="/bookings" class="btn-gold-gradient">Book a Session</a>
+                    <a href="https://wa.me/919747000210" target="_blank" class="btn-outline-gold">
+                      <i class="bi bi-whatsapp me-2"></i>Chat Now
+                    </a>
+                  </div>
+                </div>
+                <div class="col-lg-6">
+                  <div class="p-4" style="background: rgba(198, 164, 90, 0.04); border: 1px solid var(--border-subtle); border-radius: 16px;">
+                    <div class="d-flex align-items-center gap-2 mb-3">
+                      <i class="bi bi-shield-fill-check text-gold fs-5"></i>
+                      <span class="text-gold fw-bold" style="font-size:0.8rem; letter-spacing:1px; text-transform:uppercase;">Policy Notice</span>
+                    </div>
+                    <p class="text-white-50 small mb-2" style="line-height: 1.7;">
+                      <strong class="text-white">No Refund Policy:</strong> Booking deposits and full payments are non-refundable.
+                      Re-scheduling is allowed up to 4 hours prior to your appointment.
+                    </p>
+                    <a href="/refund-policy" class="text-gold" style="font-size: 0.85rem; text-decoration: none;">
+                      Read full policy <i class="bi bi-arrow-right ms-1"></i>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+
+        <div class="col-lg-4 mb-5 mb-lg-0">
+          <div class="d-flex align-items-center mb-4">
+            <span class="text-gold garamond fw-bold" style="font-size: 1.4rem; letter-spacing: 1.5px;">Sahasrara Wellness</span>
+          </div>
+          <p class="text-white-50 small pe-lg-5">
+            Experience the gold standard of wellness. From traditional therapies to modern rejuvenation.
+          </p>
+          <div class="d-flex gap-3 mt-4">
+            <a href="https://www.instagram.com/sahasrara.wellness" class="footer-link fs-5" target="_blank"><i class="bi bi-instagram"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61573191974596" class="footer-link fs-5" target="_blank"><i class="bi bi-facebook"></i></a>
+            <a href="https://share.google/YhoWdPG8SlKoJ06YA" class="footer-link fs-5" target="_blank"><i class="bi bi-google"></i></a>
+            <a href="mailto:sahasrarawellness@gmail.com" class="footer-link fs-5"><i class="bi bi-envelope-fill"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-6 mb-4 mb-lg-0">
+          <span class="footer-title">Links</span>
+          <ul class="list-unstyled" style="line-height: 2.2;">
+            <li><a href="/" class="footer-link">Home</a></li>
+            <li><a href="/about" class="footer-link">About Us</a></li>
+            <li><a href="/services" class="footer-link">Our Services</a></li>
+            <li><a href="/contact" class="footer-link">Contact Us</a></li>
+            <li><a href="/bookings" class="footer-link">Book Now</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-6 mb-4 mb-lg-0">
+          <span class="footer-title">Legal</span>
+          <ul class="list-unstyled" style="line-height: 2.2;">
+            <li><a href="/terms-conditions/" class="footer-link">Terms & Conditions</a></li>
+            <li><a href="/privacy-policy" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/refund-policy" class="footer-link">No Refund Policy</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 mb-4 mb-lg-0">
+          <span class="footer-title">Policy Notice</span>
+          <div class="no-refund-box small text-white-50">
+            <i class="bi bi-shield-exclamation text-gold me-2"></i>
+            <strong>No Refund Policy:</strong> Booking deposits and full payments are non-refundable.
+            Re-scheduling is allowed up to 4 hours prior.
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-5 border-top border-secondary pt-4 text-center">
+        <p class="text-white-50 small mb-0">&copy; 2026 Sahasrara Wellness. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 1000, once: true, easing: 'ease-out-quart' });
+
+    window.addEventListener('scroll', function () {
+      const nav = document.getElementById('mainNavbar');
+      if (window.scrollY > 50) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+  </script>
+
+</body>
+</html>

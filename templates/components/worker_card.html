@@ -2,11 +2,7 @@
     onclick="selectWorker('{{ worker.id }}')">
     <div class="d-flex align-items-center gap-3">
         <div class="worker-avatar">
-            {% if worker.photo %}
-            <img src="{{ worker.photo.url }}" alt="{{ worker.name }}">
-            {% else %}
             <div class="avatar-placeholder">{{ worker.name|slice:":1" }}</div>
-            {% endif %}
         </div>
         <div class="flex-grow-1">
             <h6 class="mb-0 fw-bold text-white">{{ worker.name }}</h6>
@@ -59,5 +55,19 @@
         color: var(--gold);
         font-weight: 700;
         background: rgba(198, 164, 90, 0.1);
+        font-size: 1.2rem;
+        animation: avatarGlow 3s infinite ease-in-out;
+    }
+
+    @keyframes avatarGlow {
+
+        0%,
+        100% {
+            box-shadow: inset 0 0 10px rgba(198, 164, 90, 0.1);
+        }
+
+        50% {
+            box-shadow: inset 0 0 20px rgba(198, 164, 90, 0.3);
+        }
     }
 </style>

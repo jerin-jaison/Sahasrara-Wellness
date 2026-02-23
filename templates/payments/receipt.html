@@ -1,0 +1,248 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Receipt - {{ transaction.reference_id }} - Sahasrara Wellness</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Cormorant+Garamond:wght@600;700&display=swap"
+        rel="stylesheet">
+    <style>
+        /* PDF Rendering Compatibility: Using literal hex values instead of CSS variables */
+        body {
+            background-color: #f8f9fa;
+            font-family: 'Outfit', sans-serif;
+            color: #333;
+            padding: 40px 0;
+        }
+
+        .receipt-container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 50px;
+            border-radius: 12px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+            border: 1px solid #eee;
+            position: relative;
+        }
+
+        .receipt-header {
+            border-bottom: 2px solid #c6a45a;
+            padding-bottom: 30px;
+            margin-bottom: 40px;
+        }
+
+        .logo-box img {
+            height: 60px;
+            margin-bottom: 15px;
+        }
+
+        .garamond {
+            font-family: 'Cormorant Garamond', serif;
+        }
+
+        .text-gold {
+            color: #c6a45a;
+        }
+
+        .receipt-title {
+            font-size: 2.5rem;
+            color: #0f0f0f;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .info-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: #999;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .info-value {
+            font-weight: 600;
+            color: #0f0f0f;
+        }
+
+        .table-premium {
+            margin: 40px 0;
+            border-top: 1px solid #eee;
+            border-bottom: 1px solid #eee;
+        }
+
+        .table-premium th {
+            background: #fdfaf3;
+            color: #0f0f0f;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            padding: 15px;
+        }
+
+        .table-premium td {
+            padding: 20px 15px;
+            vertical-align: middle;
+        }
+
+        .total-section {
+            background: #fdfaf3;
+            padding: 25px;
+            border-radius: 8px;
+            margin-top: 30px;
+        }
+
+        .footer-note {
+            margin-top: 50px;
+            padding-top: 30px;
+            border-top: 1px solid #eee;
+            font-size: 0.85rem;
+            color: #777;
+        }
+
+        @media print {
+            body {
+                padding: 0;
+                background: #fff;
+            }
+
+            .receipt-container {
+                box-shadow: none;
+                border: none;
+                width: 100%;
+                max-width: 100%;
+                padding: 20px;
+            }
+
+            .no-print {
+                display: none !important;
+            }
+        }
+
+        .watermark {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) rotate(-45deg);
+            font-size: 8rem;
+            color: rgba(198, 164, 90, 0.05);
+            font-weight: 800;
+            z-index: 0;
+            pointer-events: none;
+            text-transform: uppercase;
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="container text-center mb-4 no-print">
+        <div class="d-flex justify-content-center gap-3">
+            <a href="{% url 'bookings:inbox' %}" class="btn btn-outline-secondary rounded-pill px-4">
+                <i class="bi bi-arrow-left me-2"></i> Back to My Bookings
+            </a>
+            <button onclick="window.print()" class="btn btn-outline-dark rounded-pill px-4">
+                <i class="bi bi-printer me-2"></i> Print Receipt
+            </button>
+            <a href="{% url 'payments:receipt_pdf' booking.id %}?token={{ booking.access_token }}"
+                class="btn btn-dark rounded-pill px-4" style="color: #c6a45a; border: 1px solid #c6a45a;">
+                <i class="bi bi-file-earmark-pdf me-2"></i> Download PDF
+            </a>
+        </div>
+    </div>
+
+    <div class="receipt-container">
+        <div class="watermark garamond">PAID</div>
+
+        <div class="receipt-header d-flex justify-content-between align-items-end">
+            <div class="logo-box">
+                <img src="{% static 'logo1.jpeg' %}" alt="Sahasrara Logo">
+                <h2 class="garamond fw-bold mb-0" style="color:#0f0f0f">Sahasrara Wellness</h2>
+                <p class="small text-muted mb-0">{{ business.email }} | {{ business.phone }}</p>
+            </div>
+            <div class="text-end">
+                <h1 class="receipt-title garamond mb-0">Receipt</h1>
+                <p class="mb-0 fw-600">Ref: <span class="text-gold">#{{ transaction.reference_id }}</span></p>
+                <p class="small text-muted mb-0">Date: {{ transaction.date|date:"d M Y, h:i A" }}</p>
+            </div>
+        </div>
+
+        <div class="row g-4">
+            <div class="col-sm-6">
+                <div class="info-label">Customer Details</div>
+                <div class="info-value">{{ guest.name }}</div>
+                <div class="small text-muted">{{ guest.phone }}</div>
+                <div class="small text-muted">{{ guest.email }}</div>
+            </div>
+            <div class="col-sm-6 text-sm-end">
+                <div class="info-label">Sanctuary Location</div>
+                <div class="info-value">{{ appointment.branch }}</div>
+                <div class="small text-muted">Confirmed Appointment</div>
+            </div>
+        </div>
+
+        <table class="table table-premium">
+            <thead>
+                <tr>
+                    <th>Service & Therapist</th>
+                    <th class="text-center">Appointment</th>
+                    <th class="text-end">Amount</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>
+                        <div class="fw-bold">{{ appointment.service }}</div>
+                        <div class="small text-muted">With {{ appointment.therapist }}</div>
+                    </td>
+                    <td class="text-center">
+                        <div class="fw-bold">{{ appointment.date|date:"D, d M Y" }}</div>
+                        <div class="small text-muted">{{ appointment.time|time:"g:i A" }}</div>
+                    </td>
+                    <td class="text-end fw-bold">₹{{ financials.total|floatformat:0 }}</td>
+                </tr>
+            </tbody>
+        </table>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="info-label mb-3">Gateway Verification</div>
+                <div class="bg-light p-3 rounded" style="font-size: 0.8rem; border-left: 3px solid #c6a45a">
+                    <div class="mb-1"><strong>Razorpay Payment ID:</strong> {{ transaction.razorpay_payment_id }}</div>
+                    <div><strong>Razorpay Order ID:</strong> {{ transaction.razorpay_order_id }}</div>
+                </div>
+            </div>
+            <div class="col-md-6 mt-4 mt-md-0">
+                <div class="total-section">
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">Subtotal:</span>
+                        <span class="fw-600">₹{{ financials.total|floatformat:0 }}</span>
+                    </div>
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">{{ transaction.payment_type }}:</span>
+                        <span class="text-success fw-bold">- ₹{{ financials.paid|floatformat:0 }}</span>
+                    </div>
+                    <hr>
+                    <div class="d-flex justify-content-between">
+                        <span class="h5 mb-0 fw-bold">Balance Due:</span>
+                        <span class="h5 mb-0 fw-bold text-gold" style="color: #c6a45a;">₹{{ financials.balance|floatformat:0 }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer-note text-center">
+            <p class="mb-2"><strong>Thank you for choosing Sahasrara Wellness.</strong></p>
+            <p class="mb-3">This is a system-generated payment receipt and serves as confirmation of your advance/full
+                payment. A detailed GST invoice can be requested at the reception upon arrival.</p>
+            <p class="small text-muted mb-0">{{ business.gstin_placeholder }}</p>
+        </div>
+    </div>
+
+</body>
+
+</html>

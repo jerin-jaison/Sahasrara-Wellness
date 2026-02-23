@@ -92,10 +92,8 @@
                     <tbody>
                         {% for b in todays_bookings %}
                         <tr>
-                            <td style="font-variant-numeric:tabular-nums;white-space:nowrap;">{{ b.start_time|time:"g:i
-                                A" }}</td>
-                            <td><a href="{% url 'dashboard:booking_detail' booking_id=b.id %}" class="link">{{
-                                    b.guest.name }}</a></td>
+                            <td style="font-variant-numeric:tabular-nums;white-space:nowrap;">{{ b.start_time|time:"g:i A" }}</td>
+                            <td><a href="{% url 'dashboard:booking_detail' booking_id=b.id %}" class="link">{{ b.guest.name }}</a></td>
                             <td>{{ b.service.name }}</td>
                             <td>{{ b.worker.name }}</td>
                             <td>

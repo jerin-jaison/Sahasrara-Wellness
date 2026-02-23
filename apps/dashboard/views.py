@@ -315,6 +315,23 @@ def manual_booking(request):
                 stime = parse_time(start_time)
                 etime = _add_minutes(stime, service.duration_minutes)
 
+                # Backend Safety Check: Ensure slot is still available
+                from apps.bookings.models import BookingStatus
+                conflicts = Booking.objects.filter(
+                    worker=worker,
+                    booking_date=bdate,
+                    start_time__lt=etime,
+                    end_time__gt=stime
+                ).exclude(status__in=[BookingStatus.CANCELLED, BookingStatus.EXPIRED])
+
+                if conflicts.exists():
+                    messages.error(request, f'Conflict detected: {worker.name} is no longer available at {start_time} on this date.')
+                    return render(request, 'dashboard/manual_booking.html', {
+                        'branches': branches, 'workers': workers, 'services': services,
+                        'today': date.today().isoformat(), 'page': 'manual',
+                        'post_branch_id': branch_id, 'post_service_id': service_id, 'post_worker_id': worker_id
+                    })
+
                 booking = Booking.objects.create(
                     branch=branch, service=service, worker=worker, guest=guest,
                     booking_date=bdate, start_time=stime, end_time=etime,

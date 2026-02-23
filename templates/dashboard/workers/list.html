@@ -15,7 +15,6 @@
         <table>
             <thead>
                 <tr>
-                    <th>Photo</th>
                     <th>Name</th>
                     <th>Branch</th>
                     <th>Phone</th>
@@ -26,16 +25,6 @@
             <tbody>
                 {% for w in workers %}
                 <tr>
-                    <td>
-                        {% if w.photo %}
-                        <img src="{{ w.photo.url }}" alt="{{ w.name }}"
-                            style="width:40px;height:40px;border-radius:50%;object-fit:cover;border:2px solid rgba(201,162,39,0.25);">
-                        {% else %}
-                        <div
-                            style="width:40px;height:40px;border-radius:50%;background:var(--ivory2);display:flex;align-items:center;justify-content:center;font-size:18px;">
-                            👤</div>
-                        {% endif %}
-                    </td>
                     <td style="font-weight:600;">{{ w.name }}</td>
                     <td>{{ w.branch.name }}</td>
                     <td>{{ w.phone|default:"—" }}</td>

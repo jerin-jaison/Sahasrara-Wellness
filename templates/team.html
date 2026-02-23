@@ -19,10 +19,9 @@ padding-top: 100px;
 background: var(--dark-surface);
 border: 1px solid var(--border-subtle);
 border-radius: 30px;
-padding: 0;
+padding: 40px 30px;
 height: 100%;
 transition: all 0.4s var(--ease);
-overflow: hidden;
 text-align: center;
 }
 
@@ -31,22 +30,31 @@ border-color: var(--gold);
 transform: translateY(-10px);
 }
 
-.worker-image-container {
-height: 350px;
-width: 100%;
-overflow: hidden;
+.worker-avatar-large {
+width: 100px;
+height: 100px;
+background: rgba(198, 164, 90, 0.1);
+border: 1px solid var(--border-subtle);
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-family: 'Cormorant Garamond', serif;
+font-size: 3rem;
+color: var(--gold);
+margin: 0 auto;
+transition: all 0.4s var(--ease);
+animation: avatarGlowLarge 4s infinite ease-in-out;
 }
 
-.worker-image {
-width: 100%;
-height: 100%;
-object-fit: cover;
-filter: brightness(0.8) contrast(1.1);
-transition: transform 0.6s var(--ease);
+.worker-card:hover .worker-avatar-large {
+transform: scale(1.1);
+border-color: var(--gold);
 }
 
-.worker-card:hover .worker-image {
-transform: scale(1.05);
+@keyframes avatarGlowLarge {
+0%, 100% { box-shadow: 0 0 15px rgba(198, 164, 90, 0.1); }
+50% { box-shadow: 0 0 35px rgba(198, 164, 90, 0.3); }
 }
 
 .worker-info {
@@ -95,13 +103,11 @@ display: block;
         <div class="row g-5">
             {% for worker in workers %}
             <div class="col-lg-4 col-md-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
-                <div class="worker-card">
-                    <div class="worker-image-container">
-                        {% if worker.photo %}
-                        <img src="{{ worker.photo.url }}" alt="{{ worker.name }}" class="worker-image">
-                        {% else %}
-                        <img src="{% static 'bg-2.jpg' %}" alt="Therapist" class="worker-image">
-                        {% endif %}
+                <div class="worker-card text-center">
+                    <div class="d-flex justify-content-center mb-4">
+                        <div class="worker-avatar-large">
+                            {{ worker.name|slice:":1" }}
+                        </div>
                     </div>
 
                     <div class="worker-info">

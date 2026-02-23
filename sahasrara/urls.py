@@ -17,6 +17,11 @@ urlpatterns = [
     path('dashboard/', include('apps.dashboard.urls', namespace='dashboard')),
 ]
 
+# Custom Error Handlers
+handler404 = 'apps.pages.views.error_404'
+handler500 = 'apps.pages.views.error_500'
+handler403 = 'apps.pages.views.error_403'
+
 if settings.DEBUG:
     import debug_toolbar
     urlpatterns = [path('__debug__/', include(debug_toolbar.urls))] + urlpatterns

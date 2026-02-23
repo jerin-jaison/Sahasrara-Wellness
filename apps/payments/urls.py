@@ -18,4 +18,8 @@ urlpatterns = [
 
     # Slot/booking expired — lock TTL elapsed
     path('expired/<uuid:booking_id>/', views.payment_expired, name='expired'),
+
+    # Payment Receipt
+    path('receipt/<uuid:booking_id>/', views.view_receipt, name='receipt'),
+    path('receipt/download/<uuid:booking_id>/', views.download_receipt_pdf, name='receipt_pdf'),
 ]

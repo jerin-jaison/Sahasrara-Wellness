@@ -14,7 +14,6 @@ class Worker(BaseModel):
         related_name='workers',
     )
     name = models.CharField(max_length=120)
-    photo = models.ImageField(upload_to='workers/', blank=True, null=True)
     bio = models.TextField(blank=True)
     years_experience = models.PositiveIntegerField(default=0)
     phone = models.CharField(max_length=20, blank=True)

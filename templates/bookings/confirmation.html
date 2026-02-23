@@ -25,6 +25,10 @@
         <div class="d-grid gap-3">
             <a href="{% url 'bookings:detail_token' booking.access_token %}" class="btn btn-wellness py-3">View
                 Details</a>
+            <a href="{% url 'payments:receipt' booking.id %}?token={{ booking.access_token }}"
+                class="btn btn-outline-light py-3" style="border-color: var(--gold); color: var(--gold);">
+                <i class="bi bi-receipt me-2"></i> View Receipt
+            </a>
             <a href="/" class="btn btn-back">Book Another Session</a>
         </div>
 

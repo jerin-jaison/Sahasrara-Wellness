@@ -110,7 +110,7 @@ class ServiceForm(forms.ModelForm):
 class WorkerForm(forms.ModelForm):
     class Meta:
         model  = Worker
-        fields = ['branch', 'name', 'phone', 'bio', 'photo', 'is_active']
+        fields = ['branch', 'name', 'phone', 'bio', 'is_active']
         widgets = {
             'branch':      forms.Select(attrs=_ctrl),
             'name':        forms.TextInput(attrs={**_ctrl, 'placeholder': 'Full name'}),

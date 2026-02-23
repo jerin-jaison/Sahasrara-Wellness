@@ -34,6 +34,7 @@ def _booking_context(booking) -> dict:
         'amount_paid':   booking.amount_paid,
         'booking_ref':   str(booking.id)[:8].upper(),
         'access_url':    _access_url(booking),
+        'receipt_url':   _receipt_url(booking),
         'support_email': settings.DEFAULT_FROM_EMAIL,
     }
 
@@ -42,6 +43,12 @@ def _access_url(booking) -> str:
     """Build the full access token URL for the booking."""
     base = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
     return f"{base}/bookings/view/{booking.access_token}/"
+
+
+def _receipt_url(booking) -> str:
+    """Build the full receipt URL for the booking."""
+    base = getattr(settings, 'SITE_URL', 'http://127.0.0.1:8000')
+    return f"{base}/payments/receipt/{booking.id}/?token={booking.access_token}"
 
 
 def _send(subject: str, to_email: str, html_template: str, txt_template: str, context: dict):

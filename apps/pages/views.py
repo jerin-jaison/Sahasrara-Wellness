@@ -33,3 +33,15 @@ def contact(request):
     from apps.branches.models import Branch
     branches = Branch.objects.filter(is_active=True)
     return render(request, 'contact.html', {'branches': branches})
+
+def error_404(request, exception):
+    """Custom 404 handler."""
+    return render(request, '404.html', status=404)
+
+def error_500(request):
+    """Custom 500 handler."""
+    return render(request, '500.html', status=500)
+
+def error_403(request, exception=None):
+    """Custom 403 handler."""
+    return render(request, '403.html', status=403)

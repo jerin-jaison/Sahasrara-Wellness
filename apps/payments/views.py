@@ -20,7 +20,9 @@ import razorpay
 from django.conf import settings
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+from django.template.loader import get_template
 from django.utils import timezone
+from xhtml2pdf import pisa
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_GET, require_POST
 
@@ -28,8 +30,98 @@ from apps.bookings.models import Booking, BookingStatus, BookingStatusLog
 from apps.bookings.session import get_booking_session
 from apps.notifications.emails import send_booking_confirmed
 from .models import Payment, PaymentStatus
+from .receipts import get_receipt_context
 
 logger = logging.getLogger(__name__)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# VIEW: Payment Receipt
+# ─────────────────────────────────────────────────────────────────────────────
+
+def view_receipt(request, booking_id):
+    """
+    Securely view a payment receipt for a confirmed booking.
+    Guests can access via access_token OR active session.
+    """
+    token = request.GET.get('token')
+    
+    # Try fetching via access_token first (more secure for email links)
+    if token:
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'worker', 'branch', 'guest', 'payment'),
+            id=booking_id,
+            access_token=token
+        )
+    else:
+        # Fallback to inbox session check
+        inbox = request.session.get('booking_inbox', [])
+        if str(booking_id) not in inbox:
+            # If not in session, they must provide the token
+            return render(request, 'payments/error.html', {
+                'message': 'Access denied. Please use the link sent to your email or mobile.',
+                'title': 'Restricted Access'
+            })
+            
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'worker', 'branch', 'guest', 'payment'),
+            id=booking_id
+        )
+
+    # Business rule: only show receipts for confirmed/paid bookings
+    if booking.status not in [BookingStatus.CONFIRMED, BookingStatus.COMPLETED]:
+         return render(request, 'payments/error.html', {
+                'message': 'Receipt is only available for confirmed or completed bookings.',
+            })
+
+    context = get_receipt_context(booking)
+    return render(request, 'payments/receipt.html', context)
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# VIEW: Download PDF Receipt
+# ─────────────────────────────────────────────────────────────────────────────
+
+def download_receipt_pdf(request, booking_id):
+    """
+    Generates and downloads a PDF version of the payment receipt.
+    """
+    token = request.GET.get('token')
+    
+    if token:
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'worker', 'branch', 'guest', 'payment'),
+            id=booking_id,
+            access_token=token
+        )
+    else:
+        inbox = request.session.get('booking_inbox', [])
+        if str(booking_id) not in inbox:
+            return HttpResponse("Access Denied", status=403)
+            
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'worker', 'branch', 'guest', 'payment'),
+            id=booking_id
+        )
+
+    if booking.status not in [BookingStatus.CONFIRMED, BookingStatus.COMPLETED]:
+         return HttpResponse("Receipt not available", status=400)
+
+    context = get_receipt_context(booking)
+    
+    # Render PDF
+    template = get_template('payments/receipt_pdf.html')
+    html = template.render(context)
+    
+    response = HttpResponse(content_type='application/pdf')
+    response['Content-Disposition'] = f'attachment; filename="receipt_{booking.id_short}.pdf"'
+    
+    pisa_status = pisa.CreatePDF(html, dest=response)
+    
+    if pisa_status.err:
+        return HttpResponse('We had some errors <pre>' + html + '</pre>')
+    
+    return response
 
 
 # ─────────────────────────────────────────────────────────────────────────────

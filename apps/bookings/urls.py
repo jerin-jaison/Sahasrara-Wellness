@@ -2,19 +2,19 @@
 Booking flow URLs.
 
 Flow:
-  /book/                           Step 1: Branch selection
-  /book/services/                  Step 2: Service selection
-  /book/workers/                   Step 3: Worker selection  
-  /book/date/                      Step 4: Date selection
-  /book/slots/                     Step 5: Slot selection
-  /book/info/                      Step 6: Guest info
-  /book/review/                    Step 7: Review & lock
-  /book/confirmation/<uuid>/       Step 8: Booking confirmed page
-  /book/api/slots/                 AJAX: slot grid for a worker+service+date
-  /book/api/workers/               AJAX: workers available for any-worker mode
-  /book/my/                        Guest inbox (session OR phone lookup)
-  /book/view/<access_token>/       Token-based booking view (from email link)
-  /book/cancel-lock/               Release current slot lock (go back)
+  /bookings/                           Step 1: Branch selection
+  /bookings/services/                  Step 2: Service selection
+  /bookings/workers/                   Step 3: Worker selection  
+  /bookings/date/                      Step 4: Date selection
+  /bookings/slots/                     Step 5: Slot selection
+  /bookings/info/                      Step 6: Guest info
+  /bookings/review/                    Step 7: Review & lock
+  /bookings/confirmation/<uuid>/       Step 8: Booking confirmed page
+  /bookings/api/slots/                 AJAX: slot grid for a worker+service+date
+  /bookings/api/workers/               AJAX: workers available for any-worker mode
+  /bookings/my/                        Guest inbox (session OR phone lookup)
+  /bookings/view/<access_token>/       Token-based booking view (from email link)
+  /bookings/cancel-lock/               Release current slot lock (go back)
 """
 from django.urls import path
 from . import views
