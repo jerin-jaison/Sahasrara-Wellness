@@ -30,13 +30,16 @@ def service_create(request):
         # Create a new Service row for each duration selected
         created_count = 0
         for d_min in durations:
-            # We skip the standard form.save() because it only makes one row
+            d_int = int(d_min)
+            # Pick the correct price for this duration
+            price = form.cleaned_data.get(f'price_{d_int}')
+            
             svc = Service(
                 name=form.cleaned_data['name'],
                 description=form.cleaned_data['description'],
-                duration_minutes=int(d_min),
+                duration_minutes=d_int,
                 buffer_minutes=form.cleaned_data['buffer_minutes'],
-                price=form.cleaned_data['price'],
+                price=price,
                 is_active=form.cleaned_data['is_active'],
             )
             svc.save()
@@ -75,7 +78,7 @@ def service_edit(request, pk):
         svc.name = form.cleaned_data['name']
         svc.description = form.cleaned_data['description']
         svc.buffer_minutes = form.cleaned_data['buffer_minutes']
-        svc.price = form.cleaned_data['price']
+        svc.price = form.cleaned_data.get(f'price_{svc.duration_minutes}')
         svc.is_active = form.cleaned_data['is_active']
         svc.save()
         svc.branches.set(branches)
@@ -85,13 +88,15 @@ def service_edit(request, pk):
             d_int = int(d_min)
             if d_int == svc.duration_minutes:
                 continue
+            
+            price = form.cleaned_data.get(f'price_{d_int}')
                 
             # Check if another variant with SAME NAME already exists for this duration
             other_svc = Service.objects.filter(name=svc.name, duration_minutes=d_int).exclude(pk=svc.pk).first()
             if other_svc:
                 other_svc.description = svc.description
                 other_svc.buffer_minutes = svc.buffer_minutes
-                other_svc.price = svc.price
+                other_svc.price = price
                 other_svc.is_active = svc.is_active
                 other_svc.save()
                 other_svc.branches.set(branches)
@@ -102,7 +107,7 @@ def service_edit(request, pk):
                     description=svc.description,
                     duration_minutes=d_int,
                     buffer_minutes=svc.buffer_minutes,
-                    price=svc.price,
+                    price=price,
                     is_active=svc.is_active,
                 )
                 new_v.save()

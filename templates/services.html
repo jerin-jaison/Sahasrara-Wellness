@@ -1,195 +1,761 @@
-{% extends "base_site.html" %}
 {% load static %}
+<!DOCTYPE html>
+<html lang="en">
 
-{% block title %}Our Services — Sahasrara Wellness{% endblock %}
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>The Sanctuary Menu — Sahasrara Wellness</title>
 
-{% block extra_css %}
-.services-hero {
-height: 50vh;
-background: linear-gradient(to bottom, rgba(8, 8, 8, 0.4), var(--dark-depth)),
-url('{% static "bg-2.jpg" %}') no-repeat center center/cover;
-display: flex;
-align-items: center;
-justify-content: center;
-text-align: center;
-padding-top: 100px;
-}
+  <!-- Foundation -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css">
 
-.service-card {
-background: var(--dark-surface);
-border: 1px solid var(--border-subtle);
-border-radius: 30px;
-padding: 0;
-height: 100%;
-transition: all 0.4s var(--ease);
-overflow: hidden;
-}
+  <!-- SEO -->
+  <meta name="description"
+    content="Sahasrara Wellness Sanctuary Menu — Master-crafted therapies designed to restore balance to your mind, body, and spirit.">
+  <meta name="keywords"
+    content="Wellness, Spa, Massage, Healing, Sahasrara, Kerala, Thodupuzha, Adimali, Services, Treatments">
+  <meta name="author" content="Sahasrara Wellness">
 
-.service-card:hover {
-border-color: var(--gold);
-transform: translateY(-10px);
-}
+  <!-- Social Meta -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="The Sanctuary Menu — Sahasrara Wellness">
+  <meta property="og:description"
+    content="A collection of master-crafted therapies designed to restore balance to your mind, body, and spirit.">
+  <meta property="og:url" content="https://sahasrarawellness.com/services">
 
-.service-image {
-height: 250px;
-width: 100%;
-object-fit: cover;
-filter: brightness(0.7) contrast(1.1);
-}
+  <style>
+    /* ── CSS Variables ───────────────────────────────────────────────────── */
+    :root {
+      --gold: #c6a45a;
+      --gold-light: #e3c87a;
+      --dark-depth: #080808;
+      --dark-surface: #121212;
+      --border-subtle: rgba(198, 164, 90, 0.15);
+      --gold-gradient: linear-gradient(135deg, #c6a45a 0%, #e3c87a 100%);
+      --glass: rgba(20, 20, 20, 0.85);
+      --ease: cubic-bezier(0.4, 0, 0.2, 1);
+    }
 
-.service-info {
-padding: 30px;
-}
+    /* ── Base ────────────────────────────────────────────────────────────── */
+    body {
+      background-color: var(--dark-depth);
+      color: #ffffff;
+      font-family: 'Outfit', sans-serif;
+      overflow-x: hidden;
+      letter-spacing: 0.2px;
+    }
 
-.duration-toggle {
-background: rgba(255, 255, 255, 0.05);
-border-radius: 50px;
-padding: 5px;
-display: inline-flex;
-margin-bottom: 25px;
-border: 1px solid var(--border-subtle);
-}
+    h1,
+    h2,
+    h3,
+    .garamond {
+      font-family: 'Cormorant Garamond', serif;
+    }
 
-.duration-btn {
-padding: 8px 20px;
-border-radius: 50px;
-border: none;
-background: transparent;
-color: rgba(255, 255, 255, 0.6);
-font-size: 0.9rem;
-font-weight: 600;
-transition: all 0.3s;
-}
+    /* ── Animations ──────────────────────────────────────────────────────── */
+    @keyframes levitate {
 
-.duration-btn.active {
-background: var(--gold-gradient);
-color: #000;
-}
+      0%,
+      100% {
+        transform: translateY(0);
+      }
 
-.price-display {
-font-size: 2rem;
-color: var(--gold);
-font-weight: 700;
-margin-bottom: 20px;
-}
+      50% {
+        transform: translateY(-8px);
+      }
+    }
 
-.benefits-list {
-list-style: none;
-padding: 0;
-margin: 0 0 30px;
-text-align: left;
-}
+    @keyframes glowPulse {
+      0% {
+        box-shadow: 0 0 5px rgba(198, 164, 90, 0.2);
+      }
 
-.benefits-list li {
-margin-bottom: 12px;
-color: rgba(255, 255, 255, 0.8);
-display: flex;
-align-items: flex-start;
-gap: 12px;
-}
+      50% {
+        box-shadow: 0 0 20px rgba(198, 164, 90, 0.6);
+      }
 
-.benefits-list i {
-color: var(--gold);
-margin-top: 4px;
-}
-{% endblock %}
+      100% {
+        box-shadow: 0 0 5px rgba(198, 164, 90, 0.2);
+      }
+    }
 
-{% block content %}
-<section class="services-hero">
-    <div class="container">
-        <div class="hero-subtitle" data-aos="fade-up">Curated Treatments</div>
-        <h1 class="display-3 fw-bold garamond" data-aos="fade-up" data-aos-delay="100">Our Wellness Menu</h1>
+    @keyframes floatOrb {
+
+      0%,
+      100% {
+        transform: translate(0, 0) scale(1);
+      }
+
+      50% {
+        transform: translate(30px, -40px) scale(1.1);
+      }
+    }
+
+    /* ── Navbar ──────────────────────────────────────────────────────────── */
+    .navbar-premium {
+      padding: 8px 0;
+      position: relative;
+      top: 0;
+      margin: 15px auto 0;
+      width: 92%;
+      max-width: 1200px;
+      z-index: 1000;
+      background: rgba(10, 10, 10, 0.85);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: none;
+      border-radius: 100px;
+      transition: all 0.5s var(--ease);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
+    }
+
+    .navbar-premium.scrolled {
+      background: rgba(5, 5, 5, 0.9);
+      box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+    }
+
+    .navbar-brand {
+      animation: levitate 4s ease-in-out infinite;
+    }
+
+    .navbar-brand-text {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.5rem;
+      letter-spacing: 1px;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .btn-booking {
+      background: var(--gold-gradient);
+      color: #000 !important;
+      font-weight: 700;
+      padding: 10px 24px;
+      border-radius: 50px;
+      text-decoration: none !important;
+      transition: all 0.3s ease;
+      box-shadow: 0 5px 15px rgba(198, 164, 90, 0.2);
+      font-size: 0.85rem;
+      animation: glowPulse 3s infinite ease-in-out;
+    }
+
+    .btn-booking:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 25px rgba(198, 164, 90, 0.4);
+    }
+
+    .nav-link-premium {
+      color: rgba(255, 255, 255, 0.85);
+      text-decoration: none;
+      font-weight: 500;
+      font-size: 0.9rem;
+      transition: all 0.3s;
+      margin: 0 12px;
+      position: relative;
+    }
+
+    .nav-link-premium::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 0;
+      height: 1px;
+      background: var(--gold);
+      transition: width 0.3s var(--ease);
+    }
+
+    .nav-link-premium:hover {
+      color: var(--gold);
+      transform: translateY(-2px);
+    }
+
+    .nav-link-premium:hover::after {
+      width: 100%;
+    }
+
+    .nav-link-premium.active {
+      color: var(--gold);
+    }
+
+    .nav-link-premium.active::after {
+      width: 100%;
+    }
+
+    .navbar-toggler {
+      border-color: var(--gold);
+      padding: 8px 12px;
+    }
+
+    .navbar-toggler-icon {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(198, 164, 90)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+    }
+
+    /* ── WhatsApp Float ──────────────────────────────────────────────────── */
+    .whatsapp-float {
+      position: fixed;
+      bottom: 40px;
+      right: 40px;
+      z-index: 1000;
+    }
+
+    .whatsapp-btn {
+      background: #25D366;
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 28px;
+      box-shadow: 0 10px 30px rgba(37, 211, 102, 0.3);
+      text-decoration: none;
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .whatsapp-btn:hover {
+      transform: scale(1.1);
+      box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
+      color: white;
+    }
+
+    /* ── Footer ──────────────────────────────────────────────────────────── */
+    footer {
+      background: #050505;
+      padding: 80px 0 40px;
+      border-top: 1px solid var(--border-subtle);
+    }
+
+    .footer-link {
+      color: rgba(255, 255, 255, 0.6);
+      text-decoration: none;
+      transition: color 0.3s;
+      font-size: 0.9rem;
+    }
+
+    .footer-link:hover {
+      color: var(--gold);
+    }
+
+    .footer-title {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      font-size: 0.8rem;
+      font-weight: 700;
+      margin-bottom: 20px;
+      display: block;
+    }
+
+    .no-refund-box {
+      background: rgba(198, 164, 90, 0.05);
+      border: 1px solid var(--border-subtle);
+      padding: 15px;
+      border-radius: 12px;
+    }
+
+    /* ── Utilities ───────────────────────────────────────────────────────── */
+    .section-padding {
+      padding: 100px 0;
+    }
+
+    .text-gold {
+      color: var(--gold);
+    }
+
+    .hero-subtitle {
+      font-size: 1rem;
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: 4px;
+      margin-bottom: 16px;
+      font-weight: 600;
+    }
+
+    /* ── Services Hero ───────────────────────────────────────────────────── */
+    .services-hero {
+      position: relative;
+      min-height: 55vh;
+      background: linear-gradient(to bottom, rgba(8, 8, 8, 0.4), var(--dark-depth)),
+        linear-gradient(135deg, #0f0f0f 0%, #1a1208 50%, #080808 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding-top: 120px;
+      padding-bottom: 60px;
+      overflow: hidden;
+    }
+
+    .hero-orb {
+      position: absolute;
+      width: 400px;
+      height: 400px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(198, 164, 90, 0.08) 0%, transparent 70%);
+      z-index: 0;
+      pointer-events: none;
+      animation: floatOrb 12s ease-in-out infinite;
+    }
+
+    .hero-divider {
+      width: 80px;
+      height: 2px;
+      background: var(--gold-gradient);
+      margin: 24px auto 0;
+      border-radius: 2px;
+    }
+
+    /* ── Treatment Items ──────────────────────────────────────────────────── */
+    .treatment-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid rgba(198, 164, 90, 0.1);
+      border-radius: 24px;
+      padding: 40px;
+      margin-bottom: 30px;
+      transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .treatment-item::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--gold-gradient);
+      transform: scaleX(0);
+      transform-origin: left;
+      transition: transform 0.4s var(--ease);
+    }
+
+    .treatment-item:hover {
+      transform: translateY(-8px) scale(1.01);
+      border-color: rgba(198, 164, 90, 0.4);
+      background: rgba(198, 164, 90, 0.03);
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4), 0 0 40px rgba(198, 164, 90, 0.05);
+    }
+
+    .treatment-item:hover::before {
+      transform: scaleX(1);
+    }
+
+    .treatment-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      gap: 30px;
+      margin-bottom: 24px;
+    }
+
+    .treatment-name {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 2.2rem;
+      color: var(--gold);
+      line-height: 1.1;
+      margin: 0;
+    }
+
+    .treatment-description {
+      color: rgba(255, 255, 255, 0.6);
+      line-height: 1.8;
+      font-size: 1.05rem;
+      max-width: 600px;
+    }
+
+    /* ── Price Block ──────────────────────────────────────────────────────── */
+    .price-container {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .price-box {
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 16px 24px;
+      min-width: 130px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-decoration: none;
+      transition: all 0.3s var(--ease);
+    }
+
+    .price-box:hover {
+      border-color: var(--gold);
+      background: rgba(198, 164, 90, 0.1);
+      transform: translateY(-2px);
+    }
+
+    .price-duration {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      color: rgba(255, 255, 255, 0.4);
+      margin-bottom: 4px;
+    }
+
+    .price-value {
+      font-family: 'Cormorant Garamond', serif;
+      font-size: 1.8rem;
+      font-weight: 700;
+      color: #fff;
+    }
+
+    .btn-reserve {
+      background: var(--gold-gradient);
+      color: #000 !important;
+      font-weight: 700;
+      font-size: 0.85rem;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      padding: 14px 40px;
+      border-radius: 100px;
+      text-decoration: none;
+      display: inline-block;
+      margin-top: 10px;
+      box-shadow: 0 10px 30px rgba(198, 164, 90, 0.3);
+      transition: all 0.3s;
+    }
+
+    .btn-reserve:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 20px 40px rgba(198, 164, 90, 0.4);
+    }
+
+    /* ── Benefits Tags ────────────────────────────────────────────────────── */
+    .benefits-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 0.85rem;
+      color: rgba(255, 255, 255, 0.7);
+      margin-right: 20px;
+      margin-top: 10px;
+    }
+
+    .benefits-tag i {
+      color: var(--gold);
+    }
+
+    /* ── CTA Section ──────────────────────────────────────────────────────── */
+    .cta-section {
+      border-top: 1px solid var(--border-subtle);
+      background: linear-gradient(to bottom, var(--dark-depth), #0a0a0a);
+    }
+
+    .btn-outline-cta {
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      color: rgba(255, 255, 255, 0.85);
+      padding: 14px 40px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .btn-outline-cta:hover {
+      border-color: rgba(198, 164, 90, 0.5);
+      color: var(--gold);
+      background: rgba(198, 164, 90, 0.04);
+    }
+
+    .btn-wa-cta {
+      border: 1px solid rgba(37, 211, 102, 0.3);
+      color: rgba(255, 255, 255, 0.85);
+      padding: 14px 40px;
+      border-radius: 50px;
+      text-decoration: none;
+      font-size: 0.95rem;
+      font-weight: 500;
+      transition: all 0.3s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(37, 211, 102, 0.05);
+    }
+
+    .btn-wa-cta:hover {
+      border-color: #25D366;
+      color: #25D366;
+      background: rgba(37, 211, 102, 0.08);
+    }
+
+    /* ── Responsive ───────────────────────────────────────────────────────── */
+    @media (max-width: 991px) {
+      .section-padding {
+        padding: 70px 0;
+      }
+
+      .navbar-premium {
+        border-radius: 20px;
+        margin: 10px auto 0;
+      }
+
+      .navbar-collapse {
+        background: rgba(10, 10, 10, 0.95);
+        margin-top: 12px;
+        border-radius: 16px;
+        padding: 20px;
+      }
+
+      .nav-link-premium {
+        margin: 6px 0;
+        display: block;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .treatment-header {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .treatment-item {
+        padding: 30px;
+      }
+
+      .treatment-name {
+        font-size: 1.8rem;
+      }
+
+      .whatsapp-float {
+        bottom: 20px;
+        right: 20px;
+      }
+
+      .hero-orb {
+        width: 200px;
+        height: 200px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- WhatsApp Floating Action -->
+  <div class="whatsapp-float">
+    <a href="https://wa.me/919747000210?text=Hello%20Sahasrara%20Wellness,%20I'd%20like%20to%20book%20a%20session."
+      class="whatsapp-btn" target="_blank" aria-label="Chat on WhatsApp">
+      <i class="bi bi-whatsapp"></i>
+    </a>
+  </div>
+
+  <!-- Navigation -->
+  <nav class="navbar navbar-expand-lg navbar-premium" id="mainNavbar">
+    <div class="container d-flex justify-content-between align-items-center">
+      <a class="navbar-brand d-flex align-items-center" href="/">
+        <span class="navbar-brand-text ms-2 d-none d-sm-inline">Sahasrara Wellness</span>
+      </a>
+
+      <button class="navbar-toggler d-lg-none" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent"
+        aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+
+      <div class="collapse navbar-collapse" id="navbarContent">
+        <div class="navbar-nav mx-auto mb-2 mb-lg-0">
+          <a href="/" class="nav-link-premium">Home</a>
+          <a href="/about" class="nav-link-premium">About Us</a>
+          <a href="/services" class="nav-link-premium active">Our Services</a>
+          <a href="/contact" class="nav-link-premium">Contact</a>
+        </div>
+        <div class="d-flex align-items-center">
+          <a href="/bookings" class="btn-booking">Book Online</a>
+        </div>
+      </div>
     </div>
-</section>
+  </nav>
 
-<section class="section-padding">
-    <div class="container">
-        <div class="row g-5">
-            {% for name, variants in grouped_services.items %}
-            <div class="col-lg-6" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
-                <div class="service-card d-flex flex-column h-100">
-                    {% with first=variants.0 %}
-                    <img src="{% if first.image %}{{ first.image.url }}{% else %}{% static 'bg-2.jpg' %}{% endif %}"
-                        alt="{{ name }}" class="service-image">
+  <main>
 
-                    <div class="service-info d-flex flex-column flex-grow-1">
-                        <h2 class="garamond display-6 text-gold mb-3">{{ name }}</h2>
-                        <p class="text-white-50 mb-4">{{ first.description }}</p>
+    <!-- ── Hero ───────────────────────────────────────────────────────────── -->
+    <section class="services-hero">
+      <div class="hero-orb" style="top: 10%; left: 10%;"></div>
+      <div class="hero-orb" style="bottom: 10%; right: 10%; animation-delay: -3s;"></div>
 
-                        <div class="mt-auto">
-                            <!-- Duration Toggle -->
-                            <div class="duration-toggle" id="toggle-{{ forloop.counter }}">
-                                {% for variant in variants %}
-                                <button class="duration-btn {% if forloop.first %}active{% endif %}"
-                                    onclick="updatePrice('{{ forloop.parentloop.counter }}', '{{ variant.duration_minutes }}', '{{ variant.price|floatformat:0 }}', '{% url "
-                                    bookings:step1_branch" %}?service_id={{ variant.id }}')">
-                                    {{ variant.duration_minutes }} Min
-                                </button>
-                                {% endfor %}
-                            </div>
+      <div class="container position-relative" style="z-index: 1;">
+        <div class="hero-subtitle" data-aos="fade-up">Curated Treatments</div>
+        <h1 class="display-3 fw-bold garamond" data-aos="fade-up" data-aos-delay="100">Sanctuary Menu</h1>
+        <p class="mt-3 text-white-50" data-aos="fade-up" data-aos-delay="200"
+          style="max-width: 550px; margin: 0 auto; font-size: 1.1rem; line-height: 1.8;">
+          A collection of master-crafted therapies designed to restore balance to your mind, body, and spirit.
+        </p>
+        <div class="hero-divider" data-aos="fade-up" data-aos-delay="300"></div>
+      </div>
+    </section>
 
-                            <div class="price-display">
-                                ₹<span id="price-{{ forloop.counter }}">{{ first.price|floatformat:0 }}</span>
-                            </div>
+    <!-- ── Services List ──────────────────────────────────────────────────── -->
+    <section class="section-padding">
+      <div class="container">
+        <div class="row justify-content-center">
+          <div class="col-xl-10">
 
-                            {% if first.benefits %}
-                            <ul class="benefits-list">
-                                {% for benefit in first.benefits.splitlines %}
-                                {% if benefit %}
-                                <li><i class="bi bi-check2-circle"></i> {{ benefit }}</li>
-                                {% endif %}
-                                {% endfor %}
-                            </ul>
-                            {% endif %}
-
-                            <a href="{% url 'bookings:step1_branch' %}?service_id={{ first.id }}"
-                                id="booking-link-{{ forloop.counter }}"
-                                class="btn-booking py-3 px-5 d-inline-block text-center w-100">
-                                Book This Session
-                            </a>
-                        </div>
-                    </div>
-                    {% endwith %}
+            {% for service_name, variants in grouped_services.items %}
+            {% with first_variant=variants.0 %}
+            <!-- Treatment: {{ service_name }} -->
+            <div class="treatment-item" data-aos="fade-up" data-aos-delay="{{ forloop.counter0|add:0 }}00">
+              <div class="treatment-header">
+                <div class="flex-grow-1">
+                  <h2 class="treatment-name mb-3">{{ service_name }}</h2>
+                  <p class="treatment-description">
+                    {{ first_variant.description }}
+                  </p>
+                  <div class="d-flex flex-wrap">
+                    {% for benefit in first_variant.benefits.splitlines %}
+                    {% if benefit.strip %}
+                    <span class="benefits-tag"><i class="bi bi-stars"></i> {{ benefit.strip }}</span>
+                    {% endif %}
+                    {% endfor %}
+                  </div>
                 </div>
+                <div class="price-container">
+                  {% for variant in variants %}
+                  <a href="/bookings" class="price-box">
+                    <span class="price-duration">{{ variant.duration_minutes }} MIN</span>
+                    <span class="price-value">₹{{ variant.price|floatformat:0 }}</span>
+                  </a>
+                  {% endfor %}
+                </div>
+              </div>
+              <div class="text-start mt-2">
+                <a href="/bookings" class="btn-reserve">
+                  Reserve Now <i class="bi bi-arrow-right ms-2"></i>
+                </a>
+              </div>
+            </div>
+            {% endwith %}
+            {% empty %}
+            <div class="text-center py-5">
+              <p class="text-white-50">No services available at the moment. Please check back later.</p>
             </div>
             {% endfor %}
+
+          </div>
         </div>
-    </div>
-</section>
+      </div>
+    </section>
 
-<section class="section-padding bg-dark-depth text-center" style="border-top: 1px solid var(--border-subtle);">
-    <div class="container" data-aos="zoom-in">
+    <!-- ── CTA Section ─────────────────────────────────────────────────────── -->
+    <section class="section-padding cta-section text-center">
+      <div class="container" data-aos="zoom-in">
         <h2 class="display-5 garamond text-gold mb-4">Unsure Which One to Choose?</h2>
-        <p class="lead text-white-50 mb-5">Our wellness consultants are here to guide you toward the perfect treatment
-            for your needs.</p>
-        <a href="https://wa.me/919747000210?text=I'd%20like%20a%20consultation%20for%20a%20wellness%20service."
-            target="_blank"
-            class="btn btn-outline-gold px-5 py-3 rounded-pill text-white text-decoration-none border-secondary">
-            Get Free Consultation
-        </a>
+        <p class="lead text-white-50 mb-5" style="max-width:560px; margin:0 auto;">
+          Our wellness consultants are here to guide you toward the perfect treatment for your needs.
+        </p>
+        <div class="d-flex justify-content-center gap-3 flex-wrap">
+          <a href="https://wa.me/919747000210?text=I'd%20like%20a%20consultation%20for%20a%20wellness%20service."
+            target="_blank" class="btn-wa-cta">
+            <i class="bi bi-whatsapp"></i> Get Free Consultation
+          </a>
+          <a href="/contact" class="btn-outline-cta">
+            <i class="bi bi-geo-alt"></i> Find Our Locations
+          </a>
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="row">
+
+        <div class="col-lg-4 mb-5 mb-lg-0">
+          <div class="d-flex align-items-center mb-4">
+            <span class="text-gold garamond fw-bold" style="font-size: 1.4rem; letter-spacing: 1.5px;">Sahasrara
+              Wellness</span>
+          </div>
+          <p class="text-white-50 small pe-lg-5">
+            Experience the gold standard of wellness. From traditional therapies to modern rejuvenation.
+          </p>
+          <div class="d-flex gap-3 mt-4">
+            <a href="https://www.instagram.com/sahasrara.wellness" class="footer-link fs-5" target="_blank"><i
+                class="bi bi-instagram"></i></a>
+            <a href="https://www.facebook.com/profile.php?id=61573191974596" class="footer-link fs-5" target="_blank"><i
+                class="bi bi-facebook"></i></a>
+            <a href="https://share.google/YhoWdPG8SlKoJ06YA" class="footer-link fs-5" target="_blank"><i
+                class="bi bi-google"></i></a>
+            <a href="mailto:sahasrarawellness@gmail.com" class="footer-link fs-5"><i
+                class="bi bi-envelope-fill"></i></a>
+          </div>
+        </div>
+
+        <div class="col-lg-2 col-6 mb-4 mb-lg-0">
+          <span class="footer-title">Links</span>
+          <ul class="list-unstyled" style="line-height: 2.2;">
+            <li><a href="/" class="footer-link">Home</a></li>
+            <li><a href="/about" class="footer-link">About Us</a></li>
+            <li><a href="/services" class="footer-link">Our Services</a></li>
+            <li><a href="/contact" class="footer-link">Contact Us</a></li>
+            <li><a href="/bookings" class="footer-link">Book Now</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 col-6 mb-4 mb-lg-0">
+          <span class="footer-title">Legal</span>
+          <ul class="list-unstyled" style="line-height: 2.2;">
+            <li><a href="/terms-conditions" class="footer-link">Terms & Conditions</a></li>
+            <li><a href="/privacy-policy" class="footer-link">Privacy Policy</a></li>
+            <li><a href="/refund-policy" class="footer-link">No Refund Policy</a></li>
+          </ul>
+        </div>
+
+        <div class="col-lg-3 mb-4 mb-lg-0">
+          <span class="footer-title">Policy Notice</span>
+          <div class="no-refund-box small text-white-50">
+            <i class="bi bi-shield-exclamation text-gold me-2"></i>
+            <strong>No Refund Policy:</strong> Booking deposits and full payments are non-refundable.
+            Re-scheduling is allowed up to 4 hours prior.
+          </div>
+        </div>
+
+      </div>
+
+      <div class="mt-5 border-top border-secondary pt-4 text-center">
+        <p class="text-white-50 small mb-0">&copy; 2026 Sahasrara Wellness. All rights reserved.</p>
+      </div>
     </div>
-</section>
-{% endblock %}
+  </footer>
 
-{% block extra_js %}
-<script>
-    function updatePrice(groupId, duration, price, bookingUrl) {
-        // Update price display
-        document.getElementById('price-' + groupId).innerText = price;
+  <!-- JS -->
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
+  <script>
+    AOS.init({ duration: 1000, once: true, easing: 'ease-out-quart' });
 
-        // Update booking link
-        document.getElementById('booking-link-' + groupId).href = bookingUrl;
+    window.addEventListener('scroll', function () {
+      const nav = document.getElementById('mainNavbar');
+      if (window.scrollY > 50) {
+        nav.classList.add('scrolled');
+      } else {
+        nav.classList.remove('scrolled');
+      }
+    });
+  </script>
 
-        // Update active button state
-        const toggle = document.getElementById('toggle-' + groupId);
-        const btns = toggle.getElementsByClassName('duration-btn');
-        for (let btn of btns) {
-            if (btn.innerText.includes(duration)) {
-                btn.classList.add('active');
-            } else {
-                btn.classList.remove('active');
-            }
-        }
-    }
-</script>
-{% endblock %}
+</body>
+
+</html>

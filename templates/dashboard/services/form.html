@@ -176,9 +176,15 @@
                 {{ form.buffer_minutes }}
                 <div class="form-hint">Cleanup / reset time after session.</div>
             </div>
-            <div class="form-group">
-                <label class="form-label">Price (₹) *</label>
-                {{ form.price }}
+            <div class="form-group" id="price60Wrapper" style="display: none;">
+                <label class="form-label">Price (60m) *</label>
+                {{ form.price_60 }}
+                {% if form.price_60.errors %}<div class="form-error">{{ form.price_60.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group" id="price90Wrapper" style="display: none;">
+                <label class="form-label">Price (90m) *</label>
+                {{ form.price_90 }}
+                {% if form.price_90.errors %}<div class="form-error">{{ form.price_90.errors.0 }}</div>{% endif %}
             </div>
         </div>
     </div>
@@ -207,14 +213,29 @@
         });
     });
 
-    // ── Duration checkbox: highlight selected card ──────────────────────
+    // ── Duration checkbox: highlight selected card & toggle prices ──────
+    var p60 = document.getElementById('price60Wrapper');
+    var p90 = document.getElementById('price90Wrapper');
+
+    function syncPrices() {
+        var checked60 = document.querySelector('input[value="60"]').checked;
+        var checked90 = document.querySelector('input[value="90"]').checked;
+        p60.style.display = checked60 ? 'block' : 'none';
+        p90.style.display = checked90 ? 'block' : 'none';
+    }
+
     document.querySelectorAll('#durationCards input[type="checkbox"]').forEach(function (cb) {
         var lbl = cb.closest('.duration-card-label');
         if (cb.checked) lbl.classList.add('selected');
+
         cb.addEventListener('change', function () {
             lbl.classList.toggle('selected', cb.checked);
+            syncPrices();
         });
     });
+
+    // Initial sync
+    syncPrices();
 </script>
 
 {% endblock %}
