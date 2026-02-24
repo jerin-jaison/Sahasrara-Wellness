@@ -18,6 +18,7 @@ urlpatterns = [
 ]
 
 # Custom Error Handlers
+handler400 = 'apps.pages.views.error_400'
 handler404 = 'apps.pages.views.error_404'
 handler500 = 'apps.pages.views.error_500'
 handler403 = 'apps.pages.views.error_403'
