@@ -61,15 +61,21 @@
 
         <!-- Action Buttons -->
         <div class="d-grid gap-3">
-            {% if booking.status == 'pending' %}
+            {% if booking.status == 'PENDING_PAYMENT' or booking.status == 'pending' %}
             <a href="{% url 'payments:initiate' booking.id %}" class="btn btn-wellness py-3">Complete Payment</a>
+            {% endif %}
+
+            {% if booking.status == 'CONFIRMED' or booking.status == 'COMPLETED' or booking.status == 'confirmed' %}
+            <a href="{% url 'payments:receipt' booking.id %}?token={{ booking.access_token }}"
+                class="btn btn-wellness py-3">
+                <i class="bi bi-receipt me-2"></i> View Receipt
+            </a>
             {% endif %}
 
             <a href="https://calendar.google.com/calendar/render?action=TEMPLATE&text={{ booking.service.name|urlencode }}&dates={{ booking.booking_date|date:'Ymd' }}T{{ booking.start_time|time:'His' }}Z/{{ booking.booking_date|date:'Ymd' }}T{{ booking.end_time|time:'His' }}Z&location={{ booking.branch.address|urlencode }}"
                 target="_blank" class="btn btn-outline-light border-secondary py-3 text-white">
                 <i class="bi bi-calendar-plus me-2"></i> Add to Calendar
             </a>
-
         </div>
     </div>
 
