@@ -19,7 +19,7 @@ import logging
 import razorpay
 from django.conf import settings
 from django.db import transaction
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template
 from django.utils import timezone
@@ -386,12 +386,15 @@ def razorpay_webhook(request):
             payment.save(update_fields=['webhook_event_id', 'webhook_payload'])
 
             # Webhook is the source of truth for confirmation
+            logger.info("Authoritative confirmation via webhook: event=%s, payment=%s, booking=%s", 
+                        event_id, razorpay_payment_id, payment.booking.id)
             _confirm_booking(
                 booking=payment.booking,
                 payment=payment,
                 razorpay_payment_id=razorpay_payment_id,
                 source='webhook',
             )
+            logger.info("Booking %s confirmed successfully via webhook event %s", payment.booking.id, event_id)
         except Payment.DoesNotExist:
             logger.warning('Webhook: Payment not found for order %s', razorpay_order_id)
         except Exception as exc:
@@ -463,4 +466,22 @@ def success_pending(request, booking_id):
 
     return render(request, 'payments/success_pending.html', {
         'booking': booking,
+    })
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# JSON API: Check Payment Status
+# ─────────────────────────────────────────────────────────────────────────────
+
+def check_payment_status(request, booking_id):
+    """
+    JSON endpoint for frontend polling.
+    Returns current booking status.
+    """
+    booking = Booking.objects.filter(id=booking_id).first()
+    if not booking:
+        return JsonResponse({'status': 'NOT_FOUND'}, status=404)
+
+    return JsonResponse({
+        'status': booking.status,
     })

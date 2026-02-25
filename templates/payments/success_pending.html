@@ -106,30 +106,82 @@
 
 {% block content %}
 <div class="success-pending-container">
-    <div class="verification-card">
+    <div class="verification-card" id="verification-card">
         <div class="d-flex justify-content-center">
             <div class="spinner-glow">
                 <div class="verification-spinner"></div>
             </div>
         </div>
-        <h2 class="status-text">Verifying Your <span class="text-gold">Sanctuary</span></h2>
-        <p class="status-subtext">
-            Your payment was successful. We are now finalizing your appointment details. This usually takes just a few
-            seconds...
-        </p>
 
-        <div class="mt-4 pt-3 border-top border-secondary opacity-25"></div>
-        <p class="small text-muted mt-3">Please do not close this window.</p>
+        <div id="loading-state">
+            <h2 class="status-text">Verifying Your <span class="text-gold">Sanctuary</span></h2>
+            <p class="status-subtext">
+                Your payment was successful. We are now finalizing your appointment details securely.
+            </p>
+            <div class="progress mt-4 bg-dark" style="height: 4px; border-radius: 2px;">
+                <div id="progress-bar" class="progress-bar bg-gold" role="progressbar"
+                    style="width: 0%; transition: width 0.5s ease;"></div>
+            </div>
+            <p class="small text-muted mt-4">Please do not refresh or close this window.</p>
+        </div>
+
+        <div id="timeout-state" style="display: none;">
+            <h2 class="status-text text-warning">Taking Longer Than Expected</h2>
+            <p class="status-subtext">
+                Payment verification is taking a bit more time. Your booking might already be confirmed.
+            </p>
+            <div class="d-grid gap-3 mt-4">
+                <a href="{% url 'bookings:confirmation' booking.id %}" class="btn-booking py-3">Check Confirmation
+                    Again</a>
+                <a href="https://sahasrara-wellness.onrender.com" class="text-gold text-decoration-none small">Return to
+                    Home</a>
+            </div>
+        </div>
     </div>
 </div>
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    // Poll the current page every 3 seconds. 
-    // The server view will automatically redirect once confirmed.
-    setTimeout(function () {
-        window.location.reload();
-    }, 3000);
+    const bookingId = "{{ booking.id }}";
+    const startTime = Date.now();
+    const timeoutLimit = 60000; // 60 seconds
+    let progress = 0;
+
+    const pollStatus = setInterval(async () => {
+        const elapsed = Date.now() - startTime;
+
+        // Update pseudo-progress bar
+        if (progress < 90) {
+            progress += 5;
+            document.getElementById('progress-bar').style.width = progress + '%';
+        }
+
+        try {
+            const res = await fetch(`/payments/status/${bookingId}/`);
+            if (!res.ok) throw new Error('Network response was not ok');
+            const data = await res.json();
+
+            if (data.status === "CONFIRMED") {
+                clearInterval(pollStatus);
+                document.getElementById('progress-bar').style.width = '100%';
+                setTimeout(() => {
+                    window.location.href = `/bookings/confirmation/${bookingId}/`;
+                }, 500);
+            } else if (data.status === "FAILED") {
+                clearInterval(pollStatus);
+                window.location.href = `/payments/retry/${bookingId}/`;
+            }
+        } catch (err) {
+            console.error("Polling error:", err);
+        }
+
+        // Handle timeout
+        if (elapsed > timeoutLimit) {
+            clearInterval(pollStatus);
+            document.getElementById('loading-state').style.display = 'none';
+            document.getElementById('timeout-state').style.display = 'block';
+        }
+    }, 2500);
 </script>
 {% endblock %}

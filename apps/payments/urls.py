@@ -18,6 +18,7 @@ urlpatterns = [
 
     # Payment Processing / Success Pending
     path('success-pending/<uuid:booking_id>/', views.success_pending, name='success_pending'),
+    path('status/<uuid:booking_id>/', views.check_payment_status, name='check_status'),
 
     # Payment Receipt
     path('receipt/<uuid:booking_id>/', views.view_receipt, name='receipt'),
