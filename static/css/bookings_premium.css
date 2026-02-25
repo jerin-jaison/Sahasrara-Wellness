@@ -272,7 +272,7 @@ body {
     z-index: 0;
 }
 
-.duration-toggle.show-90 .active-glider {
+.duration-toggle.show-45 .active-glider {
     transform: translateX(100%);
 }
 

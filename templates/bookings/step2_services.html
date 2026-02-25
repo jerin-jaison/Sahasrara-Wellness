@@ -33,8 +33,8 @@
     <div class="duration-filter-container">
         <div class="duration-toggle" id="duration-toggle" onclick="toggleDuration()">
             <div class="active-glider"></div>
-            <div class="duration-option active" data-value="60">60 Mins</div>
-            <div class="duration-option" data-value="90">90 Mins</div>
+            <div class="duration-option active" data-value="30">30 Mins</div>
+            <div class="duration-option" data-value="45">45 Mins</div>
         </div>
     </div>
 
@@ -59,18 +59,18 @@
 </div>
 
 <script>
-    let currentDuration = 60;
+    let currentDuration = 30;
 
     function toggleDuration() {
         const toggle = document.getElementById('duration-toggle');
         const options = toggle.querySelectorAll('.duration-option');
 
-        currentDuration = currentDuration === 60 ? 90 : 60;
+        currentDuration = currentDuration === 30 ? 45 : 30;
 
-        if (currentDuration === 90) {
-            toggle.classList.add('show-90');
+        if (currentDuration === 45) {
+            toggle.classList.add('show-45');
         } else {
-            toggle.classList.remove('show-90');
+            toggle.classList.remove('show-45');
         }
 
         options.forEach(opt => {

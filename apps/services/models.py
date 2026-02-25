@@ -3,8 +3,8 @@ Service model — each row is a unique service+duration combination.
 
 Design decision: each duration variant is a SEPARATE Service row.
 Example:
-  - "Swedish Massage 60 min"  price=₹1200  duration=60
-  - "Swedish Massage 90 min"  price=₹1700  duration=90
+  - "Swedish Massage 30 min"  price=₹1200  duration=30
+  - "Swedish Massage 45 min"  price=₹1700  duration=45
 
 This keeps slot generation simple and pricing self-contained.
 A service can be offered at MULTIPLE branches via the ManyToManyField.
@@ -26,7 +26,7 @@ class Service(BaseModel):
     description = models.TextField(blank=True)
     duration_minutes = models.PositiveIntegerField(
         validators=[MinValueValidator(30)],
-        help_text='Session duration in minutes (60 or 90)',
+        help_text='Session duration in minutes (30 or 45)',
     )
     buffer_minutes = models.PositiveIntegerField(
         default=0,

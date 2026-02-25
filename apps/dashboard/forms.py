@@ -1,5 +1,5 @@
 """Dashboard forms with:
- - ServiceForm: checkbox branch cards + radio duration (60/90 only)
+ - ServiceForm: checkbox branch cards + radio duration (30/45 only)
 """
 from django import forms
 from apps.branches.models import Branch, BranchSchedule
@@ -11,7 +11,7 @@ _ctrl  = {'class': 'form-control'}
 _check = {'class': 'form-check-input'}
 _ta    = lambda r: {'class': 'form-control', 'rows': r}
 
-DURATION_CHOICES = [(60, '60 minutes'), (90, '90 minutes')]
+DURATION_CHOICES = [(30, '30 minutes'), (45, '45 minutes')]
 
 WEEKDAY_CHOICES = [
     ('0', 'Monday'), ('1', 'Tuesday'), ('2', 'Wednesday'),
@@ -74,7 +74,7 @@ class BranchForm(forms.ModelForm):
 
 
 class ServiceForm(forms.ModelForm):
-    # Multiple duration choices (60 or 90)
+    # Multiple duration choices (30 or 45)
     durations = forms.MultipleChoiceField(
         choices=DURATION_CHOICES,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'duration-checkbox'}),
@@ -89,15 +89,15 @@ class ServiceForm(forms.ModelForm):
         error_messages={'required': 'Please select at least one branch.'},
     )
 
-    price_60 = forms.DecimalField(
+    price_30 = forms.DecimalField(
         max_digits=8, decimal_places=2, required=False,
-        widget=forms.NumberInput(attrs={**_ctrl, 'min': 0, 'step': '1', 'placeholder': 'Price for 60m'}),
-        label="Price (60m)"
+        widget=forms.NumberInput(attrs={**_ctrl, 'min': 0, 'step': '1', 'placeholder': 'Price for 30m'}),
+        label="Price (30m)"
     )
-    price_90 = forms.DecimalField(
+    price_45 = forms.DecimalField(
         max_digits=8, decimal_places=2, required=False,
-        widget=forms.NumberInput(attrs={**_ctrl, 'min': 0, 'step': '1', 'placeholder': 'Price for 90m'}),
-        label="Price (90m)"
+        widget=forms.NumberInput(attrs={**_ctrl, 'min': 0, 'step': '1', 'placeholder': 'Price for 45m'}),
+        label="Price (45m)"
     )
 
     class Meta:
@@ -117,28 +117,28 @@ class ServiceForm(forms.ModelForm):
             self.initial['durations'] = [str(self.instance.duration_minutes)]
             
             # Load prices for current and existing variants
-            if self.instance.duration_minutes == 60:
-                self.initial['price_60'] = self.instance.price
-            elif self.instance.duration_minutes == 90:
-                self.initial['price_90'] = self.instance.price
+            if self.instance.duration_minutes == 30:
+                self.initial['price_30'] = self.instance.price
+            elif self.instance.duration_minutes == 45:
+                self.initial['price_45'] = self.instance.price
             
             # Look for the OTHER variant to pre-fill its price too
-            other_duration = 90 if self.instance.duration_minutes == 60 else 60
+            other_duration = 45 if self.instance.duration_minutes == 30 else 30
             other_svc = Service.objects.filter(name=self.instance.name, duration_minutes=other_duration).first()
             if other_svc:
                 self.initial[f'price_{other_duration}'] = other_svc.price
                 # Also ensure the duration checkbox is checked for the other one
                 if str(other_duration) not in self.initial['durations']:
-                    self.initial['durations'] = [str(60), str(90)]
+                    self.initial['durations'] = [str(30), str(45)]
 
     def clean(self):
         cleaned_data = super().clean()
         durations = cleaned_data.get('durations', [])
         
-        if '60' in durations and not cleaned_data.get('price_60'):
-            self.add_error('price_60', 'Price for 60 minutes is required.')
-        if '90' in durations and not cleaned_data.get('price_90'):
-            self.add_error('price_90', 'Price for 90 minutes is required.')
+        if '30' in durations and not cleaned_data.get('price_30'):
+            self.add_error('price_30', 'Price for 30 minutes is required.')
+        if '45' in durations and not cleaned_data.get('price_45'):
+            self.add_error('price_45', 'Price for 45 minutes is required.')
             
         return cleaned_data
 
