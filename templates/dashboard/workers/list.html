@@ -53,10 +53,10 @@
     {% endif %}
 </div>
 
-<div class="msg-warning" style="margin-top:16px;padding:13px 16px;border-radius:10px;font-size:13px;">
+{% comment %} <div class="msg-warning" style="margin-top:16px;padding:13px 16px;border-radius:10px;font-size:13px;">
     ⚠️ <strong>Tip:</strong> After adding a therapist, configure their working schedule via
     <a href="{% url 'admin:workers_workerschedule_add' %}" target="_blank" class="link">Django Admin → Worker
         Schedules</a>
     so they appear in the guest booking flow.
-</div>
+</div> {% endcomment %}
 {% endblock %}

@@ -61,12 +61,12 @@
     </div>
 </form>
 
-{% if not worker %}
+{% comment %} {% if not worker %}
 <div class="msg-info" style="margin-top:20px;padding:14px 18px;border-radius:10px;font-size:13px;">
     ℹ️ <strong>Next step:</strong> After creating the therapist, set their working schedule via
     <a href="{% url 'admin:workers_workerschedule_add' %}" target="_blank" class="link">Django Admin → Worker
         Schedules</a>.
     Without a schedule, they won't appear in available booking slots.
 </div>
-{% endif %}
+{% endif %} {% endcomment %}
 {% endblock %}
