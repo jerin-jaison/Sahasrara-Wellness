@@ -15,6 +15,7 @@ urlpatterns = [
     path('bookings/', include('apps.bookings.urls', namespace='bookings')),
     path('payments/', include('apps.payments.urls', namespace='payments')),
     path('dashboard/', include('apps.dashboard.urls', namespace='dashboard')),
+    path('reviews/', include('apps.reviews.urls', namespace='reviews')),
 ]
 
 # Custom Error Handlers

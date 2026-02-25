@@ -281,7 +281,8 @@
                     <a href="{% url 'pages:home' %}" class="nav-link-premium">Home</a>
                     <a href="{% url 'pages:about' %}" class="nav-link-premium">About Us</a>
                     <a href="{% url 'services:index' %}" class="nav-link-premium">Our Services</a>
-                    {% comment %} <a href="{% url 'pages:team' %}" class="nav-link-premium">Our Team</a> {% endcomment %}
+                    <a href="{% url 'reviews:index' %}" class="nav-link-premium">Reviews</a>
+                    <a href="{% url 'bookings:inbox' %}" class="nav-link-premium">My Bookings</a>
                     <a href="{% url 'pages:contact' %}" class="nav-link-premium">Contact</a>
                 </div>
                 <div class="d-flex align-items-center">
@@ -326,7 +327,8 @@
                         <li><a href="{% url 'pages:home' %}" class="footer-link">Home</a></li>
                         <li><a href="{% url 'pages:about' %}" class="footer-link">About Us</a></li>
                         <li><a href="{% url 'services:index' %}" class="footer-link">Our Services</a></li>
-                        {% comment %} <li><a href="{% url 'pages:team' %}" class="footer-link">Our Team</a></li> {% endcomment %}
+                        <li><a href="{% url 'reviews:index' %}" class="footer-link">Guest Reviews</a></li>
+                        <li><a href="{% url 'bookings:inbox' %}" class="footer-link">My Bookings</a></li>
                         <li><a href="{% url 'pages:contact' %}" class="footer-link">Contact Us</a></li>
                         <li><a href="{% url 'bookings:step1_branch' %}" class="footer-link">Book Now</a></li>
                     </ul>
