@@ -151,15 +151,16 @@
             background: rgba(10, 10, 10, 0.85);
             backdrop-filter: blur(20px);
             -webkit-backdrop-filter: blur(20px);
-            border: none;
+            border: 1px solid rgba(198, 164, 90, 0.1);
             border-radius: 100px;
             transition: all 0.5s var(--ease);
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
         }
 
         .navbar-premium.scrolled {
-            background: rgba(5, 5, 5, 0.9);
+            background: rgba(5, 5, 5, 0.95);
             box-shadow: 0 15px 50px rgba(0, 0, 0, 0.5);
+            margin-top: 10px;
         }
 
         .navbar-brand {
@@ -207,12 +208,59 @@
         }
 
         .navbar-toggler {
+            border: 1px solid var(--border-subtle);
+            padding: 5px 10px;
+            border-radius: 12px;
+            transition: all 0.3s;
+        }
+
+        .navbar-toggler:focus {
+            box-shadow: none;
             border-color: var(--gold);
-            padding: 8px 12px;
         }
 
         .navbar-toggler-icon {
             background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgb(198, 164, 90)' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e");
+            width: 20px;
+            height: 20px;
+        }
+
+        @media (max-width: 767.98px) {
+            .navbar-premium {
+                border-radius: 25px;
+                padding: 10px 15px;
+                width: 95%;
+            }
+
+            .navbar-brand img {
+                height: 32px;
+            }
+
+            .navbar-brand span {
+                font-size: 1.1rem !important;
+                margin-left: 8px !important;
+            }
+
+            .btn-booking {
+                padding: 7px 14px;
+                font-size: 0.7rem;
+            }
+
+            .navbar-collapse {
+                background: rgba(15, 15, 15, 0.95);
+                margin-top: 15px;
+                border-radius: 20px;
+                padding: 20px;
+                border: 1px solid var(--border-subtle);
+                backdrop-filter: blur(15px);
+            }
+
+            .nav-link-premium {
+                display: block;
+                margin: 10px 0;
+                text-align: center;
+                font-size: 1rem;
+            }
         }
 
 
@@ -354,21 +402,35 @@
 <body>
 
     <!-- Navigation -->
-    <nav class="navbar navbar-premium">
-        <div class="container d-flex justify-content-between align-items-center">
+    <nav class="navbar navbar-expand-md navbar-premium">
+        <div class="container-fluid px-lg-4 d-flex justify-content-between align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="/">
                 <img src="{% static 'logo1.jpeg' %}" alt="Sahasrara Logo">
-                <span class="ms-3 text-white garamond fw-bold" style="font-size: 1.5rem; letter-spacing: 1px;">Sahasrara
+                <span class="ms-3 text-white garamond fw-bold" style="font-size: 1.5rem; letter-spacing: 1px;"
+                    font-family: 'Century Gothic' , sans-serif;>Sahasrara
                     Wellness</span>
             </a>
-            <div class="d-none d-md-flex">
-                <a href="{% url 'pages:home' %}" class="nav-link-premium">Home</a>
-                <a href="{% url 'pages:about' %}" class="nav-link-premium">About Us</a>
-                <a href="{% url 'services:index' %}" class="nav-link-premium">Services</a>
-                {% comment %} <a href="{% url 'pages:team' %}" class="nav-link-premium">Team</a> {% endcomment %}
-                <a href="{% url 'pages:contact' %}" class="nav-link-premium">Contact</a>
+
+            <!-- Mobile Actions -->
+            <div class="d-flex align-items-center order-md-last">
+                <a href="{% url 'bookings:step1_branch' %}" class="btn-booking me-2 me-md-0">Book Online</a>
+                <button class="navbar-toggler d-md-none" type="button" data-bs-toggle="collapse"
+                    data-bs-target="#navbarContent" aria-controls="navbarContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
             </div>
-            <a href="{% url 'bookings:step1_branch' %}" class="btn-booking">Book Online</a>
+
+            <!-- Main Links -->
+            <div class="collapse navbar-collapse justify-content-center" id="navbarContent">
+                <div class="navbar-nav align-items-center">
+                    <a href="{% url 'pages:home' %}" class="nav-link-premium">Home</a>
+                    <a href="{% url 'pages:about' %}" class="nav-link-premium">About</a>
+                    <a href="{% url 'services:index' %}" class="nav-link-premium">Services</a>
+                    <a href="{% url 'bookings:inbox' %}" class="nav-link-premium">My Bookings</a>
+                    <a href="{% url 'pages:contact' %}" class="nav-link-premium">Contact</a>
+                </div>
+            </div>
         </div>
     </nav>
 
@@ -432,8 +494,7 @@
                         <h3 class="h2 text-white garamond mb-3">{{ branch.name }}</h3>
                         <p class="text-white-50 small mb-3">{{ branch.address }}</p>
                         <div class="mb-4">
-                            <span class="small text-gold fw-bold"><i class="bi bi-clock me-2"></i>{{
-                                branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}</span>
+                            <span class="small text-gold fw-bold"><i class="bi bi-clock me-2"></i>{{ branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}</span>
                         </div>
                         <div class="d-flex flex-wrap gap-2 justify-content-center">
                             <a href="{% url 'bookings:step1_branch' %}?branch_id={{ branch.id }}"
@@ -483,7 +544,7 @@
                         <li><a href="{% url 'pages:home' %}" class="footer-link">Home</a></li>
                         <li><a href="{% url 'pages:about' %}" class="footer-link">About Us</a></li>
                         <li><a href="{% url 'services:index' %}" class="footer-link">Our Services</a></li>
-                        {% comment %} <li><a href="{% url 'pages:team' %}" class="footer-link">Our Team</a></li> {% endcomment %}
+                        <li><a href="{% url 'bookings:inbox' %}" class="footer-link">My Bookings</a></li>
                         <li><a href="{% url 'pages:contact' %}" class="footer-link">Contact Us</a></li>
                     </ul>
                 </div>
