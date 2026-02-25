@@ -16,8 +16,8 @@ urlpatterns = [
     # Retry payment (still within lock TTL)
     path('retry/<uuid:booking_id>/', views.payment_retry, name='retry'),
 
-    # Slot/booking expired — lock TTL elapsed
-    path('expired/<uuid:booking_id>/', views.payment_expired, name='expired'),
+    # Payment Processing / Success Pending
+    path('success-pending/<uuid:booking_id>/', views.success_pending, name='success_pending'),
 
     # Payment Receipt
     path('receipt/<uuid:booking_id>/', views.view_receipt, name='receipt'),

@@ -1,0 +1,135 @@
+{% extends "base_site.html" %}
+{% load static %}
+
+{% block title %}Verifying Payment — Sahasrara Wellness{% endblock %}
+
+{% block extra_css %}
+<style>
+    .success-pending-container {
+        min-height: 80vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        background: radial-gradient(circle at center, rgba(192, 160, 96, 0.05) 0%, transparent 70%);
+    }
+
+    .verification-card {
+        background: rgba(255, 255, 255, 0.03);
+        backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px);
+        border: 1px solid rgba(192, 160, 96, 0.2);
+        border-radius: 32px;
+        padding: 60px 40px;
+        max-width: 500px;
+        width: 90%;
+        box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+        animation: levitate 6s ease-in-out infinite;
+    }
+
+    .spinner-glow {
+        position: relative;
+        width: 80px;
+        height: 80px;
+        margin-bottom: 30px;
+    }
+
+    .spinner-glow::before {
+        content: '';
+        position: absolute;
+        inset: -15px;
+        background: radial-gradient(circle, rgba(192, 160, 96, 0.4) 0%, transparent 70%);
+        border-radius: 50%;
+        animation: pulse-glow 2s infinite;
+    }
+
+    .verification-spinner {
+        width: 100%;
+        height: 100%;
+        border: 3px solid rgba(192, 160, 96, 0.1);
+        border-top: 3px solid var(--gold);
+        border-radius: 50%;
+        animation: spin 1.5s linear infinite;
+    }
+
+    .status-text {
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 2.2rem;
+        color: #fff;
+        margin-bottom: 15px;
+    }
+
+    .status-subtext {
+        color: rgba(255, 255, 255, 0.6);
+        font-size: 1.1rem;
+        line-height: 1.6;
+    }
+
+    @keyframes spin {
+        0% {
+            transform: rotate(0deg);
+        }
+
+        100% {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes pulse-glow {
+
+        0%,
+        100% {
+            opacity: 0.5;
+            transform: scale(1);
+        }
+
+        50% {
+            opacity: 1;
+            transform: scale(1.2);
+        }
+    }
+
+    @keyframes levitate {
+
+        0%,
+        100% {
+            transform: translateY(0);
+        }
+
+        50% {
+            transform: translateY(-15px);
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="success-pending-container">
+    <div class="verification-card">
+        <div class="d-flex justify-content-center">
+            <div class="spinner-glow">
+                <div class="verification-spinner"></div>
+            </div>
+        </div>
+        <h2 class="status-text">Verifying Your <span class="text-gold">Sanctuary</span></h2>
+        <p class="status-subtext">
+            Your payment was successful. We are now finalizing your appointment details. This usually takes just a few
+            seconds...
+        </p>
+
+        <div class="mt-4 pt-3 border-top border-secondary opacity-25"></div>
+        <p class="small text-muted mt-3">Please do not close this window.</p>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Poll the current page every 3 seconds. 
+    // The server view will automatically redirect once confirmed.
+    setTimeout(function () {
+        window.location.reload();
+    }, 3000);
+</script>
+{% endblock %}

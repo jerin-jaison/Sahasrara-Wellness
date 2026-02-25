@@ -159,12 +159,20 @@ def _confirm_booking(booking: Booking, payment: Payment, razorpay_payment_id: st
                      razorpay_signature: str = '', source: str = 'webhook') -> None:
     """
     Transition booking to CONFIRMED and update payment record.
-    Thread-safe implementation with select_for_update to avoid race conditions 
-    between callback and webhook.
+    Thread-safe & Idempotent implementation with select_for_update to avoid race conditions.
     """
-    # Reload booking with lock
+    logger.info('Confirmation attempt for booking %s via %s [payment_id: %s]', 
+                booking.id, source, razorpay_payment_id)
+
+    # 1. Idempotent Payment Guard: Has this payment ID already been used to confirm something?
+    if Payment.objects.filter(razorpay_payment_id=razorpay_payment_id, status=PaymentStatus.CAPTURED).exists():
+        logger.info('Payment %s already processed/captured — skipping.', razorpay_payment_id)
+        return
+
+    # 2. Row lock via select_for_update within atomic transaction
     booking = Booking.objects.select_for_update().get(id=booking.id)
 
+    # 3. Booking State Guard: Is it already confirmed?
     if booking.status == BookingStatus.CONFIRMED:
         logger.info('Booking %s already CONFIRMED — skipping.', booking.id)
         return
@@ -188,7 +196,7 @@ def _confirm_booking(booking: Booking, payment: Payment, razorpay_payment_id: st
         from_status=old_status,
         to_status=BookingStatus.CONFIRMED,
         changed_by=source,
-        reason='Payment captured',
+        reason=f'Payment captured via {source}',
     )
 
     try:
@@ -196,7 +204,7 @@ def _confirm_booking(booking: Booking, payment: Payment, razorpay_payment_id: st
     except Exception as e:
         logger.exception("Email notification failed after confirmation: %s", e)
 
-    logger.info('Booking %s CONFIRMED via %s.', booking.id, source)
+    logger.info('Booking %s successfully CONFIRMED via %s.', booking.id, source)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -292,32 +300,23 @@ def payment_callback(request):
         razorpay_signature = request.POST.get('razorpay_signature', '')
 
         try:
-            payment = Payment.objects.select_related('booking__service', 'booking__worker',
-                                                     'booking__branch', 'booking__guest')\
-                                     .get(razorpay_order_id=razorpay_order_id)
+            payment = Payment.objects.select_related('booking').get(razorpay_order_id=razorpay_order_id)
         except Payment.DoesNotExist:
-            logger.warning('Callback received for unknown order_id: %s', razorpay_order_id)
+            logger.warning('Callback: order not found %s', razorpay_order_id)
             return redirect('bookings:step1_branch')
 
         booking = payment.booking
 
-        # Verify signature
+        # 1. Verify signature
         if not _verify_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
             logger.warning('Signature verification FAILED for order %s', razorpay_order_id)
-            payment.status = PaymentStatus.FAILED
-            payment.save(update_fields=['status'])
             return redirect('payments:retry', booking_id=booking.id)
 
-        # Confirm booking (idempotent + thread-safe)
-        _confirm_booking(
-            booking=booking,
-            payment=payment,
-            razorpay_payment_id=razorpay_payment_id,
-            razorpay_signature=razorpay_signature,
-            source='callback',
-        )
+        # 2. UI ONLY: Do NOT update booking status here.
+        # Confirmation is handled strictly by the webhook.
+        logger.info('Callback (UI-only) verified signature for booking %s. Redirecting to success_pending.', booking.id)
 
-        # Update session inbox
+        # Update session inbox (so they can see the booking in their list)
         inbox = request.session.get('booking_inbox', [])
         bid = str(booking.id)
         if bid not in inbox:
@@ -326,13 +325,13 @@ def payment_callback(request):
         request.session.modified = True
 
     except Exception as exc:
-        logger.exception('Fatal error in payment_callback for order %s: %s', razorpay_order_id, exc)
+        logger.exception('Fatal error in payment_callback: %s', exc)
         return render(request, 'payments/error.html', {
-            'message': 'An unexpected error occurred during confirmation. Our team will verify your payment shortly.',
-            'title': 'Confirmation Error'
+            'message': 'An unexpected error occurred. Our team will verify your payment shortly.',
+            'title': 'Confirmation Processing'
         })
 
-    return redirect('bookings:confirmation', booking_id=booking.id)
+    return redirect('payments:success_pending', booking_id=booking.id)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -381,11 +380,12 @@ def razorpay_webhook(request):
                 'booking__branch', 'booking__guest',
             ).get(razorpay_order_id=razorpay_order_id)
 
-            # Record event ID for idempotency
+            # Record event ID for idempotency before confirming
             payment.webhook_event_id = event_id or None
             payment.webhook_payload  = payload
             payment.save(update_fields=['webhook_event_id', 'webhook_payload'])
 
+            # Webhook is the source of truth for confirmation
             _confirm_booking(
                 booking=payment.booking,
                 payment=payment,
@@ -395,8 +395,9 @@ def razorpay_webhook(request):
         except Payment.DoesNotExist:
             logger.warning('Webhook: Payment not found for order %s', razorpay_order_id)
         except Exception as exc:
+            # Webhook must never crash or return 500
             logger.exception('Webhook processing error: %s', exc)
-            return HttpResponse(status=500)
+            return HttpResponse(status=200)
 
     return HttpResponse(status=200)
 
@@ -441,3 +442,25 @@ def payment_expired(request, booking_id):
         id=booking_id,
     )
     return render(request, 'payments/expired.html', {'booking': booking})
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Success Pending (Intermediate state for UI-only callback)
+# ─────────────────────────────────────────────────────────────────────────────
+
+def success_pending(request, booking_id):
+    """
+    Intermediate page shown while we wait for webhook confirmation.
+    Automatically redirects to confirmation page once booking status is CONFIRMED.
+    """
+    booking = get_object_or_404(
+        Booking.objects.select_related('service', 'branch'),
+        id=booking_id
+    )
+
+    if booking.status == BookingStatus.CONFIRMED:
+        return redirect('bookings:confirmation', booking_id=booking.id)
+
+    return render(request, 'payments/success_pending.html', {
+        'booking': booking,
+    })
