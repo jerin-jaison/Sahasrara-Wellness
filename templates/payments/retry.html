@@ -1,75 +1,101 @@
 {% extends "bookings/base_booking.html" %}
-{% block title %}Payment Not Completed — Sahasrara Wellness{% endblock %}
+{% block title %}Uh! oh! Something went wrong — Sahasrara Wellness{% endblock %}
 
 {% block content %}
 <div class="booking-title-wrapper">
     <div class="booking-divider"></div>
-    <h4 class="booking-title text-center">Payment Update</h4>
-    <p class="text-muted small">Your session was interrupted</p>
+    <h4 class="booking-title text-center">Payment Status</h4>
 </div>
 
-<div class="premium-card mx-auto text-center" style="max-width: 550px;">
-    <div class="icon-box-premium mx-auto mb-4" style="width: 64px; height: 64px; font-size: 2rem;">
-        <i class="bi bi-exclamation-triangle"></i>
-    </div>
-
-    <h5 class="text-white fw-bold mb-3">Wait, Your Slot is Still Held!</h5>
-    <p class="text-white-50 mb-4 px-3">
-        The payment process for <span class="text-white fw-bold">{{ booking.service.name }}</span> was not completed,
-        but don't worry—we're still holding your slot for you.
-    </p>
-
-    <div class="summary-item-premium mb-4 text-start">
-        <div class="d-flex align-items-center gap-3">
-            <div class="icon-box-premium small"><i class="bi bi-clock"></i></div>
-            <div>
-                <span class="tiny text-white-50 text-uppercase fw-bold" style="letter-spacing:1px">Time Remaining</span>
-                <div class="text-gold fw-bold">Approx. 10 Minutes</div>
-            </div>
+<div class="premium-card mx-auto text-center"
+    style="max-width: 550px; padding: 60px 40px; border-radius: 32px; background: rgba(255,255,255,0.03); backdrop-filter: blur(20px);">
+    <div class="error-visual mb-5">
+        <div class="pulse-icon mx-auto">
+            <i class="bi bi-exclamation-circle text-gold" style="font-size: 3rem;"></i>
         </div>
     </div>
 
-    <form action="{% url 'payments:initiate' booking.id %}" method="get">
-        {% include "components/sticky_cta.html" with label="Try Payment Again" button_id="retry-btn" %}
-    </form>
+    <h1 class="display-5 text-white garamond mb-3">Uh! oh!</h1>
+    <h3 class="text-gold garamond mb-4">Something went wrong</h3>
 
-    <div class="mt-4">
-        <a href="{% url 'bookings:cancel_lock' %}" class="small text-muted text-decoration-none hover-gold"
+    <p class="text-white-50 lead mb-5 px-3" style="font-size: 1.1rem; line-height: 1.8;">
+        We appreciate your patience. While we fix this, continue browsing on <br>
+        <a href="https://sahasrara-wellness.onrender.com"
+            class="text-gold text-decoration-none hover-underline">sahasrara-wellness.onrender.com</a>
+    </p>
+
+    <div class="d-grid gap-3">
+        <form action="{% url 'payments:initiate' booking.id %}" method="get">
+            {% include "components/sticky_cta.html" with label="Try Payment Again" button_id="retry-btn" %}
+        </form>
+
+        <a href="{% url 'bookings:cancel_lock' %}"
+            class="btn-outline-gold mt-2 py-3 px-4 rounded-pill text-decoration-none transition"
             onclick="return confirm('Release this slot and choose another?')">
-            <i class="bi bi-arrow-left-circle"></i> Cancel & Choose Another Slot
+            Pick a Different Slot
         </a>
     </div>
 </div>
 
 <style>
-    .summary-item-premium {
-        background: rgba(255, 255, 255, 0.02);
-        border: 1px solid var(--border-subtle);
-        border-radius: 16px;
-        padding: 16px;
-    }
-
-    .icon-box-premium {
+    .pulse-icon {
+        width: 100px;
+        height: 100px;
         background: rgba(198, 164, 90, 0.1);
-        border-radius: 12px;
+        border-radius: 50%;
         display: flex;
         align-items: center;
         justify-content: center;
+        position: relative;
+    }
+
+    .pulse-icon::after {
+        content: '';
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border: 2px solid var(--gold);
+        border-radius: 50%;
+        animation: pulse-ring 2s infinite;
+        opacity: 0;
+    }
+
+    @keyframes pulse-ring {
+        0% {
+            transform: scale(0.8);
+            opacity: 0.5;
+        }
+
+        100% {
+            transform: scale(1.4);
+            opacity: 0;
+        }
+    }
+
+    .hover-underline:hover {
+        text-decoration: underline !important;
+    }
+
+    .btn-outline-gold {
+        border: 1px solid rgba(198, 164, 90, 0.4);
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+    }
+
+    .btn-outline-gold:hover {
+        background: rgba(198, 164, 90, 0.1);
+        border-color: var(--gold);
         color: var(--gold);
     }
 
-    .icon-box-premium.small {
-        width: 32px;
-        height: 32px;
-        font-size: 1rem;
+    .garamond {
+        font-family: 'Cormorant Garamond', serif;
     }
 
-    .hover-gold:hover {
-        color: var(--gold) !important;
-    }
-
-    .tiny {
-        font-size: 0.7rem;
+    .transition {
+        transition: all 0.3s ease;
     }
 </style>
 {% endblock %}
