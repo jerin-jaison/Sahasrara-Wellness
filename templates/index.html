@@ -406,8 +406,8 @@
         <div class="container-fluid px-lg-4 d-flex justify-content-between align-items-center">
             <a class="navbar-brand d-flex align-items-center" href="/">
                 <img src="{% static 'logo1.jpeg' %}" alt="Sahasrara Logo">
-                <span class="ms-3 text-white garamond fw-bold" style="font-size: 1.5rem; letter-spacing: 1px;"
-                    font-family: 'Century Gothic' , sans-serif;>Sahasrara
+                <span class="ms-3 text-white garamond fw-bold"
+                    style="font-size: 1.5rem; letter-spacing: 1px; font-family: 'Century Gothic', sans-serif;">Sahasrara
                     Wellness</span>
             </a>
 
@@ -494,7 +494,8 @@
                         <h3 class="h2 text-white garamond mb-3">{{ branch.name }}</h3>
                         <p class="text-white-50 small mb-3">{{ branch.address }}</p>
                         <div class="mb-4">
-                            <span class="small text-gold fw-bold"><i class="bi bi-clock me-2"></i>{{ branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}</span>
+                            <span class="small text-gold fw-bold"><i class="bi bi-clock me-2"></i>{{
+                                branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}</span>
                         </div>
                         <div class="d-flex flex-wrap gap-2 justify-content-center">
                             <a href="{% url 'bookings:step1_branch' %}?branch_id={{ branch.id }}"
