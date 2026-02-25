@@ -12,6 +12,8 @@ SECRET_KEY = config('SECRET_KEY')
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,sahasrara-wellness.onrender.com', cast=Csv())
 
+SITE_URL = config('SITE_URL', default='http://127.0.0.1:8000')
+
 DJANGO_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',

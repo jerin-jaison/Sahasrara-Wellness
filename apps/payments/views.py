@@ -18,7 +18,8 @@ import logging
 
 import razorpay
 from django.conf import settings
-from django.http import HttpResponse, JsonResponse
+from django.db import transaction
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.template.loader import get_template
 from django.utils import timezone
@@ -153,12 +154,17 @@ def _verify_webhook_signature(raw_body: bytes, signature: str) -> bool:
     return hmac.compare_digest(computed, signature)
 
 
+@transaction.atomic
 def _confirm_booking(booking: Booking, payment: Payment, razorpay_payment_id: str,
                      razorpay_signature: str = '', source: str = 'webhook') -> None:
     """
     Transition booking to CONFIRMED and update payment record.
-    Idempotent — safe to call multiple times (checks current status first).
+    Thread-safe implementation with select_for_update to avoid race conditions 
+    between callback and webhook.
     """
+    # Reload booking with lock
+    booking = Booking.objects.select_for_update().get(id=booking.id)
+
     if booking.status == BookingStatus.CONFIRMED:
         logger.info('Booking %s already CONFIRMED — skipping.', booking.id)
         return
@@ -185,7 +191,11 @@ def _confirm_booking(booking: Booking, payment: Payment, razorpay_payment_id: st
         reason='Payment captured',
     )
 
-    send_booking_confirmed(booking)
+    try:
+        send_booking_confirmed(booking)
+    except Exception as e:
+        logger.exception("Email notification failed after confirmation: %s", e)
+
     logger.info('Booking %s CONFIRMED via %s.', booking.id, source)
 
 
@@ -268,6 +278,7 @@ def initiate_payment(request, booking_id):
 # Payment Callback (Razorpay redirects here after modal)
 # ─────────────────────────────────────────────────────────────────────────────
 
+@csrf_exempt
 @require_POST
 def payment_callback(request):
     """
@@ -275,43 +286,51 @@ def payment_callback(request):
     Verifies signature and transitions booking to CONFIRMED on success.
     On failure: redirect to retry page.
     """
-    razorpay_order_id  = request.POST.get('razorpay_order_id', '')
-    razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
-    razorpay_signature = request.POST.get('razorpay_signature', '')
-
     try:
-        payment = Payment.objects.select_related('booking__service', 'booking__worker',
-                                                 'booking__branch', 'booking__guest')\
-                                 .get(razorpay_order_id=razorpay_order_id)
-    except Payment.DoesNotExist:
-        logger.warning('Callback received for unknown order_id: %s', razorpay_order_id)
-        return redirect('bookings:step1_branch')
+        razorpay_order_id  = request.POST.get('razorpay_order_id', '')
+        razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
+        razorpay_signature = request.POST.get('razorpay_signature', '')
 
-    booking = payment.booking
+        try:
+            payment = Payment.objects.select_related('booking__service', 'booking__worker',
+                                                     'booking__branch', 'booking__guest')\
+                                     .get(razorpay_order_id=razorpay_order_id)
+        except Payment.DoesNotExist:
+            logger.warning('Callback received for unknown order_id: %s', razorpay_order_id)
+            return redirect('bookings:step1_branch')
 
-    # Verify signature
-    if not _verify_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
-        logger.warning('Signature verification FAILED for order %s', razorpay_order_id)
-        payment.status = PaymentStatus.FAILED
-        payment.save(update_fields=['status'])
-        return redirect('payments:retry', booking_id=booking.id)
+        booking = payment.booking
 
-    # Confirm booking (idempotent)
-    _confirm_booking(
-        booking=booking,
-        payment=payment,
-        razorpay_payment_id=razorpay_payment_id,
-        razorpay_signature=razorpay_signature,
-        source='callback',
-    )
+        # Verify signature
+        if not _verify_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
+            logger.warning('Signature verification FAILED for order %s', razorpay_order_id)
+            payment.status = PaymentStatus.FAILED
+            payment.save(update_fields=['status'])
+            return redirect('payments:retry', booking_id=booking.id)
 
-    # Update session inbox
-    inbox = request.session.get('booking_inbox', [])
-    bid = str(booking.id)
-    if bid not in inbox:
-        inbox.append(bid)
-    request.session['booking_inbox'] = inbox
-    request.session.modified = True
+        # Confirm booking (idempotent + thread-safe)
+        _confirm_booking(
+            booking=booking,
+            payment=payment,
+            razorpay_payment_id=razorpay_payment_id,
+            razorpay_signature=razorpay_signature,
+            source='callback',
+        )
+
+        # Update session inbox
+        inbox = request.session.get('booking_inbox', [])
+        bid = str(booking.id)
+        if bid not in inbox:
+            inbox.append(bid)
+        request.session['booking_inbox'] = inbox
+        request.session.modified = True
+
+    except Exception as exc:
+        logger.exception('Fatal error in payment_callback for order %s: %s', razorpay_order_id, exc)
+        return render(request, 'payments/error.html', {
+            'message': 'An unexpected error occurred during confirmation. Our team will verify your payment shortly.',
+            'title': 'Confirmation Error'
+        })
 
     return redirect('bookings:confirmation', booking_id=booking.id)
 
