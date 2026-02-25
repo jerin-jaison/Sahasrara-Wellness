@@ -494,8 +494,7 @@
                         <h3 class="h2 text-white garamond mb-3">{{ branch.name }}</h3>
                         <p class="text-white-50 small mb-3">{{ branch.address }}</p>
                         <div class="mb-4">
-                            <span class="small text-gold fw-bold"><i class="bi bi-clock me-2"></i>{{
-                                branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}</span>
+                            <span class="small text-gold fw-bold"><i class="bi bi-clock me-2"></i>{{ branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}</span>
                         </div>
                         <div class="d-flex flex-wrap gap-2 justify-content-center">
                             <a href="{% url 'bookings:step1_branch' %}?branch_id={{ branch.id }}"

@@ -29,7 +29,11 @@
   <meta property="og:title" content="The Sanctuary Menu — Sahasrara Wellness">
   <meta property="og:description"
     content="A collection of master-crafted therapies designed to restore balance to your mind, body, and spirit.">
+  <meta property="og:image" content="{% static 'logo1.jpeg' %}">
   <meta property="og:url" content="https://sahasrarawellness.com/services">
+
+    <link rel="shortcut icon" href="{% static 'logo1.jpeg' %}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{% static 'logo1.jpeg' %}">
 
   <style>
     /* ── CSS Variables ───────────────────────────────────────────────────── */
@@ -579,6 +583,7 @@
           <a href="/" class="nav-link-premium">Home</a>
           <a href="/about" class="nav-link-premium">About Us</a>
           <a href="/services" class="nav-link-premium active">Our Services</a>
+          <a href="/bookings/my" class="nav-link-premium">My Bookings</a>
           <a href="/contact" class="nav-link-premium">Contact</a>
         </div>
         <div class="d-flex align-items-center">
