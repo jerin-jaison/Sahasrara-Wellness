@@ -1265,7 +1265,7 @@
             </a>
 
             <div class="nav-section">Marketing</div>
-            <a href="{% url 'admin:reviews_review_changelist' %}" class="nav-item" target="_blank">
+            <a href="{% url 'dashboard:review_list' %}" class="nav-item {% if page == 'marketing' %}active{% endif %}">
                 <span class="nav-icon">🎬</span> Guest Reviews
             </a>
 

@@ -1,5 +1,5 @@
 from django.urls import path
-from . import views, views_branches, views_services, views_workers
+from . import views, views_branches, views_services, views_workers, views_reviews
 
 app_name = 'dashboard'
 
@@ -35,4 +35,10 @@ urlpatterns = [
     path('workers/new/',                   views_workers.worker_create, name='worker_create'),
     path('workers/<uuid:pk>/edit/',        views_workers.worker_edit,   name='worker_edit'),
     path('workers/<uuid:pk>/delete/',      views_workers.worker_delete, name='worker_delete'),
+
+    # ── Review CRUD ───────────────────────────────────────────────────────
+    path('reviews/',                       views_reviews.review_list,   name='review_list'),
+    path('reviews/new/',                   views_reviews.review_create, name='review_create'),
+    path('reviews/<uuid:pk>/edit/',        views_reviews.review_edit,   name='review_edit'),
+    path('reviews/<uuid:pk>/delete/',      views_reviews.review_delete, name='review_delete'),
 ]

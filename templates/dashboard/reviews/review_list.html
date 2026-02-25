@@ -1,0 +1,69 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Guest Reviews{% endblock %}
+{% block page_title %}Guest Reviews{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-header-title">Guest Reviews</h2>
+        <p class="page-header-sub">Manage Instagram video testimonials displayed on the public site.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'dashboard:review_create' %}" class="btn btn-gold">
+            <span>+ Add Review</span>
+        </a>
+    </div>
+</div>
+
+<div class="card">
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Sort</th>
+                    <th>Client Name</th>
+                    <th>Instagram URL</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr>
+                    <td class="fw-bold text-gold">{{ review.sort_order }}</td>
+                    <td>{{ review.client_name }}</td>
+                    <td>
+                        <a href="{{ review.instagram_url }}" target="_blank" class="link small">
+                            View on Instagram <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                    </td>
+                    <td>
+                        {% if review.is_published %}
+                        <span class="badge badge-active">Published</span>
+                        {% else %}
+                        <span class="badge badge-inactive">Hidden</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ review.created_at|date:"d M Y" }}</td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'dashboard:review_edit' review.pk %}" class="btn btn-xs btn-ghost">Edit</a>
+                            <a href="{% url 'dashboard:review_delete' review.pk %}"
+                                class="btn btn-xs btn-danger">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="text-muted">No reviews found. Start by adding one!</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
