@@ -16,9 +16,95 @@
     </div>
 </div>
 
-<div class="card">
+<style>
+    /* 
+       SAHASRARA DASHBOARD — REVIEWS TABLE STYLE OVERRIDE
+       Reason: Forcing high-visibility black text and removing hover "flashes".
+    */
+    .review-card {
+        background: #ffffff !important;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .review-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 !important;
+        background: #ffffff !important;
+    }
+
+    .review-table thead th {
+        background: #111111 !important;
+        color: #c9a24a !important;
+        /* Gold */
+        padding: 14px 16px !important;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-align: left;
+        border: none !important;
+    }
+
+    .review-table tbody td {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 14px 16px !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        font-size: 14px;
+        font-weight: 500 !important;
+        vertical-align: middle;
+    }
+
+    /* Override global ivory text rules */
+    body.dashboard .review-table tbody td,
+    body.dashboard .review-table tbody td div,
+    body.dashboard .review-table tbody td span,
+    body.dashboard .review-table tbody td strong {
+        color: #000000 !important;
+    }
+
+    /* Links on white background */
+    .review-table .link {
+        color: #0066cc !important;
+        text-decoration: underline !important;
+        font-weight: 600;
+    }
+
+    /* Disable hover flash/animation */
+    .review-table tbody tr:hover td {
+        background: #fcfcfc !important;
+        color: #000000 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    /* Action buttons consistency */
+    .btn-xs {
+        padding: 6px 12px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+    }
+
+    /* Status Badges */
+    .badge-active {
+        background: #e6ffed !important;
+        color: #1a7f37 !important;
+        border: 1px solid #2da44e33 !important;
+    }
+
+    .badge-inactive {
+        background: #f6f8fa !important;
+        color: #57606a !important;
+        border: 1px solid #d0d7de !important;
+    }
+</style>
+
+<div class="card review-card">
     <div class="table-wrap">
-        <table class="table">
+        <table class="review-table">
             <thead>
                 <tr>
                     <th>Sort</th>
@@ -32,7 +118,7 @@
             <tbody>
                 {% for review in reviews %}
                 <tr>
-                    <td class="fw-bold text-gold">{{ review.sort_order }}</td>
+                    <td class="fw-bold" style="color:#b8860b !important;">{{ review.sort_order }}</td>
                     <td>{{ review.client_name }}</td>
                     <td>
                         <a href="{{ review.instagram_url }}" target="_blank" class="link small">

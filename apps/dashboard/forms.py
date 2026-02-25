@@ -146,10 +146,11 @@ class ServiceForm(forms.ModelForm):
 class WorkerForm(forms.ModelForm):
     class Meta:
         model  = Worker
-        fields = ['branch', 'name', 'phone', 'bio', 'is_active']
+        fields = ['branch', 'name', 'phone', 'location', 'bio', 'is_active']
         widgets = {
             'branch':      forms.Select(attrs=_ctrl),
             'name':        forms.TextInput(attrs={**_ctrl, 'placeholder': 'Full name'}),
+            'location':    forms.TextInput(attrs={**_ctrl, 'placeholder': 'Working location…'}),
             'bio':         forms.Textarea(attrs={**_ta(3), 'placeholder': 'Short therapist bio…'}),
             'phone':       forms.TextInput(attrs={**_ctrl, 'placeholder': '+91 …'}),
             'is_active':   forms.CheckboxInput(attrs=_check),
