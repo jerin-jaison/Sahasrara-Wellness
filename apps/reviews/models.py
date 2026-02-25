@@ -23,21 +23,21 @@ class Review(BaseModel):
         return f"Review from {self.client_name}"
 
     @property
-    def embed_url(self):
+    def clean_url(self):
         """
-        Converts a standard Instagram URL (Post or Reel) to a clean embed URL.
-        Strips tracking parameters and ensures /embed/ suffix.
-        Example: https://www.instagram.com/reels/XYZ/?igsh=... -> https://www.instagram.com/reels/XYZ/embed/
+        Returns a clean Instagram URL without query parameters or /embed/ suffix.
+        Useful for the official blockquote embed script.
+        Example: https://www.instagram.com/reels/XYZ/?igsh=... -> https://www.instagram.com/reels/XYZ/
         """
         original_url = self.instagram_url.strip()
         parsed = urlparse(original_url)
         
-        # Reconstruct base path without query params or fragment
-        clean_path = parsed.path
-        if not clean_path.endswith('/'):
-            clean_path += '/'
-        
-        if '/embed/' not in clean_path:
-            clean_path += 'embed/'
+        # We enforce www.instagram.com to avoid cross-domain redirect issues in frames
+        path = parsed.path
+        if not path.endswith('/'):
+            path += '/'
             
-        return urljoin(f"{parsed.scheme}://{parsed.netloc}", clean_path)
+        # Remove any /embed/ if it was manually added by a user
+        path = path.replace('/embed/', '/')
+            
+        return f"https://www.instagram.com{path}"
