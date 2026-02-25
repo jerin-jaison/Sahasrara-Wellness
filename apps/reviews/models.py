@@ -1,4 +1,5 @@
 import re
+from urllib.parse import urlparse, urljoin
 from django.db import models
 from apps.core.models import BaseModel
 
@@ -24,15 +25,19 @@ class Review(BaseModel):
     @property
     def embed_url(self):
         """
-        Converts a standard Instagram URL to an embed URL.
-        Example: https://www.instagram.com/reels/C_7D_s/ -> https://www.instagram.com/reels/C_7D_s/embed
+        Converts a standard Instagram URL (Post or Reel) to a clean embed URL.
+        Strips tracking parameters and ensures /embed/ suffix.
+        Example: https://www.instagram.com/reels/XYZ/?igsh=... -> https://www.instagram.com/reels/XYZ/embed/
         """
-        url = self.instagram_url.strip()
-        if not url.endswith('/'):
-            url += '/'
+        original_url = self.instagram_url.strip()
+        parsed = urlparse(original_url)
         
-        # Ensure it ends with /embed/
-        if '/embed/' not in url:
-            url += 'embed/'
+        # Reconstruct base path without query params or fragment
+        clean_path = parsed.path
+        if not clean_path.endswith('/'):
+            clean_path += '/'
+        
+        if '/embed/' not in clean_path:
+            clean_path += 'embed/'
             
-        return url
+        return urljoin(f"{parsed.scheme}://{parsed.netloc}", clean_path)

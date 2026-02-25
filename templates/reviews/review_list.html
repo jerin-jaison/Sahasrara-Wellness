@@ -53,8 +53,19 @@
         color: var(--gold);
         font-family: 'Cormorant Garamond', serif;
         font-size: 1.4rem;
-        margin-bottom: 0;
+        margin-bottom: 4px;
         font-weight: 600;
+    }
+
+    .view-on-insta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .view-on-insta:hover {
+        color: var(--gold);
     }
 </style>
 {% endblock %}
@@ -81,10 +92,14 @@
                 <div class="review-card">
                     <div class="instagram-embed-container">
                         <iframe src="{{ review.embed_url }}" allowtransparency="true" allowfullscreen="true"
-                            frameborder="0" loading="lazy"></iframe>
+                            frameborder="0" loading="lazy"
+                            allow="autoplay; clipboard-write; encrypted-media; picture-in-picture; web-share"></iframe>
                     </div>
                     <div class="review-info">
                         <h3 class="client-name">{{ review.client_name }}</h3>
+                        <a href="{{ review.instagram_url }}" target="_blank" class="view-on-insta">
+                            <i class="bi bi-instagram"></i> View on Instagram
+                        </a>
                     </div>
                 </div>
             </div>
@@ -101,4 +116,7 @@
         {% endif %}
     </div>
 </section>
+
+<!-- Instagram Embed Script -->
+<script async src="//www.instagram.com/embed.js"></script>
 {% endblock %}
