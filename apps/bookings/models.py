@@ -113,6 +113,9 @@ class Booking(BaseModel):
 
     # Secure access token for guest inbox (emailed, no login required)
     access_token = models.UUIDField(default=uuid.uuid4, unique=True, db_index=True)
+    
+    # Store Razorpay order ID directly on booking for session-independent lookup
+    razorpay_order_id = models.CharField(max_length=100, blank=True, db_index=True)
 
     notes = models.TextField(blank=True)
     is_manual = models.BooleanField(

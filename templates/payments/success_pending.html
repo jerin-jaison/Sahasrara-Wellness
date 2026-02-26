@@ -145,20 +145,20 @@
 <script>
     const bookingId = "{{ booking.id }}";
     const startTime = Date.now();
-    const timeoutLimit = 60000; // 60 seconds
+    const timeoutLimit = 30000; // 30 seconds (Requirement 4 & 8)
     let progress = 0;
 
     const pollStatus = setInterval(async () => {
         const elapsed = Date.now() - startTime;
+        const token = "{{ token|default:'' }}";
 
         // Update pseudo-progress bar
         if (progress < 90) {
-            progress += 5;
+            progress += 3; // Slower progress for 30s window
             document.getElementById('progress-bar').style.width = progress + '%';
         }
 
         try {
-            const token = "{{ token|default:'' }}";
             const url = `/payments/status/${bookingId}/` + (token ? `?token=${token}` : '');
             const res = await fetch(url);
             if (!res.ok) throw new Error('Network response was not ok');
@@ -172,17 +172,23 @@
                 }, 500);
             } else if (data.status === "FAILED") {
                 clearInterval(pollStatus);
-                window.location.href = `/payments/retry/${bookingId}/`;
+                window.location.href = `/payments/retry/${bookingId}/` + (token ? `?token=${token}` : '');
             }
         } catch (err) {
             console.error("Polling error:", err);
         }
 
-        // Handle timeout
+        // Handle timeout (Requirement 8)
         if (elapsed > timeoutLimit) {
             clearInterval(pollStatus);
             document.getElementById('loading-state').style.display = 'none';
             document.getElementById('timeout-state').style.display = 'block';
+
+            // Update retry link to include token
+            const retryBtn = document.querySelector('#timeout-state a');
+            if (retryBtn && token) {
+                retryBtn.href += `?token=${token}`;
+            }
         }
     }, 2500);
 </script>

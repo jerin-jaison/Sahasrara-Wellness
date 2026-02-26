@@ -558,53 +558,50 @@ def api_available_workers(request):
 def guest_inbox(request):
     """
     Shows guest's bookings.
-    Retrieval strategy:
-      1. Explicit access_token in URL (highest priority)
-      2. Phone number lookup (POST)
-      3. Active session 'booking_inbox' (convenience)
+    Retrieval strategy (Priority per Requirement 5):
+      1. Active session 'booking_inbox' (highest convenience)
+      2. Explicit access_token in URL (secure direct link)
+      3. Phone number lookup (manual fallback)
     """
     bookings = []
     form = PhoneLookupForm()
-    
-    # 1. Token-based lookup (if someone has a direct link)
     token = request.GET.get('token')
-    if token:
+
+    # 1. Session lookup
+    inbox_ids = request.session.get('booking_inbox', [])
+    if inbox_ids:
+        bookings = (
+            Booking.objects
+            .filter(id__in=inbox_ids)
+            .select_related('service', 'worker', 'branch')
+            .order_by('-booking_date', '-start_time')
+        )
+
+    # 2. Token-based lookup (if not found in session)
+    if not bookings and token:
         bookings = Booking.objects.filter(access_token=token).select_related('service', 'worker', 'branch')
         if not bookings:
              messages.warning(request, "Invalid or expired access token.")
 
-    # 2. Phone lookup (POST)
+    # 3. Phone lookup (POST - manual fallback)
     if request.method == 'POST':
         form = PhoneLookupForm(request.POST)
         if form.is_valid():
             phone = form.cleaned_data['phone']
             try:
                 guest = Guest.objects.get(phone=phone)
-                bookings = (
+                lookup_bookings = (
                     Booking.objects
                     .filter(guest=guest)
                     .select_related('service', 'worker', 'branch')
                     .order_by('-booking_date', '-start_time')[:20]
                 )
-                if not bookings:
+                if lookup_bookings:
+                    bookings = lookup_bookings
+                else:
                     messages.info(request, 'No bookings found for that mobile number.')
             except Guest.DoesNotExist:
                 messages.info(request, 'No records found for that mobile number.')
-
-    # 3. Session fallback (convenience, not dependency)
-    if not bookings:
-        inbox_ids = request.session.get('booking_inbox', [])
-        if inbox_ids:
-            bookings = (
-                Booking.objects
-                .filter(id__in=inbox_ids)
-                .select_related('service', 'worker', 'branch')
-                .order_by('-booking_date', '-start_time')
-            )
-        elif request.method == 'GET' and not token:
-             # If completely empty and just a GET, we might want to show a message 
-             # (handled in template already, but good to keep logic clean)
-             pass
 
     return render(request, 'bookings/inbox.html', {
         'bookings': bookings,

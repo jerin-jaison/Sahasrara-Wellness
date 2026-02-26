@@ -266,6 +266,10 @@ def initiate_payment(request, booking_id):
             currency='INR',
             status=PaymentStatus.CREATED,
         )
+        
+        # NEW: Store order_id on booking for session-independent lookup (Requirement 1)
+        booking.razorpay_order_id = order_data['id']
+        booking.save(update_fields=['razorpay_order_id'])
 
     # Build callback URL
     callback_url = request.build_absolute_uri(
@@ -302,17 +306,12 @@ def payment_callback(request):
         razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
         razorpay_signature = request.POST.get('razorpay_signature', '')
 
-        # 1. DB Lookup via Razorpay Order ID (Session Independent)
+        # 1. DB Lookup via Razorpay Order ID on Booking (Requirement 1)
         logger.info("Callback: Booking lookup via order_id %s", razorpay_order_id)
-        try:
-            payment = Payment.objects.select_related('booking').get(razorpay_order_id=razorpay_order_id)
-        except Payment.DoesNotExist:
-            logger.warning('Callback ERROR: order not found %s', razorpay_order_id)
-            return redirect('payments:error')
-
-        booking = payment.booking
+        booking = Booking.objects.filter(razorpay_order_id=razorpay_order_id).first()
+        
         if not booking:
-            logger.error("Callback ERROR: Payment %s has no associated booking", razorpay_order_id)
+            logger.warning('Callback ERROR: booking not found for order %s', razorpay_order_id)
             return redirect('payments:error')
 
         # 2. Verify signature
@@ -320,17 +319,9 @@ def payment_callback(request):
             logger.warning('Signature verification FAILED for order %s', razorpay_order_id)
             return redirect('payments:retry', booking_id=booking.id)
 
-        # 3. CRITICAL: Refresh booking from DB to get latest state from Webhook if it beat us
-        booking.refresh_from_db()
-
-        # 4. Trigger confirmation (safely idempotent)
-        _confirm_booking(
-            booking=booking,
-            payment=payment,
-            razorpay_payment_id=razorpay_payment_id,
-            razorpay_signature=razorpay_signature,
-            source='callback'
-        )
+        # 3. DO NOT confirm booking here (Requirement 2)
+        # Webhook is now the sole authority for confirmation.
+        logger.info("Callback: Signature verified for booking %s. Waiting for webhook.", booking.id)
 
         # Update session inbox if session exists (optional convenience)
         if request.session:
@@ -395,24 +386,32 @@ def razorpay_webhook(request):
             razorpay_order_id  = item['order_id']
             razorpay_payment_id = item['id']
 
-            payment = Payment.objects.select_related(
-                'booking__service', 'booking__worker',
-                'booking__branch', 'booking__guest',
-            ).get(razorpay_order_id=razorpay_order_id)
+            # Lookup Booking via razorpay_order_id directly (Requirement 1 & 10)
+            booking = Booking.objects.select_related('service', 'guest').filter(razorpay_order_id=razorpay_order_id).first()
+            if not booking:
+                logger.warning('Webhook ERROR: Booking not found for order %s', razorpay_order_id)
+                return HttpResponse(status=200)
+
+            # Ensure Payment record exists (fetch or create if missing/delayed)
+            payment, created = Payment.objects.get_or_create(
+                booking=booking,
+                defaults={
+                    'razorpay_order_id': razorpay_order_id,
+                    'amount': booking.amount_paid or booking.service.price,
+                    'currency': 'INR',
+                    'status': PaymentStatus.CREATED,
+                }
+            )
 
             # Record event ID for idempotency before confirming
             payment.webhook_event_id = event_id or None
             payment.webhook_payload  = payload
             payment.save(update_fields=['webhook_event_id', 'webhook_payload'])
 
-            # Webhook is the source of truth for confirmation
+            # Authoritative confirmation (Requirement 3)
             logger.info("Authoritative confirmation via webhook: event=%s, payment=%s, booking=%s", 
-                        event_id, razorpay_payment_id, payment.booking.id)
+                        event_id, razorpay_payment_id, booking.id)
             
-            # Refresh booking before confirming to avoid stale state
-            booking = payment.booking
-            booking.refresh_from_db()
-
             _confirm_booking(
                 booking=booking,
                 payment=payment,
@@ -420,8 +419,6 @@ def razorpay_webhook(request):
                 source='webhook',
             )
             logger.info("Booking %s confirmed successfully via webhook event %s", booking.id, event_id)
-        except Payment.DoesNotExist:
-            logger.warning('Webhook: Payment not found for order %s', razorpay_order_id)
         except Exception as exc:
             # Webhook must never crash or return 500
             logger.exception('Webhook processing error: %s', exc)
