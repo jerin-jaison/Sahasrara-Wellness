@@ -18,9 +18,9 @@
     <div class="detail-summary">
         <!-- Main Service Card -->
         <div class="premium-card mb-3 p-4 text-center" style="background: var(--surface-gradient);">
-            {% if booking.status == 'confirmed' %}
+            {% if booking.status == 'CONFIRMED' or booking.status == 'confirmed' %}
             <div class="status-badge-premium confirmed mb-3">Confirmed</div>
-            {% elif booking.status == 'pending' %}
+            {% elif booking.status == 'PENDING_PAYMENT' or booking.status == 'pending' %}
             <div class="status-badge-premium pending mb-3">Pending Payment</div>
             {% else %}
             <div class="status-badge-premium mb-3">{{ booking.status|upper }}</div>

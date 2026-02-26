@@ -217,12 +217,15 @@ def initiate_payment(request, booking_id):
     Creates a Razorpay order and renders the payment page with the JS modal.
     """
     booking = get_object_or_404(
-        Booking.objects.select_related('service', 'worker', 'branch', 'guest'),
+        Booking.objects.select_related('service', 'worker', 'branch', 'guest', 'payment'),
         id=booking_id,
-        status=BookingStatus.PENDING_PAYMENT,
     )
 
-    # Check if a Payment record already exists (e.g. back-button hit)
+    # 1. If already confirmed, skip to success
+    if booking.status == BookingStatus.CONFIRMED:
+        return redirect('bookings:confirmation', booking_id=booking.id)
+
+    # 2. Check if a Payment record already exists
     payment = getattr(booking, 'payment', None)
 
     if payment is None:
@@ -301,8 +304,9 @@ def payment_callback(request):
 
         try:
             payment = Payment.objects.select_related('booking').get(razorpay_order_id=razorpay_order_id)
+            logger.info('Callback: Found payment record for order %s', razorpay_order_id)
         except Payment.DoesNotExist:
-            logger.warning('Callback: order not found %s', razorpay_order_id)
+            logger.warning('Callback ERROR: order not found %s', razorpay_order_id)
             return redirect('bookings:step1_branch')
 
         booking = payment.booking
@@ -312,9 +316,15 @@ def payment_callback(request):
             logger.warning('Signature verification FAILED for order %s', razorpay_order_id)
             return redirect('payments:retry', booking_id=booking.id)
 
-        # 2. UI ONLY: Do NOT update booking status here.
-        # Confirmation is handled strictly by the webhook.
-        logger.info('Callback (UI-only) verified signature for booking %s. Redirecting to success_pending.', booking.id)
+        # 2. CRITICAL FIX: Trigger confirmation immediately from the UI callback
+        # This solves the "Pending" delay on localhost or when webhooks are slow.
+        _confirm_booking(
+            booking=booking,
+            payment=payment,
+            razorpay_payment_id=razorpay_payment_id,
+            razorpay_signature=razorpay_signature,
+            source='callback'
+        )
 
         # Update session inbox (so they can see the booking in their list)
         inbox = request.session.get('booking_inbox', [])
@@ -345,10 +355,12 @@ def razorpay_webhook(request):
     Must be CSRF-exempt; security comes from HMAC-SHA256 signature check.
     """
     if request.method != 'POST':
+        logger.warning('Webhook: Received non-POST request.')
         return HttpResponse(status=405)
 
     raw_body = request.body
     signature = request.headers.get('X-Razorpay-Signature', '')
+    logger.info('Webhook: Received event. Signature length: %d', len(signature))
 
     # Skip signature check if webhook secret not configured (dev convenience)
     if settings.RAZORPAY_WEBHOOK_SECRET and settings.RAZORPAY_WEBHOOK_SECRET != 'your-webhook-secret':

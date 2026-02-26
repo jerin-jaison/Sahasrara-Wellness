@@ -10,19 +10,24 @@ def update_durations(apps, schema_editor):
     Service.objects.filter(duration_minutes=90).update(duration_minutes=45)
 
     # Update Bookings
-    for booking in Booking.objects.all():
-        if booking.duration_minutes == 60:
-            booking.duration_minutes = 30
+    # We only update bookings that match the durations we are changing
+    for booking in Booking.objects.filter(duration_minutes__in=[60, 90]):
+        try:
+            if booking.duration_minutes == 60:
+                booking.duration_minutes = 30
+                new_duration = 30
+            else:
+                booking.duration_minutes = 45
+                new_duration = 45
+
             # Recalculate end_time
-            start_dt = datetime.combine(booking.booking_date, booking.start_time)
-            booking.end_time = (start_dt + timedelta(minutes=30)).time()
-            booking.save(update_fields=['duration_minutes', 'end_time'])
-        elif booking.duration_minutes == 90:
-            booking.duration_minutes = 45
-            # Recalculate end_time
-            start_dt = datetime.combine(booking.booking_date, booking.start_time)
-            booking.end_time = (start_dt + timedelta(minutes=45)).time()
-            booking.save(update_fields=['duration_minutes', 'end_time'])
+            if booking.booking_date and booking.start_time:
+                start_dt = datetime.combine(booking.booking_date, booking.start_time)
+                booking.end_time = (start_dt + timedelta(minutes=new_duration)).time()
+                # Ensure updated_at is refreshed despite update_fields
+                booking.save(update_fields=['duration_minutes', 'end_time'])
+        except (AttributeError, TypeError):
+            continue
 
 def reverse_durations(apps, schema_editor):
     Service = apps.get_model('services', 'Service')
@@ -33,17 +38,21 @@ def reverse_durations(apps, schema_editor):
     Service.objects.filter(duration_minutes=45).update(duration_minutes=90)
 
     # Reverse Bookings
-    for booking in Booking.objects.all():
-        if booking.duration_minutes == 30:
-            booking.duration_minutes = 60
-            start_dt = datetime.combine(booking.booking_date, booking.start_time)
-            booking.end_time = (start_dt + timedelta(minutes=60)).time()
-            booking.save(update_fields=['duration_minutes', 'end_time'])
-        elif booking.duration_minutes == 45:
-            booking.duration_minutes = 90
-            start_dt = datetime.combine(booking.booking_date, booking.start_time)
-            booking.end_time = (start_dt + timedelta(minutes=90)).time()
-            booking.save(update_fields=['duration_minutes', 'end_time'])
+    for booking in Booking.objects.filter(duration_minutes__in=[30, 45]):
+        try:
+            if booking.duration_minutes == 30:
+                booking.duration_minutes = 60
+                new_duration = 60
+            else:
+                booking.duration_minutes = 90
+                new_duration = 90
+
+            if booking.booking_date and booking.start_time:
+                start_dt = datetime.combine(booking.booking_date, booking.start_time)
+                booking.end_time = (start_dt + timedelta(minutes=new_duration)).time()
+                booking.save(update_fields=['duration_minutes', 'end_time'])
+        except (AttributeError, TypeError):
+            continue
 
 class Migration(migrations.Migration):
 
