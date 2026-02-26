@@ -229,9 +229,9 @@ def initiate_payment(request, booking_id):
     payment = getattr(booking, 'payment', None)
 
     if payment is None:
-        # Determine charge amount (deposit vs full)
+        # Determine charge amount (deposit vs full) - fallback to deposit if session lost
         s = get_booking_session(request)
-        payment_type = s.get('payment_type', 'deposit')
+        payment_type = s.get('payment_type', 'deposit') if s else 'deposit'
         
         charge_amount = booking.service.price
         if payment_type == 'deposit':
@@ -302,22 +302,28 @@ def payment_callback(request):
         razorpay_payment_id = request.POST.get('razorpay_payment_id', '')
         razorpay_signature = request.POST.get('razorpay_signature', '')
 
+        # 1. DB Lookup via Razorpay Order ID (Session Independent)
+        logger.info("Callback: Booking lookup via order_id %s", razorpay_order_id)
         try:
             payment = Payment.objects.select_related('booking').get(razorpay_order_id=razorpay_order_id)
-            logger.info('Callback: Found payment record for order %s', razorpay_order_id)
         except Payment.DoesNotExist:
             logger.warning('Callback ERROR: order not found %s', razorpay_order_id)
-            return redirect('bookings:step1_branch')
+            return redirect('payments:error')
 
         booking = payment.booking
+        if not booking:
+            logger.error("Callback ERROR: Payment %s has no associated booking", razorpay_order_id)
+            return redirect('payments:error')
 
-        # 1. Verify signature
+        # 2. Verify signature
         if not _verify_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
             logger.warning('Signature verification FAILED for order %s', razorpay_order_id)
             return redirect('payments:retry', booking_id=booking.id)
 
-        # 2. CRITICAL FIX: Trigger confirmation immediately from the UI callback
-        # This solves the "Pending" delay on localhost or when webhooks are slow.
+        # 3. CRITICAL: Refresh booking from DB to get latest state from Webhook if it beat us
+        booking.refresh_from_db()
+
+        # 4. Trigger confirmation (safely idempotent)
         _confirm_booking(
             booking=booking,
             payment=payment,
@@ -326,13 +332,14 @@ def payment_callback(request):
             source='callback'
         )
 
-        # Update session inbox (so they can see the booking in their list)
-        inbox = request.session.get('booking_inbox', [])
-        bid = str(booking.id)
-        if bid not in inbox:
-            inbox.append(bid)
-        request.session['booking_inbox'] = inbox
-        request.session.modified = True
+        # Update session inbox if session exists (optional convenience)
+        if request.session:
+            inbox = request.session.get('booking_inbox', [])
+            bid = str(booking.id)
+            if bid not in inbox:
+                inbox.append(bid)
+            request.session['booking_inbox'] = inbox
+            request.session.modified = True
 
     except Exception as exc:
         logger.exception('Fatal error in payment_callback: %s', exc)
@@ -341,7 +348,8 @@ def payment_callback(request):
             'title': 'Confirmation Processing'
         })
 
-    return redirect('payments:success_pending', booking_id=booking.id)
+    # 5. Success redirect using token (Session Independent)
+    return redirect(f"/payments/success-pending/{booking.id}/?token={booking.access_token}")
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -400,13 +408,18 @@ def razorpay_webhook(request):
             # Webhook is the source of truth for confirmation
             logger.info("Authoritative confirmation via webhook: event=%s, payment=%s, booking=%s", 
                         event_id, razorpay_payment_id, payment.booking.id)
+            
+            # Refresh booking before confirming to avoid stale state
+            booking = payment.booking
+            booking.refresh_from_db()
+
             _confirm_booking(
-                booking=payment.booking,
+                booking=booking,
                 payment=payment,
                 razorpay_payment_id=razorpay_payment_id,
                 source='webhook',
             )
-            logger.info("Booking %s confirmed successfully via webhook event %s", payment.booking.id, event_id)
+            logger.info("Booking %s confirmed successfully via webhook event %s", booking.id, event_id)
         except Payment.DoesNotExist:
             logger.warning('Webhook: Payment not found for order %s', razorpay_order_id)
         except Exception as exc:
@@ -467,17 +480,36 @@ def success_pending(request, booking_id):
     """
     Intermediate page shown while we wait for webhook confirmation.
     Automatically redirects to confirmation page once booking status is CONFIRMED.
+    Supports session-less access via token.
     """
-    booking = get_object_or_404(
-        Booking.objects.select_related('service', 'branch'),
-        id=booking_id
-    )
+    token = request.GET.get('token')
+    
+    if token:
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'branch'),
+            id=booking_id,
+            access_token=token
+        )
+    else:
+        # Fallback to session
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'branch'),
+            id=booking_id
+        )
+        # Verify session inbox if no token
+        inbox = request.session.get('booking_inbox', [])
+        if str(booking.id) not in inbox:
+             return render(request, 'payments/error.html', {
+                'message': 'Access denied. Please use the link sent to your email.',
+                'title': 'Restricted Access'
+            })
 
     if booking.status == BookingStatus.CONFIRMED:
-        return redirect('bookings:confirmation', booking_id=booking.id)
+        return redirect(f"/bookings/confirmation/{booking.id}/?token={booking.access_token}")
 
     return render(request, 'payments/success_pending.html', {
         'booking': booking,
+        'token': token,
     })
 
 
@@ -489,8 +521,20 @@ def check_payment_status(request, booking_id):
     """
     JSON endpoint for frontend polling.
     Returns current booking status.
+    Requires session OR valid access_token.
     """
-    booking = Booking.objects.filter(id=booking_id).first()
+    token = request.GET.get('token')
+    
+    if token:
+        booking = Booking.objects.filter(id=booking_id, access_token=token).first()
+    else:
+        # Fallback to session
+        inbox = request.session.get('booking_inbox', [])
+        if str(booking_id) in inbox:
+            booking = Booking.objects.filter(id=booking_id).first()
+        else:
+            booking = None
+
     if not booking:
         return JsonResponse({'status': 'NOT_FOUND'}, status=404)
 

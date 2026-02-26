@@ -419,28 +419,47 @@ def step7_review(request):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def booking_confirmation(request, booking_id):
-    booking = get_object_or_404(
-        Booking.objects.select_related('service', 'worker', 'branch', 'guest'),
-        id=booking_id,
-    )
-    # Add this booking ID to the session inbox
-    inbox = request.session.get('booking_inbox', [])
-    bid = str(booking.id)
-    if bid not in inbox:
-        inbox.append(bid)
-    request.session['booking_inbox'] = inbox
-    request.session.modified = True
+    """
+    Final confirmation page after successful payment.
+    Supports session-less access via token.
+    """
+    token = request.GET.get('token')
+    
+    if token:
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'worker', 'branch', 'guest'),
+            id=booking_id,
+            access_token=token
+        )
+    else:
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'worker', 'branch', 'guest'),
+            id=booking_id
+        )
+        # Fallback to session check
+        inbox = request.session.get('booking_inbox', [])
+        if str(booking.id) not in inbox:
+            return redirect('bookings:inbox')
 
-    # Send confirmation email once (guard against resend on page refresh)
-    emailed_set = request.session.get('_confirmed_emails_sent', [])
-    if bid not in emailed_set:
-        send_booking_confirmed(booking)
-        emailed_set.append(bid)
-        request.session['_confirmed_emails_sent'] = emailed_set
+    # Add this booking ID to the session inbox (if session exists)
+    if request.session:
+        inbox = request.session.get('booking_inbox', [])
+        bid = str(booking.id)
+        if bid not in inbox:
+            inbox.append(bid)
+        request.session['booking_inbox'] = inbox
         request.session.modified = True
 
-    # Clear the booking flow session (start fresh for next booking)
-    clear_booking_session(request)
+        # Send confirmation email once (guard against resend on page refresh)
+        emailed_set = request.session.get('_confirmed_emails_sent', [])
+        if bid not in emailed_set:
+            send_booking_confirmed(booking)
+            emailed_set.append(bid)
+            request.session['_confirmed_emails_sent'] = emailed_set
+            request.session.modified = True
+
+        # Clear the booking flow session (start fresh for next booking)
+        clear_booking_session(request)
 
     return render(request, 'bookings/confirmation.html', {'booking': booking})
 
@@ -537,9 +556,24 @@ def api_available_workers(request):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def guest_inbox(request):
+    """
+    Shows guest's bookings.
+    Retrieval strategy:
+      1. Explicit access_token in URL (highest priority)
+      2. Phone number lookup (POST)
+      3. Active session 'booking_inbox' (convenience)
+    """
     bookings = []
     form = PhoneLookupForm()
+    
+    # 1. Token-based lookup (if someone has a direct link)
+    token = request.GET.get('token')
+    if token:
+        bookings = Booking.objects.filter(access_token=token).select_related('service', 'worker', 'branch')
+        if not bookings:
+             messages.warning(request, "Invalid or expired access token.")
 
+    # 2. Phone lookup (POST)
     if request.method == 'POST':
         form = PhoneLookupForm(request.POST)
         if form.is_valid():
@@ -552,10 +586,13 @@ def guest_inbox(request):
                     .select_related('service', 'worker', 'branch')
                     .order_by('-booking_date', '-start_time')[:20]
                 )
+                if not bookings:
+                    messages.info(request, 'No bookings found for that mobile number.')
             except Guest.DoesNotExist:
-                messages.info(request, 'No bookings found for that mobile number.')
-    else:
-        # Show session-based bookings first (no lookups needed)
+                messages.info(request, 'No records found for that mobile number.')
+
+    # 3. Session fallback (convenience, not dependency)
+    if not bookings:
         inbox_ids = request.session.get('booking_inbox', [])
         if inbox_ids:
             bookings = (
@@ -564,6 +601,10 @@ def guest_inbox(request):
                 .select_related('service', 'worker', 'branch')
                 .order_by('-booking_date', '-start_time')
             )
+        elif request.method == 'GET' and not token:
+             # If completely empty and just a GET, we might want to show a message 
+             # (handled in template already, but good to keep logic clean)
+             pass
 
     return render(request, 'bookings/inbox.html', {
         'bookings': bookings,

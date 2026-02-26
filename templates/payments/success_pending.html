@@ -158,7 +158,9 @@
         }
 
         try {
-            const res = await fetch(`/payments/status/${bookingId}/`);
+            const token = "{{ token|default:'' }}";
+            const url = `/payments/status/${bookingId}/` + (token ? `?token=${token}` : '');
+            const res = await fetch(url);
             if (!res.ok) throw new Error('Network response was not ok');
             const data = await res.json();
 
@@ -166,7 +168,7 @@
                 clearInterval(pollStatus);
                 document.getElementById('progress-bar').style.width = '100%';
                 setTimeout(() => {
-                    window.location.href = `/bookings/confirmation/${bookingId}/`;
+                    window.location.href = `/bookings/confirmation/${bookingId}/` + (token ? `?token=${token}` : '');
                 }, 500);
             } else if (data.status === "FAILED") {
                 clearInterval(pollStatus);

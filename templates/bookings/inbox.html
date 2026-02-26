@@ -17,12 +17,32 @@
 
 <div class="container mx-auto" style="max-width: 800px;">
 
+    <!-- Phone Lookup Fallback (Session Independent) -->
+    <div class="premium-card mb-5 p-4"
+        style="background: rgba(198, 164, 90, 0.03); border: 1px dashed rgba(198, 164, 90, 0.2);">
+        <h5 class="text-white mb-3"><i class="bi bi-search text-gold me-2"></i> Find Your Bookings</h5>
+        <p class="text-muted small mb-4">Enter your mobile number to retrieve your appointment history, especially if
+            you booked in incognito mode.</p>
+
+        <form method="POST" class="row g-2 align-items-center">
+            {% csrf_token %}
+            <div class="col-8 col-md-9">
+                {{ form.phone }}
+                {% if form.phone.errors %}
+                <div class="text-danger small mt-1">{{ form.phone.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div class="col-4 col-md-3">
+                <button type="submit" class="btn btn-wellness w-100">Search</button>
+            </div>
+        </form>
+    </div>
+
     {% if not bookings %}
-    <div class="text-center py-5">
-        <i class="bi bi-calendar-x text-muted mb-3 d-block" style="font-size: 3rem;"></i>
-        <h5 class="fw-bold text-white">No Bookings Yet</h5>
-        <p class="text-muted small mb-4">Embrace wellness by booking your first session today.</p>
-        <a href="/" class="btn btn-wellness">Book Now</a>
+    <div class="text-center py-4 opacity-50">
+        <i class="bi bi-calendar-x text-muted mb-3 d-block" style="font-size: 2rem;"></i>
+        <h6 class="text-white">No active session found</h6>
+        <p class="text-muted small">Please use the search above to find your appointments.</p>
     </div>
     {% else %}
     <div class="booking-list">
@@ -47,7 +67,8 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="small text-white">
-                        <i class="bi bi-calendar3"></i> {{ b.booking_date|date:"d M Y" }} · {{ b.start_time|time:"g:i A" }}
+                        <i class="bi bi-calendar3"></i> {{ b.booking_date|date:"d M Y" }} · {{ b.start_time|time:"g:i A"
+                        }}
                     </div>
                     <div class="d-flex align-items-center gap-3">
                         {% if b.status == 'CONFIRMED' or b.status == 'COMPLETED' %}
