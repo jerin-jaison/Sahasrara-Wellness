@@ -202,7 +202,8 @@ class Booking(BaseModel):
         # 3. Transition booking to confirmed
         old_status = booking.status
         booking.status = BookingStatus.CONFIRMED
-        booking.payment_status = PaymentStatus.PAID
+        booking.payment_status = cls.payment_status.field.default # or hardcode 'PAID' from the local choices
+        booking.payment_status = 'PAID'  # Since local PaymentStatus was shadowed
         booking.amount_paid = amount_paid
         booking.save(update_fields=['status', 'payment_status', 'amount_paid', 'updated_at'])
 

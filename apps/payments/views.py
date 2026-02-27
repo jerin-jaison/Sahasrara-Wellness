@@ -263,6 +263,12 @@ def payment_callback(request):
             logger.warning('Callback ERROR: booking not found for order %s', razorpay_order_id)
             return redirect('payments:error')
 
+        # 2. Verify Razorpay signature securely
+        if not _verify_signature(razorpay_order_id, razorpay_payment_id, razorpay_signature):
+            logger.warning('Callback ERROR: Invalid signature for booking %s', booking.id)
+            # If signature fails, log it and redirect to retry/failed page
+            return redirect('payments:retry', booking_id=booking.id)
+
         # 3. Confirm booking here so UI updates immediately (webhook will idempotent skip if this wins)
         logger.info("Callback: Signature verified for booking %s. Confirming immediately.", booking.id)
 
