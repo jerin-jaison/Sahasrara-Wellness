@@ -21,8 +21,7 @@
     <div class="premium-card mb-5 p-4"
         style="background: rgba(198, 164, 90, 0.03); border: 1px dashed rgba(198, 164, 90, 0.2);">
         <h5 class="text-white mb-3"><i class="bi bi-search text-gold me-2"></i> Find Your Bookings</h5>
-        <p class="text-muted small mb-4">Enter your mobile number to retrieve your appointment history, especially if
-            you booked in incognito mode.</p>
+        <p class="text-muted small mb-4">Enter your mobile number to retrieve your appointment</p>
 
         <form method="POST" class="row g-2 align-items-center">
             {% csrf_token %}
@@ -67,8 +66,7 @@
                 </div>
                 <div class="d-flex justify-content-between align-items-center">
                     <div class="small text-white">
-                        <i class="bi bi-calendar3"></i> {{ b.booking_date|date:"d M Y" }} · {{ b.start_time|time:"g:i A"
-                        }}
+                        <i class="bi bi-calendar3"></i> {{ b.booking_date|date:"d M Y" }} · {{ b.start_time|time:"g:i A"}}
                     </div>
                     <div class="d-flex align-items-center gap-3">
                         {% if b.status == 'CONFIRMED' or b.status == 'COMPLETED' %}
