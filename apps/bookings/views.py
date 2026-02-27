@@ -37,7 +37,7 @@ from .exceptions import (
     SameDayCutoffError,
     NoWorkersAvailableError,
 )
-from .forms import GuestInfoForm, PhoneLookupForm
+from .forms import GuestInfoForm
 from .models import Booking, BookingStatus, SlotLock
 from .session import (
     get_booking_session,
@@ -561,10 +561,8 @@ def guest_inbox(request):
     Retrieval strategy (Priority per Requirement 5):
       1. Active session 'booking_inbox' (highest convenience)
       2. Explicit access_token in URL (secure direct link)
-      3. Phone number lookup (manual fallback)
     """
     bookings = []
-    form = PhoneLookupForm()
     token = request.GET.get('token')
 
     # 1. Session lookup
@@ -583,29 +581,8 @@ def guest_inbox(request):
         if not bookings:
              messages.warning(request, "Invalid or expired access token.")
 
-    # 3. Phone lookup (POST - manual fallback)
-    if request.method == 'POST':
-        form = PhoneLookupForm(request.POST)
-        if form.is_valid():
-            phone = form.cleaned_data['phone']
-            try:
-                guest = Guest.objects.get(phone=phone)
-                lookup_bookings = (
-                    Booking.objects
-                    .filter(guest=guest)
-                    .select_related('service', 'worker', 'branch')
-                    .order_by('-booking_date', '-start_time')[:20]
-                )
-                if lookup_bookings:
-                    bookings = lookup_bookings
-                else:
-                    messages.info(request, 'No bookings found for that mobile number.')
-            except Guest.DoesNotExist:
-                messages.info(request, 'No records found for that mobile number.')
-
     return render(request, 'bookings/inbox.html', {
         'bookings': bookings,
-        'form': form,
     })
 
 
