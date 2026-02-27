@@ -5,7 +5,8 @@ Bookings app models:
   - BookingStatusLog : Full audit trail of state transitions
 """
 import uuid
-from django.db import models
+import logging
+from django.db import models, transaction
 from django.utils import timezone
 from django.core.validators import MinValueValidator
 from apps.core.models import BaseModel, UUIDModel, TimestampedModel
@@ -13,6 +14,8 @@ from apps.branches.models import Branch
 from apps.services.models import Service
 from apps.workers.models import Worker
 from apps.guests.models import Guest
+
+logger = logging.getLogger(__name__)
 
 
 # ── Slot Lock ─────────────────────────────────────────────────────────────────
@@ -177,6 +180,56 @@ class Booking(BaseModel):
         self._transition(BookingStatus.CONFIRMED, changed_by)
         self.payment_status = PaymentStatus.PAID
         self.save(update_fields=['status', 'payment_status', 'updated_at'])
+
+    @classmethod
+    @transaction.atomic
+    def confirm_payment(cls, booking_id, razorpay_payment_id, amount_paid, razorpay_signature='', source='webhook'):
+        """
+        Thread-safe, idempotent confirmation of a booking after successful payment.
+        Must be called via webhook or authoritative callback ONLY.
+        Uses select_for_update() row locks.
+        """
+        from apps.payments.models import Payment, PaymentStatus
+        
+        # 1. Row lock on booking to prevent parallel confirmations
+        booking = cls.objects.select_for_update().get(id=booking_id)
+
+        # 2. Prevent redundant confirmations
+        if booking.status == BookingStatus.CONFIRMED:
+            logger.info('Booking %s already CONFIRMED — skipping.', booking.id)
+            return booking
+
+        # 3. Transition booking to confirmed
+        old_status = booking.status
+        booking.status = BookingStatus.CONFIRMED
+        booking.payment_status = PaymentStatus.PAID
+        booking.amount_paid = amount_paid
+        booking.save(update_fields=['status', 'payment_status', 'amount_paid', 'updated_at'])
+
+        # 4. Synchronize explicit payment record state
+        payment = getattr(booking, 'payment', None)
+        if payment:
+            payment.status = PaymentStatus.CAPTURED
+            payment.razorpay_payment_id = razorpay_payment_id
+            payment.razorpay_signature = razorpay_signature
+            # Only set if missing
+            if not payment.paid_at:
+                payment.paid_at = timezone.now()
+            payment.confirmed_at = timezone.now()
+            payment.save(update_fields=[
+                'status', 'razorpay_payment_id', 'razorpay_signature', 'paid_at', 'confirmed_at',
+            ])
+
+        # 5. Log state transition
+        BookingStatusLog.objects.create(
+            booking=booking,
+            from_status=old_status,
+            to_status=BookingStatus.CONFIRMED,
+            changed_by=source,
+            reason=f'Payment captured via {source}',
+        )
+
+        return booking
 
     def complete(self, changed_by='admin'):
         """Mark service as delivered."""

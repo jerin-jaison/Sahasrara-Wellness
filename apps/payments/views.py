@@ -154,57 +154,6 @@ def _verify_webhook_signature(raw_body: bytes, signature: str) -> bool:
     return hmac.compare_digest(computed, signature)
 
 
-@transaction.atomic
-def _confirm_booking(booking: Booking, payment: Payment, razorpay_payment_id: str,
-                     razorpay_signature: str = '', source: str = 'webhook') -> None:
-    """
-    Transition booking to CONFIRMED and update payment record.
-    Thread-safe & Idempotent implementation with select_for_update to avoid race conditions.
-    """
-    logger.info('Confirmation attempt for booking %s via %s [payment_id: %s]', 
-                booking.id, source, razorpay_payment_id)
-
-    # 1. Idempotent Payment Guard: Has this payment ID already been used to confirm something?
-    if Payment.objects.filter(razorpay_payment_id=razorpay_payment_id, status=PaymentStatus.CAPTURED).exists():
-        logger.info('Payment %s already processed/captured — skipping.', razorpay_payment_id)
-        return
-
-    # 2. Row lock via select_for_update within atomic transaction
-    booking = Booking.objects.select_for_update().get(id=booking.id)
-
-    # 3. Booking State Guard: Is it already confirmed?
-    if booking.status == BookingStatus.CONFIRMED:
-        logger.info('Booking %s already CONFIRMED — skipping.', booking.id)
-        return
-
-    old_status = booking.status
-    booking.status = BookingStatus.CONFIRMED
-    booking.payment_status = 'PAID'
-    booking.amount_paid = payment.amount
-    booking.save(update_fields=['status', 'payment_status', 'amount_paid', 'updated_at'])
-
-    payment.status = PaymentStatus.CAPTURED
-    payment.razorpay_payment_id = razorpay_payment_id
-    payment.razorpay_signature = razorpay_signature
-    payment.paid_at = timezone.now()
-    payment.save(update_fields=[
-        'status', 'razorpay_payment_id', 'razorpay_signature', 'paid_at',
-    ])
-
-    BookingStatusLog.objects.create(
-        booking=booking,
-        from_status=old_status,
-        to_status=BookingStatus.CONFIRMED,
-        changed_by=source,
-        reason=f'Payment captured via {source}',
-    )
-
-    try:
-        send_booking_confirmed(booking)
-    except Exception as e:
-        logger.exception("Email notification failed after confirmation: %s", e)
-
-    logger.info('Booking %s successfully CONFIRMED via %s.', booking.id, source)
 
 
 # ─────────────────────────────────────────────────────────────────────────────
@@ -412,10 +361,10 @@ def razorpay_webhook(request):
             logger.info("Authoritative confirmation via webhook: event=%s, payment=%s, booking=%s", 
                         event_id, razorpay_payment_id, booking.id)
             
-            _confirm_booking(
-                booking=booking,
-                payment=payment,
+            Booking.confirm_payment(
+                booking_id=booking.id,
                 razorpay_payment_id=razorpay_payment_id,
+                amount_paid=payment.amount,
                 source='webhook',
             )
             logger.info("Booking %s confirmed successfully via webhook event %s", booking.id, event_id)
@@ -436,13 +385,19 @@ def payment_retry(request, booking_id):
     Show retry page. If slot lock is still active, let user try again.
     If lock expired, redirect to expired page.
     """
-    booking = get_object_or_404(
-        Booking.objects.select_related('service', 'worker', 'branch', 'guest'),
-        id=booking_id,
-    )
+    try:
+        booking = Booking.objects.select_related('service', 'worker', 'branch', 'guest').get(id=booking_id)
+    except Booking.DoesNotExist:
+        return redirect('payments:expired', booking_id=booking_id)
 
     if booking.status == BookingStatus.CONFIRMED:
         return redirect('bookings:confirmation', booking_id=booking.id)
+
+    # Prevent retry if payment was already captured (webhook might be a few seconds late)
+    payment = getattr(booking, 'payment', None)
+    if payment and payment.status == PaymentStatus.CAPTURED:
+        logger.info('Retry prevented: Payment for %s is already CAPTURED.', booking.id)
+        return redirect(f"/payments/success-pending/{booking.id}/?token={booking.access_token}")
 
     # Check if lock is still valid
     lock = booking.slot_lock if hasattr(booking, 'slot_lock') else None
@@ -473,36 +428,49 @@ def payment_expired(request, booking_id):
 # Success Pending (Intermediate state for UI-only callback)
 # ─────────────────────────────────────────────────────────────────────────────
 
+@require_GET
 def success_pending(request, booking_id):
     """
     Intermediate page shown while we wait for webhook confirmation.
     Automatically redirects to confirmation page once booking status is CONFIRMED.
     Supports session-less access via token.
+    Must NEVER crash. Gets safe DB lock status.
     """
     token = request.GET.get('token')
     
-    if token:
-        booking = get_object_or_404(
-            Booking.objects.select_related('service', 'branch'),
-            id=booking_id,
-            access_token=token
-        )
-    else:
-        # Fallback to session
-        booking = get_object_or_404(
-            Booking.objects.select_related('service', 'branch'),
-            id=booking_id
-        )
-        # Verify session inbox if no token
-        inbox = request.session.get('booking_inbox', [])
-        if str(booking.id) not in inbox:
-             return render(request, 'payments/error.html', {
-                'message': 'Access denied. Please use the link sent to your email.',
-                'title': 'Restricted Access'
-            })
+    try:
+        if token:
+            booking = Booking.objects.select_related('service', 'branch').get(id=booking_id, access_token=token)
+        else:
+            booking = Booking.objects.select_related('service', 'branch').get(id=booking_id)
+            
+            # Verify session inbox if no token
+            inbox = request.session.get('booking_inbox', [])
+            if str(booking.id) not in inbox:
+                # Fallback: if there's a Payment and they somehow got here, let them see it
+                if not getattr(booking, 'payment', None):
+                    return render(request, 'payments/error.html', {
+                        'message': 'Access denied. Please use the secure link sent to your email.',
+                        'title': 'Restricted Access'
+                    })
+    except Booking.DoesNotExist:
+        return render(request, 'payments/error.html', {
+            'message': 'Booking not found or access token invalid.',
+            'title': 'Error'
+        })
+    except Exception as exc:
+        logger.exception("Unexpected error in success_pending: %s", exc)
+        return render(request, 'payments/error.html', {
+            'message': 'An unexpected error occurred verifying your payment. Rest assured we are checking it.',
+            'title': 'System Processing'
+        })
 
     if booking.status == BookingStatus.CONFIRMED:
         return redirect(f"/bookings/confirmation/{booking.id}/?token={booking.access_token}")
+
+    payment = getattr(booking, 'payment', None)
+    if payment and payment.status == PaymentStatus.FAILED:
+        return redirect('payments:retry', booking_id=booking.id)
 
     return render(request, 'payments/success_pending.html', {
         'booking': booking,
@@ -514,23 +482,27 @@ def success_pending(request, booking_id):
 # JSON API: Check Payment Status
 # ─────────────────────────────────────────────────────────────────────────────
 
+@require_GET
 def check_payment_status(request, booking_id):
     """
     JSON endpoint for frontend polling.
     Returns current booking status.
-    Requires session OR valid access_token.
+    Requires session OR valid access_token OR existing payment match.
     """
     token = request.GET.get('token')
     
-    if token:
-        booking = Booking.objects.filter(id=booking_id, access_token=token).first()
-    else:
-        # Fallback to session
-        inbox = request.session.get('booking_inbox', [])
-        if str(booking_id) in inbox:
-            booking = Booking.objects.filter(id=booking_id).first()
+    try:
+        if token:
+            booking = Booking.objects.filter(id=booking_id, access_token=token).first()
         else:
-            booking = None
+            booking = Booking.objects.filter(id=booking_id).first()
+            if booking:
+                inbox = request.session.get('booking_inbox', [])
+                if str(booking.id) not in inbox and not getattr(booking, 'payment', None):
+                    booking = None
+    except Exception as exc:
+        logger.exception("Error checking payment status: %s", exc)
+        return JsonResponse({'status': 'ERROR'}, status=500)
 
     if not booking:
         return JsonResponse({'status': 'NOT_FOUND'}, status=404)
