@@ -328,6 +328,9 @@ def step7_review(request):
         return redirect('bookings:step5_slots')
 
     if request.method == 'POST':
+        logger.info('[BOOKING] step7_review POST received. payment_type=%s, worker_id=%s', 
+                    request.POST.get('payment_type', 'deposit'), worker_id)
+
         # ── Handle Payment Type Selection ─────────────────────────────────────
         payment_type = request.POST.get('payment_type', 'deposit')  # 'deposit' or 'full'
         set_booking_session(request, {'payment_type': payment_type})
@@ -386,7 +389,7 @@ def step7_review(request):
                 notes=s.get('notes', ''),
             )
         except Exception as exc:
-            logger.exception('Failed to create pending booking')
+            logger.exception('[BOOKING] Failed to create pending booking during step7 POST: %s', exc)
             release_slot_lock(lock)
             messages.error(request, 'Could not create booking. Please try again.')
             return redirect('bookings:step7_review')
