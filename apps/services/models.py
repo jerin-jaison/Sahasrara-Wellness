@@ -24,9 +24,17 @@ class Service(BaseModel):
     )
     name = models.CharField(max_length=150)
     description = models.TextField(blank=True)
+    DURATION_CHOICES = [
+        (30, "30 Minutes"),
+        (45, "45 Minutes"),
+        (60, "60 Minutes"),
+        (90, "90 Minutes"),
+    ]
+
     duration_minutes = models.PositiveIntegerField(
+        choices=DURATION_CHOICES,
         validators=[MinValueValidator(30)],
-        help_text='Session duration in minutes (30 or 45)',
+        help_text='Session duration in minutes',
     )
     buffer_minutes = models.PositiveIntegerField(
         default=0,

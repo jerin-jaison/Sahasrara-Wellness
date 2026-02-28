@@ -56,6 +56,7 @@
     /* ── Duration radio cards ──────────────────────────────────────── */
     .duration-cards {
         display: flex;
+        flex-wrap: wrap;
         gap: 14px;
         margin-top: 8px;
     }
@@ -72,7 +73,7 @@
         background: #1a1a1a;
         transition: border-color .18s, background .18s, box-shadow .18s;
         user-select: none;
-        min-width: 120px;
+        min-width: 100px;
         text-align: center;
     }
 
@@ -81,7 +82,7 @@
         background: #222;
     }
 
-    .duration-card-label input[type="radio"] {
+    .duration-card-label input[type="checkbox"] {
         width: 16px;
         height: 16px;
         accent-color: var(--gold);
@@ -160,7 +161,7 @@
             <label class="duration-card-label {% if choice.data.selected %}selected{% endif %}"
                 id="dur-lbl-{{ choice.data.value }}">
                 {{ choice.tag }}
-                <span class="duration-minutes-label">{{ choice.choice_label|cut:" minutes" }}</span>
+                <span class="duration-minutes-label">{{ choice.choice_label|cut:" Minutes" }}</span>
                 <span class="duration-text-label">minutes</span>
             </label>
             {% endfor %}
@@ -176,15 +177,26 @@
                 {{ form.buffer_minutes }}
                 <div class="form-hint">Cleanup / reset time after session.</div>
             </div>
-            <div class="form-group" id="price30Wrapper" style="display: none;">
+            <!-- Dynamic price fields for each duration -->
+            <div class="form-group price-field" data-duration="30" id="price30Wrapper" style="display: none;">
                 <label class="form-label">Price (30m) *</label>
                 {{ form.price_30 }}
                 {% if form.price_30.errors %}<div class="form-error">{{ form.price_30.errors.0 }}</div>{% endif %}
             </div>
-            <div class="form-group" id="price45Wrapper" style="display: none;">
+            <div class="form-group price-field" data-duration="45" id="price45Wrapper" style="display: none;">
                 <label class="form-label">Price (45m) *</label>
                 {{ form.price_45 }}
                 {% if form.price_45.errors %}<div class="form-error">{{ form.price_45.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group price-field" data-duration="60" id="price60Wrapper" style="display: none;">
+                <label class="form-label">Price (60m) *</label>
+                {{ form.price_60 }}
+                {% if form.price_60.errors %}<div class="form-error">{{ form.price_60.errors.0 }}</div>{% endif %}
+            </div>
+            <div class="form-group price-field" data-duration="90" id="price90Wrapper" style="display: none;">
+                <label class="form-label">Price (90m) *</label>
+                {{ form.price_90 }}
+                {% if form.price_90.errors %}<div class="form-error">{{ form.price_90.errors.0 }}</div>{% endif %}
             </div>
         </div>
     </div>
@@ -214,14 +226,19 @@
     });
 
     // ── Duration checkbox: highlight selected card & toggle prices ──────
-    var p30 = document.getElementById('price30Wrapper');
-    var p45 = document.getElementById('price45Wrapper');
-
     function syncPrices() {
-        var checked30 = document.querySelector('input[value="30"]').checked;
-        var checked45 = document.querySelector('input[value="45"]').checked;
-        p30.style.display = checked30 ? 'block' : 'none';
-        p45.style.display = checked45 ? 'block' : 'none';
+        // Hide all price fields first
+        document.querySelectorAll('.price-field').forEach(function (el) {
+            el.style.display = 'none';
+        });
+        // Show price fields for checked durations
+        document.querySelectorAll('#durationCards input[type="checkbox"]').forEach(function (cb) {
+            if (cb.checked) {
+                var dur = cb.value;
+                var wrapper = document.getElementById('price' + dur + 'Wrapper');
+                if (wrapper) wrapper.style.display = 'block';
+            }
+        });
     }
 
     document.querySelectorAll('#durationCards input[type="checkbox"]').forEach(function (cb) {

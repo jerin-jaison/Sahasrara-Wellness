@@ -31,10 +31,15 @@
 
 <div class="premium-card mx-auto" style="max-width: 800px;">
     <div class="duration-filter-container">
-        <div class="duration-toggle" id="duration-toggle" onclick="toggleDuration()">
-            <div class="active-glider"></div>
-            <div class="duration-option active" data-value="30">30 Mins</div>
-            <div class="duration-option" data-value="45">45 Mins</div>
+        <div class="duration-radio-group" id="duration-radio-group">
+            {% for service in services %}
+            {% with dur=service.duration_minutes %}
+            {% if dur not in seen_durations %}
+            <!-- durations collected via JS below -->
+            {% endif %}
+            {% endwith %}
+            {% endfor %}
+            <!-- Duration buttons rendered by JS from actual service data -->
         </div>
     </div>
 
@@ -58,29 +63,89 @@
     </form>
 </div>
 
+<style>
+    .duration-radio-group {
+        display: inline-flex;
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid var(--border-subtle);
+        border-radius: 50px;
+        padding: 4px;
+        position: relative;
+        gap: 0;
+    }
+
+    .duration-radio-btn {
+        padding: 8px 20px;
+        border-radius: 50px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        color: var(--text-muted);
+        cursor: pointer;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        user-select: none;
+        text-align: center;
+        border: none;
+        background: transparent;
+        position: relative;
+        z-index: 1;
+    }
+
+    .duration-radio-btn.active {
+        color: #000;
+        background: var(--gold-gradient);
+        box-shadow: 0 2px 8px rgba(198, 164, 90, 0.3);
+    }
+
+    @media (max-width: 480px) {
+        .duration-radio-btn {
+            padding: 8px 14px;
+            font-size: 0.8rem;
+        }
+    }
+</style>
+
 <script>
-    let currentDuration = 30;
+    let currentDuration = null;
 
-    function toggleDuration() {
-        const toggle = document.getElementById('duration-toggle');
-        const options = toggle.querySelectorAll('.duration-option');
+    // Discover unique durations from actual service cards
+    function getAvailableDurations() {
+        const durations = new Set();
+        document.querySelectorAll('.service-card').forEach(card => {
+            durations.add(parseInt(card.getAttribute('data-duration')));
+        });
+        return Array.from(durations).sort((a, b) => a - b);
+    }
 
-        currentDuration = currentDuration === 30 ? 45 : 30;
+    function buildDurationButtons() {
+        const group = document.getElementById('duration-radio-group');
+        const durations = getAvailableDurations();
 
-        if (currentDuration === 45) {
-            toggle.classList.add('show-45');
-        } else {
-            toggle.classList.remove('show-45');
+        if (durations.length <= 1) {
+            // Only one duration or no services — hide the filter
+            group.parentElement.style.display = 'none';
+            currentDuration = durations[0] || null;
+            return;
         }
 
-        options.forEach(opt => {
-            if (parseInt(opt.getAttribute('data-value')) === currentDuration) {
-                opt.classList.add('active');
-            } else {
-                opt.classList.remove('active');
-            }
+        group.innerHTML = '';
+        durations.forEach((dur, idx) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'duration-radio-btn' + (idx === 0 ? ' active' : '');
+            btn.setAttribute('data-value', dur);
+            btn.textContent = dur + ' Mins';
+            btn.onclick = function () { selectDuration(dur); };
+            group.appendChild(btn);
         });
 
+        currentDuration = durations[0];
+    }
+
+    function selectDuration(dur) {
+        currentDuration = dur;
+        document.querySelectorAll('.duration-radio-btn').forEach(btn => {
+            btn.classList.toggle('active', parseInt(btn.getAttribute('data-value')) === dur);
+        });
         filterServices();
     }
 
@@ -90,7 +155,7 @@
 
         services.forEach(card => {
             const duration = parseInt(card.getAttribute('data-duration'));
-            if (duration === currentDuration) {
+            if (currentDuration === null || duration === currentDuration) {
                 card.style.display = 'block';
                 visibleCount++;
             } else {
@@ -135,6 +200,7 @@
 
     document.addEventListener('DOMContentLoaded', function () {
         document.getElementById('continue-btn').disabled = true;
+        buildDurationButtons();
         filterServices();
     });
 </script>

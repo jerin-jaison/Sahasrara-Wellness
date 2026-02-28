@@ -65,10 +65,7 @@ def service_edit(request, pk):
         durations = form.cleaned_data.get('durations', [])
         branches = form.cleaned_data.get('branches', [])
         
-        # Save the primary instance (this updates the one we're currently editing)
-        # Note: We must set its duration based on what's available
-        # If the current duration is still in the checked list, keep it.
-        # Otherwise, pick the first one checked.
+        # Save the primary instance
         old_duration = svc.duration_minutes
         if str(old_duration) in durations:
             svc.duration_minutes = old_duration
@@ -83,7 +80,7 @@ def service_edit(request, pk):
         svc.save()
         svc.branches.set(branches)
         
-        # Now handle sync: for other selected durations, update or create.
+        # Handle sync: for other selected durations, update or create.
         for d_min in durations:
             d_int = int(d_min)
             if d_int == svc.duration_minutes:

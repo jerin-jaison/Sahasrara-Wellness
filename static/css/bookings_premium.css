@@ -234,47 +234,7 @@ body {
     margin-bottom: 1.5rem;
 }
 
-.duration-toggle {
-    display: inline-flex;
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid var(--border-subtle);
-    border-radius: 50px;
-    padding: 4px;
-    position: relative;
-    cursor: pointer;
-    user-select: none;
-}
-
-.duration-option {
-    padding: 8px 24px;
-    border-radius: 50px;
-    font-size: 0.85rem;
-    font-weight: 600;
-    color: var(--text-muted);
-    transition: var(--transition-smooth);
-    position: relative;
-    z-index: 1;
-}
-
-.duration-option.active {
-    color: #000;
-}
-
-.duration-toggle .active-glider {
-    position: absolute;
-    height: calc(100% - 8px);
-    width: calc(50% - 4px);
-    background: var(--gold-gradient);
-    border-radius: 50px;
-    top: 4px;
-    left: 4px;
-    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 0;
-}
-
-.duration-toggle.show-45 .active-glider {
-    transform: translateX(100%);
-}
+/* Duration filter uses inline styles in the template */
 
 /* Service Card Expandable Details */
 .service-description-toggle {
