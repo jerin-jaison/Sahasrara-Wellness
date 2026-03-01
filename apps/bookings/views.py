@@ -18,7 +18,6 @@ from apps.branches.models import Branch
 from apps.guests.models import Guest
 from apps.services.models import Service
 from apps.workers.models import Worker
-from apps.notifications.emails import send_booking_confirmed
 from apps.dashboard.forms import WEEKDAY_CHOICES
 
 from .engine import (
@@ -453,13 +452,6 @@ def booking_confirmation(request, booking_id):
         request.session['booking_inbox'] = inbox
         request.session.modified = True
 
-        # Send confirmation email once (guard against resend on page refresh)
-        emailed_set = request.session.get('_confirmed_emails_sent', [])
-        if bid not in emailed_set:
-            send_booking_confirmed(booking)
-            emailed_set.append(bid)
-            request.session['_confirmed_emails_sent'] = emailed_set
-            request.session.modified = True
 
         # Clear the booking flow session (start fresh for next booking)
         clear_booking_session(request)

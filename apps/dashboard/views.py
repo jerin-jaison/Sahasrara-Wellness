@@ -349,11 +349,7 @@ def manual_booking(request):
                     changed_by=request.user.username,
                     reason='Manual booking — payment waived',
                 )
-                try:
-                    from apps.notifications.emails import send_booking_confirmed
-                    send_booking_confirmed(booking)
-                except Exception:
-                    pass
+
 
                 messages.success(request, f'Manual booking created: #{str(booking.id)[:8].upper()}')
                 return redirect('dashboard:booking_detail', booking_id=booking.id)

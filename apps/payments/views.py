@@ -29,7 +29,7 @@ from django.views.decorators.http import require_GET, require_POST
 
 from apps.bookings.models import Booking, BookingStatus, BookingStatusLog
 from apps.bookings.session import get_booking_session
-from apps.notifications.emails import send_booking_confirmed
+
 from .models import Payment, PaymentStatus
 from .receipts import get_receipt_context
 
