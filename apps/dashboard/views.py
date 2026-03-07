@@ -67,7 +67,7 @@ def dashboard_logout(request):
 def overview(request):
     today = date.today()
 
-    qs = Booking.objects.all()
+    qs = Booking.objects.filter(hidden_from_dashboard=False)
     kpis = {
         'today_confirmed':  qs.filter(booking_date=today, status=BookingStatus.CONFIRMED).count(),
         'today_total':      qs.filter(booking_date=today).exclude(status=BookingStatus.EXPIRED).count(),
@@ -89,7 +89,7 @@ def overview(request):
 
     todays_bookings = (
         Booking.objects
-        .filter(booking_date=today)
+        .filter(booking_date=today, hidden_from_dashboard=False)
         .exclude(status__in=[BookingStatus.EXPIRED, BookingStatus.CANCELLED])
         .select_related('guest', 'service', 'worker', 'branch')
         .order_by('start_time')
@@ -100,10 +100,12 @@ def overview(request):
         booking_date__gt=today,
         booking_date__lte=week_end,
         status=BookingStatus.CONFIRMED,
+        hidden_from_dashboard=False,
     ).count()
 
     recent_bookings = (
         Booking.objects
+        .filter(hidden_from_dashboard=False)
         .select_related('guest', 'service', 'worker', 'branch')
         .exclude(status=BookingStatus.EXPIRED)
         .order_by('-created_at')[:5]
@@ -127,6 +129,7 @@ def overview(request):
 def booking_list(request):
     qs = (
         Booking.objects
+        .filter(hidden_from_dashboard=False)
         .select_related('guest', 'service', 'worker', 'branch')
         .order_by('-booking_date', '-start_time')
     )
@@ -386,14 +389,42 @@ def revenue_data(request):
             year  -= 1
         total = (
             Booking.objects
-            .filter(booking_date__year=year, booking_date__month=month, status=BookingStatus.CONFIRMED)
+            .filter(booking_date__year=year, booking_date__month=month,
+                    status=BookingStatus.CONFIRMED, hidden_from_dashboard=False)
             .aggregate(total=Sum('amount_paid'))['total'] or Decimal('0')
         )
         months.append({
             'label':   date(year, month, 1).strftime('%b %Y'),
             'revenue': float(total),
             'count':   Booking.objects.filter(
-                booking_date__year=year, booking_date__month=month, status=BookingStatus.CONFIRMED,
+                booking_date__year=year, booking_date__month=month,
+                status=BookingStatus.CONFIRMED, hidden_from_dashboard=False,
             ).count(),
         })
     return JsonResponse({'months': months})
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Clear History (PIN-protected bulk hide)
+# ─────────────────────────────────────────────────────────────────────────────
+
+CLEAR_HISTORY_PIN = '9847'
+
+@require_POST
+@dashboard_admin_required
+def clear_history(request):
+    """PIN-protected view that marks ALL bookings as hidden_from_dashboard=True.
+    Data is preserved in the database; only hidden from admin views."""
+    import json
+    try:
+        body = json.loads(request.body)
+        pin  = str(body.get('pin', '')).strip()
+    except (ValueError, AttributeError):
+        pin = request.POST.get('pin', '').strip()
+
+    if pin != CLEAR_HISTORY_PIN:
+        return JsonResponse({'success': False, 'error': 'Incorrect PIN. Please try again.'}, status=403)
+
+    count = Booking.objects.filter(hidden_from_dashboard=False).update(hidden_from_dashboard=True)
+    logger.info('Admin %s cleared history — %d bookings hidden.', request.user.username, count)
+    return JsonResponse({'success': True, 'hidden_count': count})

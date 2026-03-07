@@ -125,6 +125,11 @@ class Booking(BaseModel):
         default=False,
         help_text='True if created by admin on behalf of customer (payment waived)',
     )
+    hidden_from_dashboard = models.BooleanField(
+        default=False,
+        db_index=True,
+        help_text='Hides this booking from the admin dashboard view (data is preserved in DB)',
+    )
 
     class Meta:
         verbose_name = 'Booking'

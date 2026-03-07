@@ -120,10 +120,11 @@
         }
 
         .hero-title {
-            font-size: clamp(3.5rem, 8vw, 6.5rem);
-            line-height: 0.95;
-            letter-spacing: -1px;
+            font-size: clamp(1.5rem, 4vw, 3.5rem);
+            line-height: 1.1;
+            letter-spacing: -0.5px;
             margin-bottom: 24px;
+            font-family: 'Century Gothic', sans-serif;
         }
 
         .text-gold {
@@ -137,6 +138,7 @@
             letter-spacing: 4px;
             margin-bottom: 16px;
             font-weight: 600;
+            font-family: 'Century Gothic', sans-serif;
         }
 
         /* ── Navbar ───────────────────────────────────────────────────────────── */
@@ -439,8 +441,8 @@
     <section class="hero">
         <div class="container">
             <div class="hero-subtitle" data-aos="fade-up">A Sanctuary for Wellness</div>
-            <h1 class="hero-title text-white garamond" data-aos="fade-up" data-aos-delay="100">
-            Embark on a journey to <span class="text-gold">Wholeness</span>
+            <h1 class="hero-title text-white" data-aos="fade-up" data-aos-delay="100">
+                Embark on a journey to <br><span class="text-gold">Wholeness</span>
             </h1>
             <p class="lead text-white-50 mb-4 mx-auto" style="max-width: 600px;" data-aos="fade-up"
                 data-aos-delay="200">
@@ -466,7 +468,9 @@
                     <div class="hero-subtitle">We Are Sahasrara Wellness</div>
                     <h2 class="display-4 text-white garamond mb-4">Discover Your Outer Glow</h2>
                     <p class="text-white-50 fs-5 mb-4">
-                       Unlock your natural radiance and reveal a brighter, healthier you. Our expert treatments and therapies are designed to nourish and rejuvenate your skin, hair, and body, leaving you with a vibrant glow that shines from the outside in.
+                        Unlock your natural radiance and reveal a brighter, healthier you. Our expert treatments and
+                        therapies are designed to nourish and rejuvenate your skin, hair, and body, leaving you with a
+                        vibrant glow that shines from the outside in.
                     </p>
                     <p class="text-white-50 mb-5">
                         Our master therapists utilize ancient techniques blended with modern excellence to provide a
@@ -494,7 +498,8 @@
                         <h3 class="h2 text-white garamond mb-3">{{ branch.name }}</h3>
                         <p class="text-white-50 small mb-3">{{ branch.address }}</p>
                         <div class="mb-4">
-                            <span class="small text-gold fw-bold"><i class="bi bi-clock me-2"></i>{{ branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}</span>
+                            <span class="small text-gold fw-bold"><i class="bi bi-clock me-2"></i>{{
+                                branch.opening_time|time:"g:i A" }} – {{ branch.closing_time|time:"g:i A" }}</span>
                         </div>
                         <div class="d-flex flex-wrap gap-2 justify-content-center">
                             <a href="{% url 'bookings:step1_branch' %}?branch_id={{ branch.id }}"

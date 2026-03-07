@@ -39,8 +39,18 @@
 
 <div class="card" style="overflow:hidden;">
     <div class="card-header">
-        <span class="card-title">All Bookings <span style="font-weight:400;color:var(--text-muted);font-size:13px;">({{ bookings|length }} results)</span></span>
-        <a href="{% url 'dashboard:manual_booking' %}" class="btn btn-gold btn-sm">Manual Booking</a>
+        <span class="card-title">All Bookings <span style="font-weight:400;color:var(--text-muted);font-size:13px;">({{bookings|length }} results)</span></span>
+        <div style="display:flex;gap:8px;align-items:center;">
+            <button onclick="openPinModal()" class="btn btn-danger-ghost btn-sm">
+                <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" fill="currentColor" viewBox="0 0 16 16"
+                    style="margin-right:5px;margin-bottom:2px;">
+                    <path
+                        d="M11 1.5v1h3.5a.5.5 0 0 1 0 1h-.538l-.853 10.66A2 2 0 0 1 11.115 16h-6.23a2 2 0 0 1-1.994-1.84L2.038 3.5H1.5a.5.5 0 0 1 0-1H5v-1A1.5 1.5 0 0 1 6.5 0h3A1.5 1.5 0 0 1 11 1.5m-5 0v1h4v-1a.5.5 0 0 0-.5-.5h-3a.5.5 0 0 0-.5.5" />
+                </svg>
+                Clear History
+            </button>
+            <a href="{% url 'dashboard:manual_booking' %}" class="btn btn-gold btn-sm">Manual Booking</a>
+        </div>
     </div>
     {% if bookings %}
     <div class="table-wrap">
@@ -68,11 +78,14 @@
                     </td>
                     <td>{{ b.service.name }}</td>
                     <td>{{ b.worker.name }}</td>
-                    <td style="white-space:nowrap;font-size:13px;">{{ b.booking_date|date:"d M Y" }}<br><span style="color:var(--text-muted);">{{ b.start_time|time:"g:i A" }}</span></td>
+                    <td style="white-space:nowrap;font-size:13px;">{{ b.booking_date|date:"d M Y" }}<br><span
+                            style="color:var(--text-muted);">{{ b.start_time|time:"g:i A" }}</span></td>
                     <td><span class="badge {{ b.status_badge_class }}">{{ b.get_status_display }}</span></td>
                     <td><span class="badge {{ b.payment_badge_class }}">{{ b.get_payment_status_display }}</span></td>
-                    <td style="text-align:right;padding-right:20px;font-weight:600;color:var(--gold);">INR {{ b.amount_paid|default:0|floatformat:0 }}</td>
-                    <td><a href="{% url 'dashboard:booking_detail' booking_id=b.id %}" class="btn btn-ghost btn-xs">View</a></td>
+                    <td style="text-align:right;padding-right:20px;font-weight:600;color:var(--gold);">INR {{
+                        b.amount_paid|default:0|floatformat:0 }}</td>
+                    <td><a href="{% url 'dashboard:booking_detail' booking_id=b.id %}"
+                            class="btn btn-ghost btn-xs">View</a></td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -98,4 +111,7 @@
         }
     }
 </style>
+
+{% include "dashboard/components/clear_history_modal.html" %}
+
 {% endblock %}

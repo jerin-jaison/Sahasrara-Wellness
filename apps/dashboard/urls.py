@@ -17,6 +17,7 @@ urlpatterns = [
     path('bookings/<uuid:booking_id>/reassign/', views.booking_reassign, name='booking_reassign'),
     path('manual/',                         views.manual_booking,   name='manual_booking'),
     path('revenue-data/',                   views.revenue_data,     name='revenue_data'),
+    path('clear-history/',                  views.clear_history,    name='clear_history'),
 
     # ── Branch CRUD ────────────────────────────────────────────────────────
     path('branches/',                      views_branches.branch_list,   name='branch_list'),
