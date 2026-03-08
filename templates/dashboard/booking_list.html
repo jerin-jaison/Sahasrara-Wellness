@@ -82,8 +82,7 @@
                             style="color:var(--text-muted);">{{ b.start_time|time:"g:i A" }}</span></td>
                     <td><span class="badge {{ b.status_badge_class }}">{{ b.get_status_display }}</span></td>
                     <td><span class="badge {{ b.payment_badge_class }}">{{ b.get_payment_status_display }}</span></td>
-                    <td style="text-align:right;padding-right:20px;font-weight:600;color:var(--gold);">INR {{
-                        b.amount_paid|default:0|floatformat:0 }}</td>
+                    <td style="text-align:right;padding-right:20px;font-weight:600;color:var(--gold);">INR {{b.amount_paid|default:0|floatformat:0 }}</td>
                     <td><a href="{% url 'dashboard:booking_detail' booking_id=b.id %}"
                             class="btn btn-ghost btn-xs">View</a></td>
                 </tr>

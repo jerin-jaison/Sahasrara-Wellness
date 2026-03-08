@@ -5,8 +5,7 @@
 {% block content %}
 <div class="card">
     <div class="card-header">
-        <span class="card-title">All Services <span style="font-weight:400;color:var(--text-muted);font-size:13px;">({{
-                services.count }} total)</span></span>
+        <span class="card-title">All Services <span style="font-weight:400;color:var(--text-muted);font-size:13px;">({{services.count }} total)</span></span>
         <a href="{% url 'dashboard:service_create' %}" class="btn btn-gold btn-sm">＋ Add Service</a>
     </div>
     {% if services %}
