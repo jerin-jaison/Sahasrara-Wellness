@@ -3,8 +3,8 @@ from .base import *
 DEBUG = False
 
 # Render specific settings
-ALLOWED_HOSTS += ['sahasrara-wellness.onrender.com','www.sahasrarawellness.com']
-SITE_URL = 'https://sahasrara-wellness.onrender.com'
+ALLOWED_HOSTS += ['sahasrara-wellness.onrender.com', 'www.sahasrarawellness.com', 'sahasrarawellness.com']
+SITE_URL = 'https://www.sahasrarawellness.com'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
 
