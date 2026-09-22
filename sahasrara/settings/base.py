@@ -80,16 +80,11 @@ if DATABASE_URL:
         'default': dj_database_url.parse(DATABASE_URL, conn_max_age=600)
     }
 else:
-    db_user = config('DB_USER', default='postgres')
-    db_pass = config('DB_PASSWORD', default='')
-    db_host = config('DB_HOST', default='localhost')
-    db_port = config('DB_PORT', default='5432')
-    db_name = config('DB_NAME', default='sahasrara_db')
     DATABASES = {
-        'default': dj_database_url.config(
-            default=f"postgres://{db_user}:{db_pass}@{db_host}:{db_port}/{db_name}",
-            conn_max_age=600
-        )
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
 
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='http://localhost:8000,http://127.0.0.1:8000,https://sahasrara-wellness.onrender.com,https://*.onrender.com', cast=Csv())
