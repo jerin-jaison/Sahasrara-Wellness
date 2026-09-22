@@ -45,3 +45,7 @@ def error_500(request):
 def error_403(request, exception=None):
     """Custom 403 handler."""
     return render(request, '403.html', status=403)
+
+def error_400(request, exception=None):
+    """Custom 400 handler."""
+    return render(request, '400.html', status=400)

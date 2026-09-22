@@ -46,6 +46,7 @@ class Payment(UUIDModel, TimestampedModel):
     webhook_event_id = models.CharField(max_length=100, blank=True, null=True)
     webhook_payload = models.JSONField(null=True, blank=True)
     paid_at = models.DateTimeField(null=True, blank=True)
+    confirmed_at = models.DateTimeField(null=True, blank=True, help_text='When our webhook completed confirmation.')
 
     class Meta:
         verbose_name = 'Payment'

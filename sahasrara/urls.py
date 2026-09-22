@@ -15,15 +15,20 @@ urlpatterns = [
     path('bookings/', include('apps.bookings.urls', namespace='bookings')),
     path('payments/', include('apps.payments.urls', namespace='payments')),
     path('dashboard/', include('apps.dashboard.urls', namespace='dashboard')),
+    path('reviews/', include('apps.reviews.urls', namespace='reviews')),
 ]
 
 # Custom Error Handlers
+handler400 = 'apps.pages.views.error_400'
 handler404 = 'apps.pages.views.error_404'
 handler500 = 'apps.pages.views.error_500'
 handler403 = 'apps.pages.views.error_403'
 
 if settings.DEBUG:
-    import debug_toolbar
-    urlpatterns = [path('__debug__/', include(debug_toolbar.urls))] + urlpatterns
+    try:
+        import debug_toolbar
+        urlpatterns = [path('__debug__/', include(debug_toolbar.urls))] + urlpatterns
+    except ImportError:
+        pass
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)

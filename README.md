@@ -68,7 +68,7 @@ A premium, luxury wellness booking platform designed to provide a tranquil and s
 
 ## 📞 Contact Us
 
-- **Phone**: +91 97470 00210 / +91 97470 00543
+- **Phone**: +91 97470 00543 / +91 97470 00543
 - **Email**: bookings@sahasrarawellness.com
 - **Instagram**: [@sahasrara.wellness](https://www.instagram.com/sahasrara.wellness)
 

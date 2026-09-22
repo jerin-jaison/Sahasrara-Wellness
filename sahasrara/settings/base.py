@@ -11,6 +11,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent.parent
 SECRET_KEY = config('SECRET_KEY')
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost,127.0.0.1,sahasrara-wellness.onrender.com,.onrender.com', cast=Csv())
+SITE_URL = config('SITE_URL', default='http://127.0.0.1:8000')
 
 DJANGO_APPS = [
     'django.contrib.admin',
@@ -36,6 +37,7 @@ LOCAL_APPS = [
     'apps.dashboard',
     'apps.notifications',
     'apps.pages',
+    'apps.reviews',
 ]
 
 INSTALLED_APPS = DJANGO_APPS + THIRD_PARTY_APPS + LOCAL_APPS

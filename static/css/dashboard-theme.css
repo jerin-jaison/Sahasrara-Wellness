@@ -557,3 +557,59 @@ h6 {
 .row {
     --bs-gutter-x: 1.25rem;
 }
+
+/* ── Manual Booking: Slot Grid & Buttons ──────────────────────────── */
+.slots-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.slot-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 100px;
+    padding: 10px 18px;
+    border-radius: 10px;
+    border: 1.5px solid var(--border);
+    background: var(--bg-surface);
+    color: var(--text) !important;
+    font-size: 13.5px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+    user-select: none;
+}
+
+.slot-btn:hover {
+    border-color: var(--gold-muted);
+    background: #222;
+}
+
+.slot-btn.active {
+    border-color: var(--gold) !important;
+    background: var(--gold-dim) !important;
+    color: var(--gold-bright) !important;
+    box-shadow: 0 0 0 3px var(--gold-glow);
+}
+
+/* Shimmer loading placeholder for slots */
+.shimmer-slot {
+    width: 100px;
+    height: 42px;
+    border-radius: 10px;
+    background: linear-gradient(90deg, #1a1a1a 25%, #2a2a2a 50%, #1a1a1a 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite linear;
+}
+
+@keyframes shimmer {
+    0% {
+        background-position: -200% 0;
+    }
+
+    100% {
+        background-position: 200% 0;
+    }
+}

@@ -1,5 +1,5 @@
 """Dashboard forms with:
- - ServiceForm: checkbox branch cards + radio duration (60/90 only)
+ - ServiceForm: checkbox branch cards + dynamic multi-duration support
 """
 from django import forms
 from apps.branches.models import Branch, BranchSchedule
@@ -11,7 +11,7 @@ _ctrl  = {'class': 'form-control'}
 _check = {'class': 'form-check-input'}
 _ta    = lambda r: {'class': 'form-control', 'rows': r}
 
-DURATION_CHOICES = [(60, '60 minutes'), (90, '90 minutes')]
+DURATION_CHOICES = Service.DURATION_CHOICES
 
 WEEKDAY_CHOICES = [
     ('0', 'Monday'), ('1', 'Tuesday'), ('2', 'Wednesday'),
@@ -74,7 +74,7 @@ class BranchForm(forms.ModelForm):
 
 
 class ServiceForm(forms.ModelForm):
-    # Multiple duration choices (60 or 90)
+    # Multiple duration choices (30, 45, 60, 90 — all from model)
     durations = forms.MultipleChoiceField(
         choices=DURATION_CHOICES,
         widget=forms.CheckboxSelectMultiple(attrs={'class': 'duration-checkbox'}),
@@ -89,17 +89,6 @@ class ServiceForm(forms.ModelForm):
         error_messages={'required': 'Please select at least one branch.'},
     )
 
-    price_60 = forms.DecimalField(
-        max_digits=8, decimal_places=2, required=False,
-        widget=forms.NumberInput(attrs={**_ctrl, 'min': 0, 'step': '1', 'placeholder': 'Price for 60m'}),
-        label="Price (60m)"
-    )
-    price_90 = forms.DecimalField(
-        max_digits=8, decimal_places=2, required=False,
-        widget=forms.NumberInput(attrs={**_ctrl, 'min': 0, 'step': '1', 'placeholder': 'Price for 90m'}),
-        label="Price (90m)"
-    )
-
     class Meta:
         model  = Service
         fields = ['branches', 'name', 'description', 'buffer_minutes', 'is_active']
@@ -112,33 +101,48 @@ class ServiceForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+
+        # Dynamically create price fields for each duration
+        for dur_val, dur_label in DURATION_CHOICES:
+            field_name = f'price_{dur_val}'
+            self.fields[field_name] = forms.DecimalField(
+                max_digits=8, decimal_places=2, required=False,
+                widget=forms.NumberInput(attrs={
+                    **_ctrl, 'min': 0, 'step': '1',
+                    'placeholder': f'Price for {dur_val}m'
+                }),
+                label=f"Price ({dur_val}m)"
+            )
+
         if self.instance and self.instance.pk:
-            # Pre-select the current duration by default
+            # Pre-select the current duration
             self.initial['durations'] = [str(self.instance.duration_minutes)]
             
-            # Load prices for current and existing variants
-            if self.instance.duration_minutes == 60:
-                self.initial['price_60'] = self.instance.price
-            elif self.instance.duration_minutes == 90:
-                self.initial['price_90'] = self.instance.price
+            # Load price for current variant
+            current_dur = self.instance.duration_minutes
+            self.initial[f'price_{current_dur}'] = self.instance.price
             
-            # Look for the OTHER variant to pre-fill its price too
-            other_duration = 90 if self.instance.duration_minutes == 60 else 60
-            other_svc = Service.objects.filter(name=self.instance.name, duration_minutes=other_duration).first()
-            if other_svc:
-                self.initial[f'price_{other_duration}'] = other_svc.price
-                # Also ensure the duration checkbox is checked for the other one
-                if str(other_duration) not in self.initial['durations']:
-                    self.initial['durations'] = [str(60), str(90)]
+            # Look for OTHER variants with the same name to pre-fill their prices
+            other_variants = Service.objects.filter(
+                name=self.instance.name
+            ).exclude(pk=self.instance.pk)
+            
+            for other_svc in other_variants:
+                d = other_svc.duration_minutes
+                self.initial[f'price_{d}'] = other_svc.price
+                # Also ensure the duration checkbox is checked
+                if str(d) not in self.initial['durations']:
+                    self.initial['durations'].append(str(d))
 
     def clean(self):
         cleaned_data = super().clean()
         durations = cleaned_data.get('durations', [])
         
-        if '60' in durations and not cleaned_data.get('price_60'):
-            self.add_error('price_60', 'Price for 60 minutes is required.')
-        if '90' in durations and not cleaned_data.get('price_90'):
-            self.add_error('price_90', 'Price for 90 minutes is required.')
+        for dur_str in durations:
+            dur_int = int(dur_str)
+            field_name = f'price_{dur_int}'
+            if not cleaned_data.get(field_name):
+                self.add_error(field_name, f'Price for {dur_int} minutes is required.')
             
         return cleaned_data
 
@@ -146,10 +150,11 @@ class ServiceForm(forms.ModelForm):
 class WorkerForm(forms.ModelForm):
     class Meta:
         model  = Worker
-        fields = ['branch', 'name', 'phone', 'bio', 'is_active']
+        fields = ['branch', 'name', 'phone', 'location', 'bio', 'is_active']
         widgets = {
             'branch':      forms.Select(attrs=_ctrl),
             'name':        forms.TextInput(attrs={**_ctrl, 'placeholder': 'Full name'}),
+            'location':    forms.TextInput(attrs={**_ctrl, 'placeholder': 'Working location…'}),
             'bio':         forms.Textarea(attrs={**_ta(3), 'placeholder': 'Short therapist bio…'}),
             'phone':       forms.TextInput(attrs={**_ctrl, 'placeholder': '+91 …'}),
             'is_active':   forms.CheckboxInput(attrs=_check),

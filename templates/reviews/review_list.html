@@ -1,0 +1,127 @@
+{% extends "base_site.html" %}
+{% load static %}
+
+{% block title %}Guest Reviews — Sahasrara Wellness{% endblock %}
+
+{% block extra_css %}
+<style>
+    .reviews-hero {
+        padding: 120px 0 60px;
+        background: linear-gradient(to bottom, rgba(8, 8, 8, 0.4), var(--dark-depth));
+        text-align: center;
+    }
+
+    .review-card {
+        background: var(--dark-surface);
+        border: 1px solid var(--border-subtle);
+        border-radius: 24px;
+        overflow: hidden;
+        transition: all 0.4s var(--ease);
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .review-card:hover {
+        border-color: var(--gold);
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.4);
+    }
+
+    .instagram-embed-container {
+        position: relative;
+        width: 100%;
+        background: #000;
+        display: flex;
+        justify-content: center;
+        align-items: flex-start;
+        min-height: 400px;
+        /* Base height for Reels */
+    }
+
+    .instagram-media {
+        margin: 0 !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        width: 100% !important;
+        min-width: 100% !important;
+    }
+
+    .review-info {
+        padding: 20px;
+        text-align: center;
+    }
+
+    .client-name {
+        color: var(--gold);
+        font-family: 'Cormorant Garamond', serif;
+        font-size: 1.4rem;
+        margin-bottom: 4px;
+        font-weight: 600;
+    }
+
+    .view-on-insta {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+        text-decoration: none;
+        transition: color 0.3s;
+    }
+
+    .view-on-insta:hover {
+        color: var(--gold);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="reviews-hero">
+    <div class="container">
+        <div class="hero-subtitle" data-aos="fade-up">Testimonials</div>
+        <h1 class="display-3 text-white garamond mb-3" data-aos="fade-up" data-aos-delay="100">
+            Voices of <span class="text-gold">Serenity</span>
+        </h1>
+        <p class="lead text-white-50 mx-auto" style="max-width: 600px;" data-aos="fade-up" data-aos-delay="200">
+            Real experiences from our sanctuary. See how Sahasrara transforms the journey of wellness.
+        </p>
+    </div>
+</section>
+
+<section class="section-padding pt-0">
+    <div class="container">
+        {% if reviews %}
+        <div class="row g-4 justify-content-center">
+            {% for review in reviews %}
+            <div class="col-md-6 col-lg-4" data-aos="fade-up" data-aos-delay="{{ forloop.counter0 }}00">
+                <div class="review-card">
+                    <div class="instagram-embed-container" id="embed-{{ review.id }}">
+                        <blockquote class="instagram-media" data-instgrm-permalink="{{ review.clean_url }}"
+                            data-instgrm-version="14">
+                            <a href="{{ review.clean_url }}"></a>
+                        </blockquote>
+                    </div>
+                    <div class="review-info">
+                        {% comment %} <h3 class="client-name">{{ review.client_name }}</h3> {% endcomment %}
+                        <a href="{{ review.instagram_url }}" target="_blank" class="view-on-insta">
+                            <i class="bi bi-instagram"></i> View on Instagram
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="text-center py-5" data-aos="fade-up">
+            <i class="bi bi-chat-heart text-muted mb-3 d-block" style="font-size: 3rem;"></i>
+            <h3 class="text-white garamond">Beautiful Stories Coming Soon</h3>
+            <p class="text-white-50">We are currently curating the best experiences from our guests.</p>
+            <a href="{% url 'bookings:step1_branch' %}" class="btn-booking d-inline-block mt-3 px-5 py-3">Start Your
+                Story</a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Instagram Embed Script -->
+<script async src="//www.instagram.com/embed.js"></script>
+{% endblock %}

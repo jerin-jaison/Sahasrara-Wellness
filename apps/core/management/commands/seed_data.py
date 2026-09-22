@@ -4,7 +4,7 @@ Seed management command.
 Populates the database with initial demo data:
   - 2 branches
   - 4 workers (2 per branch) with weekly schedules
-  - 8 services (4 per branch, 2 x 60-min, 2 x 90-min variants)
+  - 8 services (4 per branch, 2 x 30-min, 2 x 45-min variants)
 
 Usage:
     python manage.py seed_data
@@ -59,15 +59,15 @@ class Command(BaseCommand):
         self.stdout.write('Seeding services...')
         services_data = [
             # Branch 1 services
-            {'branch': branch1, 'name': 'Swedish Massage', 'duration_minutes': 60,  'price': 1200, 'description': 'A classic relaxation massage using long smooth strokes to ease tension and improve circulation.'},
-            {'branch': branch1, 'name': 'Swedish Massage', 'duration_minutes': 90,  'price': 1700, 'description': 'A classic relaxation massage using long smooth strokes to ease tension and improve circulation.'},
-            {'branch': branch1, 'name': 'Deep Tissue Massage', 'duration_minutes': 60, 'price': 1400, 'description': 'Targets deeper layers of muscle and connective tissue to relieve chronic pain and tension.'},
-            {'branch': branch1, 'name': 'Deep Tissue Massage', 'duration_minutes': 90, 'price': 1900, 'description': 'Targets deeper layers of muscle and connective tissue to relieve chronic pain and tension.'},
+            {'branch': branch1, 'name': 'Swedish Massage', 'duration_minutes': 30,  'price': 1200, 'description': 'A classic relaxation massage using long smooth strokes to ease tension and improve circulation.'},
+            {'branch': branch1, 'name': 'Swedish Massage', 'duration_minutes': 45,  'price': 1700, 'description': 'A classic relaxation massage using long smooth strokes to ease tension and improve circulation.'},
+            {'branch': branch1, 'name': 'Deep Tissue Massage', 'duration_minutes': 30, 'price': 1400, 'description': 'Targets deeper layers of muscle and connective tissue to relieve chronic pain and tension.'},
+            {'branch': branch1, 'name': 'Deep Tissue Massage', 'duration_minutes': 45, 'price': 1900, 'description': 'Targets deeper layers of muscle and connective tissue to relieve chronic pain and tension.'},
             # Branch 2 services
-            {'branch': branch2, 'name': 'Swedish Massage', 'duration_minutes': 60,  'price': 1200, 'description': 'A classic relaxation massage using long smooth strokes to ease tension and improve circulation.'},
-            {'branch': branch2, 'name': 'Swedish Massage', 'duration_minutes': 90,  'price': 1700, 'description': 'A classic relaxation massage using long smooth strokes to ease tension and improve circulation.'},
-            {'branch': branch2, 'name': 'Aromatherapy Massage', 'duration_minutes': 60, 'price': 1350, 'description': 'Combines the benefits of massage with the healing properties of essential oils for deep relaxation.'},
-            {'branch': branch2, 'name': 'Aromatherapy Massage', 'duration_minutes': 90, 'price': 1850, 'description': 'Combines the benefits of massage with the healing properties of essential oils for deep relaxation.'},
+            {'branch': branch2, 'name': 'Swedish Massage', 'duration_minutes': 30,  'price': 1200, 'description': 'A classic relaxation massage using long smooth strokes to ease tension and improve circulation.'},
+            {'branch': branch2, 'name': 'Swedish Massage', 'duration_minutes': 45,  'price': 1700, 'description': 'A classic relaxation massage using long smooth strokes to ease tension and improve circulation.'},
+            {'branch': branch2, 'name': 'Aromatherapy Massage', 'duration_minutes': 30, 'price': 1350, 'description': 'Combines the benefits of massage with the healing properties of essential oils for deep relaxation.'},
+            {'branch': branch2, 'name': 'Aromatherapy Massage', 'duration_minutes': 45, 'price': 1850, 'description': 'Combines the benefits of massage with the healing properties of essential oils for deep relaxation.'},
         ]
         for svc in services_data:
             Service.objects.get_or_create(

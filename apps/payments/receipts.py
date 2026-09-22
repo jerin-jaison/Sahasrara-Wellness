@@ -28,7 +28,7 @@ def get_receipt_context(booking):
         'payment': payment,
         'business': {
             'name': 'Sahasrara Wellness',
-            'phone': '+91 97470 00210',
+            'phone': '+91 97470 00543',
             'email': 'bookings@sahasrarawellness.com',
             'gstin_placeholder': 'GSTIN: [To be updated]',
         },

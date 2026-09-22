@@ -1,0 +1,63 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+{% block page_title %}{{ title }}{% endblock %}
+
+{% block content %}
+<nav class="breadcrumb">
+    <a href="{% url 'dashboard:overview' %}">Dashboard</a>
+    <span class="breadcrumb-sep">/</span>
+    <a href="{% url 'dashboard:review_list' %}">Guest Reviews</a>
+    <span class="breadcrumb-sep">/</span>
+    <span class="breadcrumb-current">{{ title }}</span>
+</nav>
+
+<div class="form-section">
+    <div class="form-section-title">{{ title }}</div>
+    <form method="post">
+        {% csrf_token %}
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Client Name</label>
+                {{ form.client_name }}
+                {% if form.client_name.errors %}
+                <div class="form-error">{{ form.client_name.errors.0 }}</div>
+                {% endif %}
+            </div>
+            <div class="form-group">
+                <label class="form-label">Sort Order</label>
+                {{ form.sort_order }}
+                <div class="form-hint">Lower numbers appear first.</div>
+                {% if form.sort_order.errors %}
+                <div class="form-error">{{ form.sort_order.errors.0 }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Instagram URL</label>
+            {{ form.instagram_url }}
+            <div class="form-hint">Paste the full URL of the Instagram Reel or Post.</div>
+            {% if form.instagram_url.errors %}
+            <div class="form-error">{{ form.instagram_url.errors.0 }}</div>
+            {% endif %}
+        </div>
+
+        <div class="form-group mb-4">
+            <div class="form-check-wrap"
+                onclick="document.getElementById('{{ form.is_published.id_for_label }}').click()">
+                {{ form.is_published }}
+                <label class="form-check-label" for="{{ form.is_published.id_for_label }}">
+                    Publish on public site
+                </label>
+            </div>
+        </div>
+
+        <div class="d-flex gap-3">
+            <button type="submit" class="btn btn-gold px-5">Save Review</button>
+            <a href="{% url 'dashboard:review_list' %}" class="btn btn-ghost px-4">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

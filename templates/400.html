@@ -1,0 +1,11 @@
+{% extends 'errors/base_error.html' %}
+
+{% block title %}400 - Bad Request{% endblock %}
+
+{% block error_code %}400{% endblock %}
+{% block error_title %}Sanctuary Out of Reach{% endblock %}
+
+{% block error_message %}
+The request received by our sanctuary seems to be malformed or incomplete.
+Please ensure your connection is stable and try again.
+{% endblock %}

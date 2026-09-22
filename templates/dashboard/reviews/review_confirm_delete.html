@@ -1,0 +1,22 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Delete Review{% endblock %}
+{% block page_title %}Delete Review{% endblock %}
+
+{% block content %}
+<div class="card card-gold mx-auto" style="max-width: 500px; margin-top: 40px;">
+    <div class="text-center mb-4">
+        <div class="display-4 text-danger mb-3">⚠️</div>
+        <h3 class="card-title">Confirm Deletion</h3>
+        <p class="text-muted">Are you sure you want to delete the review from <strong>{{ review.client_name }}</strong>?
+        </p>
+        <p class="small text-danger">This action cannot be undone.</p>
+    </div>
+
+    <form method="post" class="d-flex gap-3 justify-content-center">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger px-4">Yes, Delete</button>
+        <a href="{% url 'dashboard:review_list' %}" class="btn btn-ghost px-4">Cancel</a>
+    </form>
+</div>
+{% endblock %}

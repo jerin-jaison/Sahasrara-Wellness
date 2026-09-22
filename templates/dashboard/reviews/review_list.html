@@ -1,0 +1,155 @@
+{% extends "dashboard/base.html" %}
+
+{% block title %}Guest Reviews{% endblock %}
+{% block page_title %}Guest Reviews{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h2 class="page-header-title">Guest Reviews</h2>
+        <p class="page-header-sub">Manage Instagram video testimonials displayed on the public site.</p>
+    </div>
+    <div class="page-header-actions">
+        <a href="{% url 'dashboard:review_create' %}" class="btn btn-gold">
+            <span>+ Add Review</span>
+        </a>
+    </div>
+</div>
+
+<style>
+    /* 
+       SAHASRARA DASHBOARD — REVIEWS TABLE STYLE OVERRIDE
+       Reason: Forcing high-visibility black text and removing hover "flashes".
+    */
+    .review-card {
+        background: #ffffff !important;
+        border-radius: 12px;
+        overflow: hidden;
+        border: 1px solid #e0e0e0 !important;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05) !important;
+    }
+
+    .review-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0 !important;
+        background: #ffffff !important;
+    }
+
+    .review-table thead th {
+        background: #111111 !important;
+        color: #c9a24a !important;
+        /* Gold */
+        padding: 14px 16px !important;
+        text-transform: uppercase;
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-align: left;
+        border: none !important;
+    }
+
+    .review-table tbody td {
+        background: #ffffff !important;
+        color: #000000 !important;
+        padding: 14px 16px !important;
+        border-bottom: 1px solid #f0f0f0 !important;
+        font-size: 14px;
+        font-weight: 500 !important;
+        vertical-align: middle;
+    }
+
+    /* Override global ivory text rules */
+    body.dashboard .review-table tbody td,
+    body.dashboard .review-table tbody td div,
+    body.dashboard .review-table tbody td span,
+    body.dashboard .review-table tbody td strong {
+        color: #000000 !important;
+    }
+
+    /* Links on white background */
+    .review-table .link {
+        color: #0066cc !important;
+        text-decoration: underline !important;
+        font-weight: 600;
+    }
+
+    /* Disable hover flash/animation */
+    .review-table tbody tr:hover td {
+        background: #fcfcfc !important;
+        color: #000000 !important;
+        transform: none !important;
+        transition: none !important;
+    }
+
+    /* Action buttons consistency */
+    .btn-xs {
+        padding: 6px 12px !important;
+        font-weight: 600 !important;
+        border-radius: 6px !important;
+    }
+
+    /* Status Badges */
+    .badge-active {
+        background: #e6ffed !important;
+        color: #1a7f37 !important;
+        border: 1px solid #2da44e33 !important;
+    }
+
+    .badge-inactive {
+        background: #f6f8fa !important;
+        color: #57606a !important;
+        border: 1px solid #d0d7de !important;
+    }
+</style>
+
+<div class="card review-card">
+    <div class="table-wrap">
+        <table class="review-table">
+            <thead>
+                <tr>
+                    <th>Sort</th>
+                    <th>Client Name</th>
+                    <th>Instagram URL</th>
+                    <th>Status</th>
+                    <th>Created At</th>
+                    <th class="text-end">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for review in reviews %}
+                <tr>
+                    <td class="fw-bold" style="color:#b8860b !important;">{{ review.sort_order }}</td>
+                    <td>{{ review.client_name }}</td>
+                    <td>
+                        <a href="{{ review.instagram_url }}" target="_blank" class="link small">
+                            View on Instagram <i class="bi bi-box-arrow-up-right ms-1"></i>
+                        </a>
+                    </td>
+                    <td>
+                        {% if review.is_published %}
+                        <span class="badge badge-active">Published</span>
+                        {% else %}
+                        <span class="badge badge-inactive">Hidden</span>
+                        {% endif %}
+                    </td>
+                    <td>{{ review.created_at|date:"d M Y" }}</td>
+                    <td class="text-end">
+                        <div class="d-flex justify-content-end gap-2">
+                            <a href="{% url 'dashboard:review_edit' review.pk %}" class="btn btn-xs btn-ghost">Edit</a>
+                            <a href="{% url 'dashboard:review_delete' review.pk %}"
+                                class="btn btn-xs btn-danger">Delete</a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="text-center py-5">
+                        <div class="text-muted">No reviews found. Start by adding one!</div>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

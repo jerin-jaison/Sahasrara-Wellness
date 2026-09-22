@@ -6,7 +6,9 @@
         </div>
         <div class="flex-grow-1">
             <h6 class="mb-0 fw-bold text-white">{{ worker.name }}</h6>
-            <p class="small text-muted mb-0">{{ worker.branch.city }}</p>
+            <p class="small text-muted mb-0">
+                {% if worker.location %}{{ worker.location }}{% else %}{{ worker.branch.city }}{% endif %}
+            </p>
         </div>
         <div class="selection-indicator">
             <i class="bi {% if selected %}bi-check-circle-fill gold{% else %}bi-circle{% endif %}"></i>

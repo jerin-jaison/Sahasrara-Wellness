@@ -1,0 +1,330 @@
+{% load static %}
+{% csrf_token %}
+
+<!-- ══ PIN MODAL OVERLAY ══════════════════════════════════════════════════════ -->
+<div id="pinModalOverlay" style="
+    display:none;position:fixed;inset:0;z-index:9999;
+    background:rgba(0,0,0,0.85);backdrop-filter:blur(8px);
+    align-items:center;justify-content:center;
+" onclick="handleOverlayClick(event)">
+    <div id="pinModalCard" style="
+        background:linear-gradient(160deg,#141414,#0d0d0d);
+        border:1px solid rgba(201,162,39,0.2);
+        border-radius:24px;
+        padding:44px 40px 36px;
+        width:360px;max-width:92vw;
+        box-shadow:0 40px 80px rgba(0,0,0,0.7),0 0 0 1px rgba(201,162,39,0.06);
+        text-align:center;position:relative;
+        animation:pinCardIn 0.35s cubic-bezier(0.22,1,0.36,1) both;
+    ">
+        <!-- Icon -->
+        <div style="
+            width:56px;height:56px;border-radius:50%;
+            background:rgba(201,162,39,0.08);border:1px solid rgba(201,162,39,0.25);
+            display:flex;align-items:center;justify-content:center;
+            margin:0 auto 20px;
+        ">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="rgba(201,162,39,0.9)"
+                viewBox="0 0 16 16">
+                <path
+                    d="M8 1a2 2 0 0 1 2 2v4H6V3a2 2 0 0 1 2-2m3 6V3a3 3 0 0 0-6 0v4a2 2 0 0 0-2 2v5a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2" />
+            </svg>
+        </div>
+
+        <h3 style="font-size:20px;font-weight:700;color:#fff;margin-bottom:6px;letter-spacing:-0.3px;">Clear All History
+        </h3>
+        <p style="font-size:13px;color:rgba(255,255,255,0.45);margin-bottom:28px;line-height:1.6;">
+            This will permanently hide all booking records<br>from the dashboard. Data is preserved in the database.
+        </p>
+
+        <!-- PIN dot display -->
+        <div style="display:flex;gap:14px;justify-content:center;margin-bottom:28px;" id="pinDots">
+            <div class="pin-dot" id="dot-0"></div>
+            <div class="pin-dot" id="dot-1"></div>
+            <div class="pin-dot" id="dot-2"></div>
+            <div class="pin-dot" id="dot-3"></div>
+        </div>
+
+        <!-- Hidden real input -->
+        <input id="pinInput" type="password" inputmode="numeric" maxlength="4" autocomplete="off"
+            style="opacity:0;position:absolute;width:1px;height:1px;pointer-events:none;"
+            oninput="handlePinInput(this.value)">
+
+        <!-- Number pad -->
+        <div id="numPad"
+            style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;max-width:240px;margin:0 auto 20px;">
+            {% for n in "123456789" %}
+            <button onclick="padPress('{{ n }}')" class="numpad-btn">{{ n }}</button>
+            {% endfor %}
+            <button onclick="padPress('')" class="numpad-btn"
+                style="color:rgba(255,255,255,0.3);font-size:18px;">⌫</button>
+            <button onclick="padPress('0')" class="numpad-btn">0</button>
+            <button onclick="padPress('✓')" class="numpad-btn" id="confirmBtn"
+                style="background:rgba(201,162,39,0.12);color:rgba(201,162,39,0.9);border-color:rgba(201,162,39,0.25);">✓</button>
+        </div>
+
+        <!-- Error message -->
+        <div id="pinError" style="
+            display:none;color:#ff6b6b;font-size:13px;font-weight:500;
+            background:rgba(255,107,107,0.07);border:1px solid rgba(255,107,107,0.2);
+            border-radius:8px;padding:8px 14px;margin-bottom:16px;
+        "></div>
+
+        <!-- Cancel -->
+        <button onclick="closePinModal()" style="
+            background:none;border:none;color:rgba(255,255,255,0.3);
+            font-size:13px;cursor:pointer;padding:4px 8px;
+            transition:color 0.2s;
+        " onmouseover="this.style.color='rgba(255,255,255,0.6)'" onmouseout="this.style.color='rgba(255,255,255,0.3)'">
+            Cancel
+        </button>
+
+        <!-- Success overlay -->
+        <div id="pinSuccess" style="
+            display:none;position:absolute;inset:0;border-radius:24px;
+            background:rgba(13,13,13,0.97);align-items:center;justify-content:center;
+            flex-direction:column;gap:16px;
+        ">
+            <div style="
+                width:64px;height:64px;border-radius:50%;
+                background:rgba(201,162,39,0.1);border:2px solid rgba(201,162,39,0.5);
+                display:flex;align-items:center;justify-content:center;
+                animation:scaleIn 0.4s cubic-bezier(0.22,1,0.36,1);
+            ">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" fill="rgba(201,162,39,0.9)"
+                    viewBox="0 0 16 16">
+                    <path
+                        d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0" />
+                </svg>
+            </div>
+            <div style="color:rgba(201,162,39,0.9);font-weight:600;font-size:15px;">History Cleared</div>
+            <div style="color:rgba(255,255,255,0.4);font-size:12px;">Reloading dashboard…</div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .pin-dot {
+        width: 14px;
+        height: 14px;
+        border-radius: 50%;
+        border: 2px solid rgba(201, 162, 39, 0.3);
+        background: transparent;
+        transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+
+    .pin-dot.filled {
+        background: rgba(201, 162, 39, 0.9);
+        border-color: rgba(201, 162, 39, 0.9);
+        transform: scale(1.15);
+        box-shadow: 0 0 10px rgba(201, 162, 39, 0.3);
+    }
+
+    .numpad-btn {
+        background: rgba(255, 255, 255, 0.04);
+        border: 1px solid rgba(255, 255, 255, 0.07);
+        border-radius: 12px;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 18px;
+        font-weight: 600;
+        height: 52px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+    }
+
+    .numpad-btn:hover {
+        background: rgba(201, 162, 39, 0.08);
+        border-color: rgba(201, 162, 39, 0.2);
+        color: rgba(201, 162, 39, 0.9);
+        transform: scale(1.04);
+    }
+
+    .numpad-btn:active {
+        transform: scale(0.95);
+        background: rgba(201, 162, 39, 0.12);
+    }
+
+    .btn-danger-ghost {
+        background: rgba(255, 80, 80, 0.06);
+        border: 1px solid rgba(255, 80, 80, 0.2);
+        color: rgba(255, 120, 120, 0.85);
+        border-radius: 8px;
+        padding: 6px 14px;
+        font-size: 12px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        letter-spacing: 0.3px;
+    }
+
+    .btn-danger-ghost:hover {
+        background: rgba(255, 80, 80, 0.12);
+        border-color: rgba(255, 80, 80, 0.4);
+        color: #ff6b6b;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(255, 80, 80, 0.15);
+    }
+
+    @keyframes pinCardIn {
+        from {
+            opacity: 0;
+            transform: scale(0.92) translateY(12px);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1) translateY(0);
+        }
+    }
+
+    @keyframes scaleIn {
+        from {
+            opacity: 0;
+            transform: scale(0.5);
+        }
+
+        to {
+            opacity: 1;
+            transform: scale(1);
+        }
+    }
+
+    @keyframes shake {
+
+        0%,
+        100% {
+            transform: translateX(0);
+        }
+
+        20% {
+            transform: translateX(-8px);
+        }
+
+        40% {
+            transform: translateX(8px);
+        }
+
+        60% {
+            transform: translateX(-5px);
+        }
+
+        80% {
+            transform: translateX(5px);
+        }
+    }
+</style>
+
+<script>
+    var _pinValue = '';
+
+    function openPinModal() {
+        _pinValue = '';
+        updateDots();
+        document.getElementById('pinError').style.display = 'none';
+        document.getElementById('pinSuccess').style.display = 'none';
+        document.getElementById('pinModalOverlay').style.display = 'flex';
+        document.getElementById('pinInput').focus();
+    }
+
+    function closePinModal() {
+        document.getElementById('pinModalOverlay').style.display = 'none';
+        _pinValue = '';
+        updateDots();
+    }
+
+    function handleOverlayClick(e) {
+        if (e.target === document.getElementById('pinModalOverlay')) closePinModal();
+    }
+
+    function updateDots() {
+        for (var i = 0; i < 4; i++) {
+            var dot = document.getElementById('dot-' + i);
+            if (i < _pinValue.length) {
+                dot.classList.add('filled');
+            } else {
+                dot.classList.remove('filled');
+            }
+        }
+    }
+
+    function padPress(val) {
+        if (val === '') {
+            // Backspace
+            _pinValue = _pinValue.slice(0, -1);
+            document.getElementById('pinError').style.display = 'none';
+        } else if (val === '✓') {
+            submitPin();
+            return;
+        } else if (_pinValue.length < 4) {
+            _pinValue += val;
+            // Auto-submit when 4 digits entered
+            if (_pinValue.length === 4) {
+                setTimeout(submitPin, 120);
+            }
+        }
+        updateDots();
+    }
+
+    function handlePinInput(val) {
+        _pinValue = val.slice(0, 4);
+        updateDots();
+        if (_pinValue.length === 4) {
+            setTimeout(submitPin, 120);
+        }
+    }
+
+    function submitPin() {
+        if (_pinValue.length < 4) return;
+        var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+        fetch("{% url 'dashboard:clear_history' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrfToken,
+            },
+            body: JSON.stringify({ pin: _pinValue }),
+        })
+            .then(function (r) { return r.json(); })
+            .then(function (data) {
+                if (data.success) {
+                    var successEl = document.getElementById('pinSuccess');
+                    successEl.style.display = 'flex';
+                    setTimeout(function () { window.location.reload(); }, 1600);
+                } else {
+                    showPinError(data.error || 'Incorrect PIN. Try again.');
+                }
+            })
+            .catch(function () {
+                showPinError('Network error. Please try again.');
+            });
+    }
+
+    function showPinError(msg) {
+        _pinValue = '';
+        updateDots();
+        var errEl = document.getElementById('pinError');
+        errEl.textContent = msg;
+        errEl.style.display = 'block';
+        document.getElementById('pinModalCard').style.animation = 'none';
+        document.getElementById('pinDots').style.animation = 'shake 0.4s ease';
+        setTimeout(function () {
+            document.getElementById('pinDots').style.animation = '';
+        }, 450);
+    }
+
+    // Keyboard support
+    document.addEventListener('keydown', function (e) {
+        var overlay = document.getElementById('pinModalOverlay');
+        if (overlay.style.display !== 'flex') return;
+        if (e.key >= '0' && e.key <= '9') { padPress(e.key); }
+        else if (e.key === 'Backspace') { padPress(''); }
+        else if (e.key === 'Enter') { submitPin(); }
+        else if (e.key === 'Escape') { closePinModal(); }
+    });
+</script>

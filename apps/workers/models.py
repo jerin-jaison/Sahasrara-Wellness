@@ -17,6 +17,7 @@ class Worker(BaseModel):
     bio = models.TextField(blank=True)
     years_experience = models.PositiveIntegerField(default=0)
     phone = models.CharField(max_length=20, blank=True)
+    location = models.CharField(max_length=255, blank=True, help_text="Where the therapist operates (e.g. Home Service, South Mumbai)")
     is_active = models.BooleanField(default=True, db_index=True)
 
     @property

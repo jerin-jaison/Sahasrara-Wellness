@@ -53,23 +53,3 @@ class GuestInfoForm(forms.Form):
             ) from exc
 
 
-class PhoneLookupForm(forms.Form):
-    """Used on the session inbox page for phone-based booking lookup."""
-    phone = forms.CharField(
-        max_length=20,
-        label='Mobile Number',
-        widget=forms.TextInput(attrs={
-            'class': 'form-control form-control-lg',
-            'placeholder': 'Enter your mobile number to find bookings',
-            'inputmode': 'numeric',
-        }),
-    )
-
-    def clean_phone(self):
-        raw = self.cleaned_data.get('phone', '')
-        try:
-            return normalize_phone(raw)
-        except ValueError as exc:
-            raise forms.ValidationError(
-                "Please enter a valid 10-digit Indian mobile number."
-            ) from exc

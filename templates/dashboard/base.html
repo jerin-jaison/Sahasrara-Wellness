@@ -1264,10 +1264,15 @@
                 <span class="nav-icon">👤</span> Therapists
             </a>
 
-            <div class="nav-section">System</div>
+            <div class="nav-section">Marketing</div>
+            <a href="{% url 'dashboard:review_list' %}" class="nav-item {% if page == 'marketing' %}active{% endif %}">
+                <span class="nav-icon">🎬</span> Guest Reviews
+            </a>
+
+            {% comment %} <div class="nav-section">System</div>
             <a href="{% url 'admin:index' %}" class="nav-item" target="_blank">
                 <span class="nav-icon">⚙️</span> Django Admin
-            </a>
+            </a> {% endcomment %}
             <a href="{% url 'bookings:step1_branch' %}" class="nav-item" target="_blank">
                 <span class="nav-icon">🛋️</span> Guest Booking
             </a>

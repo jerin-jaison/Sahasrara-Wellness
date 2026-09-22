@@ -29,7 +29,11 @@
   <meta property="og:title" content="The Sanctuary Menu — Sahasrara Wellness">
   <meta property="og:description"
     content="A collection of master-crafted therapies designed to restore balance to your mind, body, and spirit.">
+  <meta property="og:image" content="{% static 'logo1.jpeg' %}">
   <meta property="og:url" content="https://sahasrarawellness.com/services">
+
+    <link rel="shortcut icon" href="{% static 'logo1.jpeg' %}" type="image/x-icon">
+    <link rel="apple-touch-icon" href="{% static 'logo1.jpeg' %}">
 
   <style>
     /* ── CSS Variables ───────────────────────────────────────────────────── */
@@ -556,7 +560,7 @@
 
   <!-- WhatsApp Floating Action -->
   <div class="whatsapp-float">
-    <a href="https://wa.me/919747000210?text=Hello%20Sahasrara%20Wellness,%20I'd%20like%20to%20book%20a%20session."
+    <a href="https://wa.me/919747000543?text=Hello%20Sahasrara%20Wellness,%20I'd%20like%20to%20book%20a%20session."
       class="whatsapp-btn" target="_blank" aria-label="Chat on WhatsApp">
       <i class="bi bi-whatsapp"></i>
     </a>
@@ -579,6 +583,8 @@
           <a href="/" class="nav-link-premium">Home</a>
           <a href="/about" class="nav-link-premium">About Us</a>
           <a href="/services" class="nav-link-premium active">Our Services</a>
+          <a href="/bookings/my" class="nav-link-premium">My Bookings</a>
+          <a href="/reviews" class="nav-link-premium">Reviews</a>
           <a href="/contact" class="nav-link-premium">Contact</a>
         </div>
         <div class="d-flex align-items-center">
@@ -665,7 +671,7 @@
           Our wellness consultants are here to guide you toward the perfect treatment for your needs.
         </p>
         <div class="d-flex justify-content-center gap-3 flex-wrap">
-          <a href="https://wa.me/919747000210?text=I'd%20like%20a%20consultation%20for%20a%20wellness%20service."
+          <a href="https://wa.me/919747000543?text=I'd%20like%20a%20consultation%20for%20a%20wellness%20service."
             target="_blank" class="btn-wa-cta">
             <i class="bi bi-whatsapp"></i> Get Free Consultation
           </a>

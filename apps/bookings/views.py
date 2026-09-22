@@ -18,7 +18,6 @@ from apps.branches.models import Branch
 from apps.guests.models import Guest
 from apps.services.models import Service
 from apps.workers.models import Worker
-from apps.notifications.emails import send_booking_confirmed
 from apps.dashboard.forms import WEEKDAY_CHOICES
 
 from .engine import (
@@ -37,7 +36,7 @@ from .exceptions import (
     SameDayCutoffError,
     NoWorkersAvailableError,
 )
-from .forms import GuestInfoForm, PhoneLookupForm
+from .forms import GuestInfoForm
 from .models import Booking, BookingStatus, SlotLock
 from .session import (
     get_booking_session,
@@ -328,6 +327,9 @@ def step7_review(request):
         return redirect('bookings:step5_slots')
 
     if request.method == 'POST':
+        logger.info('[BOOKING] step7_review POST received. payment_type=%s, worker_id=%s', 
+                    request.POST.get('payment_type', 'deposit'), worker_id)
+
         # ── Handle Payment Type Selection ─────────────────────────────────────
         payment_type = request.POST.get('payment_type', 'deposit')  # 'deposit' or 'full'
         set_booking_session(request, {'payment_type': payment_type})
@@ -386,7 +388,7 @@ def step7_review(request):
                 notes=s.get('notes', ''),
             )
         except Exception as exc:
-            logger.exception('Failed to create pending booking')
+            logger.exception('[BOOKING] Failed to create pending booking during step7 POST: %s', exc)
             release_slot_lock(lock)
             messages.error(request, 'Could not create booking. Please try again.')
             return redirect('bookings:step7_review')
@@ -419,28 +421,40 @@ def step7_review(request):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def booking_confirmation(request, booking_id):
-    booking = get_object_or_404(
-        Booking.objects.select_related('service', 'worker', 'branch', 'guest'),
-        id=booking_id,
-    )
-    # Add this booking ID to the session inbox
-    inbox = request.session.get('booking_inbox', [])
-    bid = str(booking.id)
-    if bid not in inbox:
-        inbox.append(bid)
-    request.session['booking_inbox'] = inbox
-    request.session.modified = True
+    """
+    Final confirmation page after successful payment.
+    Supports session-less access via token.
+    """
+    token = request.GET.get('token')
+    
+    if token:
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'worker', 'branch', 'guest'),
+            id=booking_id,
+            access_token=token
+        )
+    else:
+        booking = get_object_or_404(
+            Booking.objects.select_related('service', 'worker', 'branch', 'guest'),
+            id=booking_id
+        )
+        # Fallback to session check
+        inbox = request.session.get('booking_inbox', [])
+        if str(booking.id) not in inbox:
+            return redirect('bookings:inbox')
 
-    # Send confirmation email once (guard against resend on page refresh)
-    emailed_set = request.session.get('_confirmed_emails_sent', [])
-    if bid not in emailed_set:
-        send_booking_confirmed(booking)
-        emailed_set.append(bid)
-        request.session['_confirmed_emails_sent'] = emailed_set
+    # Add this booking ID to the session inbox (if session exists)
+    if request.session:
+        inbox = request.session.get('booking_inbox', [])
+        bid = str(booking.id)
+        if bid not in inbox:
+            inbox.append(bid)
+        request.session['booking_inbox'] = inbox
         request.session.modified = True
 
-    # Clear the booking flow session (start fresh for next booking)
-    clear_booking_session(request)
+
+        # Clear the booking flow session (start fresh for next booking)
+        clear_booking_session(request)
 
     return render(request, 'bookings/confirmation.html', {'booking': booking})
 
@@ -537,37 +551,33 @@ def api_available_workers(request):
 # ─────────────────────────────────────────────────────────────────────────────
 
 def guest_inbox(request):
+    """
+    Shows guest's bookings.
+    Retrieval strategy (Priority per Requirement 5):
+      1. Active session 'booking_inbox' (highest convenience)
+      2. Explicit access_token in URL (secure direct link)
+    """
     bookings = []
-    form = PhoneLookupForm()
+    token = request.GET.get('token')
 
-    if request.method == 'POST':
-        form = PhoneLookupForm(request.POST)
-        if form.is_valid():
-            phone = form.cleaned_data['phone']
-            try:
-                guest = Guest.objects.get(phone=phone)
-                bookings = (
-                    Booking.objects
-                    .filter(guest=guest)
-                    .select_related('service', 'worker', 'branch')
-                    .order_by('-booking_date', '-start_time')[:20]
-                )
-            except Guest.DoesNotExist:
-                messages.info(request, 'No bookings found for that mobile number.')
-    else:
-        # Show session-based bookings first (no lookups needed)
-        inbox_ids = request.session.get('booking_inbox', [])
-        if inbox_ids:
-            bookings = (
-                Booking.objects
-                .filter(id__in=inbox_ids)
-                .select_related('service', 'worker', 'branch')
-                .order_by('-booking_date', '-start_time')
-            )
+    # 1. Session lookup
+    inbox_ids = request.session.get('booking_inbox', [])
+    if inbox_ids:
+        bookings = (
+            Booking.objects
+            .filter(id__in=inbox_ids)
+            .select_related('service', 'worker', 'branch')
+            .order_by('-booking_date', '-start_time')
+        )
+
+    # 2. Token-based lookup (if not found in session)
+    if not bookings and token:
+        bookings = Booking.objects.filter(access_token=token).select_related('service', 'worker', 'branch')
+        if not bookings:
+             messages.warning(request, "Invalid or expired access token.")
 
     return render(request, 'bookings/inbox.html', {
         'bookings': bookings,
-        'form': form,
     })
 
 
