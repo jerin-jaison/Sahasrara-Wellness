@@ -1,2 +1,14 @@
--r requirements/base.txt
--r requirements/development.txt
+Django==5.1.6
+psycopg2-binary==2.9.10
+python-decouple==3.8
+Pillow==11.1.0
+razorpay==2.0.0
+django-axes==7.0.1
+django-ratelimit==4.1.0
+whitenoise==6.9.0
+dj-database-url==2.1.0
+xhtml2pdf==0.2.16
+reportlab==4.4.7
+python-bidi==0.4.2
+gunicorn==23.0.0
+sentry-sdk==2.22.0

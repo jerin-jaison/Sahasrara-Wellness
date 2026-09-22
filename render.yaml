@@ -1,0 +1,17 @@
+services:
+  - type: web
+    name: sahasrara-wellness
+    runtime: python
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput && python manage.py migrate
+    startCommand: gunicorn sahasrara.wsgi:application --timeout 120 --workers 2
+    envVars:
+      - key: PYTHON_VERSION
+        value: 3.11.10
+      - key: DJANGO_SETTINGS_MODULE
+        value: sahasrara.settings.production
+      - key: DEBUG
+        value: "False"
+      - key: ALLOWED_HOSTS
+        value: sahasrara-wellness.onrender.com,localhost,127.0.0.1
+      - key: CSRF_TRUSTED_ORIGINS
+        value: https://sahasrara-wellness.onrender.com
