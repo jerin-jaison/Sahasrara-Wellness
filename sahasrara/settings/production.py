@@ -2,11 +2,15 @@ from .base import *
 
 DEBUG = False
 
-# Hostinger VPS (Nginx proxy) settings
-ALLOWED_HOSTS += ['www.sahasrarawellness.com', 'sahasrarawellness.com']
-SITE_URL = 'https://www.sahasrarawellness.com'
+# Render & Hostinger settings
+render_extra = ['www.sahasrarawellness.com', 'sahasrarawellness.com', 'sahasrara-wellness-hxsw.onrender.com', 'sahasrara-wellness.onrender.com', '.onrender.com', '*']
+for h in render_extra:
+    if h not in ALLOWED_HOSTS:
+        ALLOWED_HOSTS.append(h)
+
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+
 
 # Nginx handles SSL at the proxy level
 SECURE_SSL_REDIRECT = False
