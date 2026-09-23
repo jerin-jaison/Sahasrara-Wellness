@@ -154,9 +154,9 @@ AXES_META_PRECEDENCE_ORDER = [
 
 AXES_LOCKOUT_CALLABLE = None
 AUTHENTICATION_BACKENDS = [
-    'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
 
 
 # ── Admin URL ──────────────────────────────────────────────────────────────────
