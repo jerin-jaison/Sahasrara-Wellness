@@ -59,3 +59,12 @@ class Command(BaseCommand):
         else:
             self.stdout.write(self.style.SUCCESS(f' Successfully updated credentials for superuser "{username}"'))
             logger.info('Updated credentials for superuser %s via ensure_superuser command.', username)
+
+        # Reset django-axes lockouts so user can log in immediately
+        try:
+            from axes.utils import reset
+            reset()
+            self.stdout.write(self.style.SUCCESS(' Successfully reset django-axes lockout logs.'))
+        except Exception as exc:
+            logger.warning('Could not reset django-axes locks: %s', exc)
+

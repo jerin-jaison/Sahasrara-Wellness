@@ -139,13 +139,21 @@ SLOT_LOCK_TTL_MINUTES = 10          # Minutes before unconfirmed lock expires
 SAME_DAY_BOOKING_CUTOFF_HOURS = 2   # Must book at least 2h before slot start
 
 # ── django-axes (brute-force protection) ───────────────────────────────────────
-AXES_FAILURE_LIMIT = 5
+AXES_FAILURE_LIMIT = 10
 AXES_COOLOFF_TIME = 1   # hours
+AXES_RESET_ON_ALL_SUCCESS = True
+AXES_PROXY_COUNT = 1
+AXES_META_PRECEDENCE_ORDER = [
+    'HTTP_X_FORWARDED_FOR',
+    'HTTP_X_REAL_IP',
+    'REMOTE_ADDR',
+]
 AXES_LOCKOUT_CALLABLE = None
 AUTHENTICATION_BACKENDS = [
     'axes.backends.AxesStandaloneBackend',
     'django.contrib.auth.backends.ModelBackend',
 ]
+
 
 # ── Admin URL ──────────────────────────────────────────────────────────────────
 ADMIN_URL = config('ADMIN_URL', default='secret-admin/')
