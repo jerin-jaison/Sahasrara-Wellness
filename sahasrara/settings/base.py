@@ -139,16 +139,18 @@ SLOT_LOCK_TTL_MINUTES = 10          # Minutes before unconfirmed lock expires
 SAME_DAY_BOOKING_CUTOFF_HOURS = 2   # Must book at least 2h before slot start
 
 # ── django-axes (brute-force protection) ───────────────────────────────────────
-AXES_FAILURE_LIMIT = 10
-AXES_COOLOFF_TIME = 1   # hours
+AXES_ENABLED = False
+AXES_FAILURE_LIMIT = 100
+AXES_COOLOFF_TIME = 0.01   # hours
 AXES_RESET_ON_ALL_SUCCESS = True
-AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = True
+AXES_LOCK_OUT_BY_COMBINATION_USER_AND_IP = False
 AXES_PROXY_COUNT = 1
 AXES_META_PRECEDENCE_ORDER = [
     'HTTP_X_FORWARDED_FOR',
     'HTTP_X_REAL_IP',
     'REMOTE_ADDR',
 ]
+
 
 AXES_LOCKOUT_CALLABLE = None
 AUTHENTICATION_BACKENDS = [

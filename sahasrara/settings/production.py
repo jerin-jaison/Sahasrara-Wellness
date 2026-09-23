@@ -10,6 +10,8 @@ for h in render_extra:
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 USE_X_FORWARDED_HOST = True
+AXES_ENABLED = False
+
 
 
 # Nginx handles SSL at the proxy level
