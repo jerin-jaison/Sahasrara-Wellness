@@ -6,8 +6,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.urls import path, include
 
+admin_url = str(getattr(settings, 'ADMIN_URL', 'secret-admin/')).strip('/') + '/'
+
 urlpatterns = [
-    path(settings.ADMIN_URL, admin.site.urls),
+    path(admin_url, admin.site.urls),
     path('', include('apps.pages.urls', namespace='pages')),
     path('branches/', include('apps.branches.urls', namespace='branches')),
     path('services/', include('apps.services.urls', namespace='services')),

@@ -1,3 +1,8 @@
 from django.urls import path
+from . import views
+
 app_name = 'workers'
-urlpatterns = []
+
+urlpatterns = [
+    path('', views.worker_list, name='index'),
+]
